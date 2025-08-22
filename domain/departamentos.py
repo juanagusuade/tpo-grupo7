@@ -72,9 +72,21 @@ def reemplazar_departamento(departamento, id, ubicacion, ambientes, capacidad, e
         print(f"Departamento con id {id} no encontrado")
         return "Departamento no encontrado"
 
-#funcion que permita listar todos los departamentos de la lista de departamentos
+# función que permite realizar una baja lógica de un departamento
+def baja_logica_departamento(departamento, id):
+    for deptos in departamento:
+        if deptos["id"] == id:
+            deptos["estado"] = "Inactivo"
+            print(f"Baja lógica realizada para el departamento con id {id}")
+            return departamento
+    else:
+        print(f"Departamento con id {id} no encontrado")
+        return "Departamento no encontrado"
+
+# función que permite listar solo los departamentos activos
 def listar_departamentos(departamento):
     for deptos in departamento:
-        print(f"ID: {deptos['id']}, Ubicación: {deptos['ubicacion']}, Ambientes: {deptos['ambientes']}, Capacidad: {deptos['capacidad']}, Estado: {deptos['estado']}, Precio por noche: {deptos['precio_noche']}")
+        if deptos["estado"] != "Inactivo":
+            print(f"ID: {deptos['id']}, Ubicación: {deptos['ubicacion']}, Ambientes: {deptos['ambientes']}, Capacidad: {deptos['capacidad']}, Estado: {deptos['estado']}, Precio por noche: {deptos['precio_noche']}")
     return departamento
 
