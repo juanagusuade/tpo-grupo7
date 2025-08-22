@@ -1,6 +1,5 @@
 #crear clases de departamento Atributos: id, ubicacion, ambientes, capacidad, estado, precio_noche.
 
-
 departamento = [
     {
         "id": 1,
@@ -8,8 +7,10 @@ departamento = [
         "ambientes": 3,
         "capacidad": 4,
         "estado": "Disponible",
-        "precio_noche": 100.0
-    },]
+        "precio_noche": 100.0,
+        "activo": True 
+    },
+]
 
 
 
@@ -21,7 +22,8 @@ def agregar_departamento(departamento, id, ubicacion, ambientes, capacidad, esta
         "ambientes": ambientes,
         "capacidad": capacidad,
         "estado": estado,
-        "precio_noche": precio_noche
+        "precio_noche": precio_noche,
+        "activo": True  # Siempre activo al crear
     }
     departamento.append(nuevo_departamento)
     return departamento 
@@ -64,7 +66,8 @@ def reemplazar_departamento(departamento, id, ubicacion, ambientes, capacidad, e
                 "ambientes": ambientes,
                 "capacidad": capacidad,
                 "estado": estado,
-                "precio_noche": precio_noche
+                "precio_noche": precio_noche,
+                "activo": True  # Al reemplazar, se asume activo
             }
             print(f"Departamento con id {id} reemplazado")
             return departamento
@@ -76,7 +79,7 @@ def reemplazar_departamento(departamento, id, ubicacion, ambientes, capacidad, e
 def baja_logica_departamento(departamento, id):
     for deptos in departamento:
         if deptos["id"] == id:
-            deptos["estado"] = "Inactivo"
+            deptos["activo"] = False
             print(f"Baja lógica realizada para el departamento con id {id}")
             return departamento
     else:
@@ -86,7 +89,7 @@ def baja_logica_departamento(departamento, id):
 # función que permite listar solo los departamentos activos
 def listar_departamentos(departamento):
     for deptos in departamento:
-        if deptos["estado"] != "Inactivo":
+        if deptos.get("activo", True):
             print(f"ID: {deptos['id']}, Ubicación: {deptos['ubicacion']}, Ambientes: {deptos['ambientes']}, Capacidad: {deptos['capacidad']}, Estado: {deptos['estado']}, Precio por noche: {deptos['precio_noche']}")
     return departamento
 
