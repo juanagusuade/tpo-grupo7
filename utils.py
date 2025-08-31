@@ -22,7 +22,7 @@ def validar_campos(*campos):
         if campo is None:
             return False
         # Para tipos que soportan len(), se chequea por vacio.
-        if hasattr(campo, '__len__') and len(campo) == 0:
+        if len(campo) == 0:
             return False
     return True
 
