@@ -1,4 +1,4 @@
-import utils
+from common.utils import generar_id_unico_diccionario
 #Crear clases de cliente Atributos: id, nombre, apellido, dni, telefono.
 clientes = [
     {
@@ -23,7 +23,7 @@ def agregar_cliente(nombre, apellido, dni, telefono):
          if clientes[i]["DNI"] == dni:
             repetido = True
          i = i + 1
-        id=utils.generar_id_unico(clientes)
+        id=generar_id_unico_diccionario(clientes)
         if repetido == False:
          nuevo_cliente = {
           "id": id,
