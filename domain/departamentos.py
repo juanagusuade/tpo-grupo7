@@ -1,95 +1,109 @@
-#crear clases de departamento Atributos: id, ubicacion, ambientes, capacidad, estado, precio_noche.
+from common.utils import generar_id_unico_diccionario
+from common.constantes import *
 
-departamento = [
-    {
-        "id": 1,
-        "ubicacion": "Centro",
-        "ambientes": 3,
-        "capacidad": 4,
-        "estado": "Disponible",
-        "precio_noche": 100.0,
-        "activo": True 
-    },
-]
+departamentos = []
 
 
 
-#funcion que permita agregar un departamento a la lista de departamentos
-def agregar_departamento(departamento, id, ubicacion, ambientes, capacidad, estado, precio_noche):
+def agregar_departamento(ubicacion, ambientes, capacidad, estado, precio_noche):
+    """Agrega un nuevo departamento a la lista"""
+    id_departamento = generar_id_unico_diccionario(departamentos, ID_DEPARTAMENTO)
     nuevo_departamento = {
-        "id": id,
-        "ubicacion": ubicacion,
-        "ambientes": ambientes,
-        "capacidad": capacidad,
-        "estado": estado,
-        "precio_noche": precio_noche,
-        "activo": True  # Siempre activo al crear
+        ID_DEPARTAMENTO: id_departamento,
+        UBICACION_DEPARTAMENTO: ubicacion,
+        AMBIENTES_DEPARTAMENTO: ambientes,
+        CAPACIDAD_DEPARTAMENTO: capacidad,
+        ESTADO_DEPARTAMENTO: estado,
+        PRECIO_DEPARTAMENTO: precio_noche,
+        ACTIVO_DEPARTAMENTO: True
     }
-    departamento.append(nuevo_departamento)
-    return departamento 
+    departamentos.append(nuevo_departamento)
+    return True
 
 
-#funcion que permita eliminar un departamento de la lista de departamentos
-def eliminar_departamento(departamento, id):
-    for deptos in departamento:
-        if deptos["id"] == id:
-            departamento.remove(deptos)
-            print(f"Departamento con id {id} eliminado")
-            return departamento
-    else:
-        print(f"Departamento con id {id} no encontrado")   
-        return "Departamento no encontrado"
+def eliminar_departamento(id_departamento):
+    """Elimina fisicamente un departamento de la lista"""
+    i = 0
+    while i < len(departamentos):
+        if departamentos[i][ID_DEPARTAMENTO] == id_departamento:
+            departamentos.pop(i)
+            return True
+        i = i + 1
+    return False
 
-#funcion que permita actualizar un departamento de la lista de departamentos
-def actualizar_departamento(departamento, id, ubicacion, ambientes, capacidad, estado, precio_noche):
-    for deptos in departamento:
-        if deptos["id"] == id:
-            deptos["ubicacion"] = ubicacion
-            deptos["ambientes"] = ambientes
-            deptos["capacidad"] = capacidad
-            deptos["estado"] = estado
-            deptos["precio_noche"] = precio_noche
-            print(f"Departamento con id {id} actualizado")
-            return departamento
-    else:
-        print(f"Departamento con id {id} no encontrado")
-        return "Departamento no encontrado"
-    
 
-#funcion que permita remplazar un departamento de la lista de departamentos
-def reemplazar_departamento(departamento, id, ubicacion, ambientes, capacidad, estado, precio_noche):
-    for i, deptos in enumerate(departamento):
-        if deptos["id"] == id:
-            departamento[i] = {
-                "id": id,
-                "ubicacion": ubicacion,
-                "ambientes": ambientes,
-                "capacidad": capacidad,
-                "estado": estado,
-                "precio_noche": precio_noche,
-                "activo": True  # Al reemplazar, se asume activo
+def actualizar_departamento(id_departamento, ubicacion, ambientes, capacidad, estado, precio_noche):
+    """Actualiza los datos de un departamento existente"""
+    i = 0
+    while i < len(departamentos):
+        if departamentos[i][ID_DEPARTAMENTO] == id_departamento:
+            departamentos[i][UBICACION_DEPARTAMENTO] = ubicacion
+            departamentos[i][AMBIENTES_DEPARTAMENTO] = ambientes
+            departamentos[i][CAPACIDAD_DEPARTAMENTO] = capacidad
+            departamentos[i][ESTADO_DEPARTAMENTO] = estado
+            departamentos[i][PRECIO_DEPARTAMENTO] = precio_noche
+            return True
+        i = i + 1
+    return False
+
+
+def reemplazar_departamento(id_departamento, ubicacion, ambientes, capacidad, estado, precio_noche):
+    """Reemplaza completamente un departamento"""
+    i = 0
+    while i < len(departamentos):
+        if departamentos[i][ID_DEPARTAMENTO] == id_departamento:
+            departamentos[i] = {
+                ID_DEPARTAMENTO: id_departamento,
+                UBICACION_DEPARTAMENTO: ubicacion,
+                AMBIENTES_DEPARTAMENTO: ambientes,
+                CAPACIDAD_DEPARTAMENTO: capacidad,
+                ESTADO_DEPARTAMENTO: estado,
+                PRECIO_DEPARTAMENTO: precio_noche,
+                ACTIVO_DEPARTAMENTO: True
             }
-            print(f"Departamento con id {id} reemplazado")
-            return departamento
-    else:
-        print(f"Departamento con id {id} no encontrado")
-        return "Departamento no encontrado"
+            return True
+        i = i + 1
+    return False
 
-# función que permite realizar una baja lógica de un departamento
-def baja_logica_departamento(departamento, id):
-    for deptos in departamento:
-        if deptos["id"] == id:
-            deptos["activo"] = False
-            print(f"Baja lógica realizada para el departamento con id {id}")
-            return departamento
-    else:
-        print(f"Departamento con id {id} no encontrado")
-        return "Departamento no encontrado"
 
-# función que permite listar solo los departamentos activos
-def listar_departamentos(departamento):
-    for deptos in departamento:
-        if deptos.get("activo", True):
-            print(f"ID: {deptos['id']}, Ubicación: {deptos['ubicacion']}, Ambientes: {deptos['ambientes']}, Capacidad: {deptos['capacidad']}, Estado: {deptos['estado']}, Precio por noche: {deptos['precio_noche']}")
-    return departamento
+def baja_logica_departamento(id_departamento):
+    """Realiza baja logica de un departamento"""
+    i = 0
+    while i < len(departamentos):
+        if departamentos[i][ID_DEPARTAMENTO] == id_departamento:
+            departamentos[i][ACTIVO_DEPARTAMENTO] = False
+            return True
+        i = i + 1
+    return False
 
+
+def alta_logica_departamento(id_departamento):
+    """Da de alta logica un departamento"""
+    i = 0
+    while i < len(departamentos):
+        if departamentos[i][ID_DEPARTAMENTO] == id_departamento:
+            departamentos[i][ACTIVO_DEPARTAMENTO] = True
+            return True
+        i = i + 1
+    return False
+
+
+def buscar_departamento_por_id(id_departamento):
+    """Busca un departamento por su ID"""
+    i = 0
+    while i < len(departamentos):
+        if departamentos[i][ID_DEPARTAMENTO] == id_departamento:
+            return departamentos[i]
+        i = i + 1
+    return None
+
+
+def listar_departamentos_activos():
+    """Lista todos los departamentos activos"""
+    departamentos_activos = []
+    i = 0
+    while i < len(departamentos):
+        if departamentos[i][ACTIVO_DEPARTAMENTO]:
+            departamentos_activos.append(departamentos[i])
+        i = i + 1
+    return departamentos_activos
