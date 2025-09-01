@@ -1,13 +1,14 @@
 from common.utils import generar_id_unico_diccionario
+from common.constantes import *
 #Crear clases de cliente Atributos: id, nombre, apellido, dni, telefono.
 clientes = [
     {
-        "id": 1,
-        "Nombre": "Carlos",
-        "Apellido": "Martinez",
-        "DNI": 39056237,
-        "Telefono":1156378923,
-        "Activo":True
+        ID_CLIENTE: 1,
+        NOMBRE_CLIENTE: "Carlos",
+        APELLIDO_CLIENTE: "Martinez",
+        DNI_CLIENTE: 39056237,
+        TELEFONO_CLIENTE:1156378923,
+        ACTIVO_CLIENTE:True
     },
 ]
 
@@ -16,22 +17,21 @@ clientes = [
 #Funcion que Permite registrar un nuevo cliente verificando que el DNI no se repita
 
 def agregar_cliente(nombre, apellido, dni, telefono):
-
         i = 0
         repetido = False
         while i < len(clientes): #Recorro la lista clientes y verifico dni repetidos
-         if clientes[i]["DNI"] == dni:
+         if clientes[i][DNI_CLIENTE] == dni:
             repetido = True
          i = i + 1
         id=generar_id_unico_diccionario(clientes)
         if repetido == False:
          nuevo_cliente = {
-          "id": id,
-          "Nombre":nombre,
-          "Apellido": apellido,
-          "DNI": dni,
-          "Telefono":telefono,
-          "Activo": True 
+          ID_CLIENTE: id,
+          NOMBRE_CLIENTE:nombre,
+          APELLIDO_CLIENTE: apellido,
+          DNI_CLIENTE: dni,
+          TELEFONO_CLIENTE:telefono,
+          ACTIVO_CLIENTE: True 
     }
          clientes.append(nuevo_cliente)
          print("Cliente agregado con éxito.")
@@ -46,7 +46,7 @@ def agregar_cliente(nombre, apellido, dni, telefono):
 def eliminar_cliente(id):
     i = 0
     while i < len(clientes):
-        if clientes[i]["id"] == id:
+        if clientes[i][ID_CLIENTE] == id:
             clientes.remove(clientes[i])
             print("Cliente con id", id, "eliminado")
             return id
@@ -59,8 +59,8 @@ def eliminar_cliente(id):
 def baja_logica_cliente(id):
     i = 0
     while i < len(clientes):
-        if clientes[i]["id"] == id:
-            clientes[i]["Estado"] = False
+        if clientes[i][ID_CLIENTE] == id:
+            clientes[i][ACTIVO_CLIENTE] = False
             print("Cliente con id", id, " dado de baja (lógica)")
             return clientes
         i = i + 1
@@ -73,9 +73,9 @@ def baja_logica_cliente(id):
 def alta_logica_cliente(id):
     i = 0
     while i < len(clientes):
-        if clientes[i]["id"] == id:
-            if clientes[i]["Estado"] == False:
-               clientes[i]["Estado"] = True
+        if clientes[i][ID_CLIENTE] == id:
+            if clientes[i][ACTIVO_CLIENTE] == False:
+               clientes[i][ACTIVO_CLIENTE] = True
                print("Cliente con id", id, " activo")
                return clientes
             else:
@@ -91,11 +91,11 @@ def alta_logica_cliente(id):
 
 def actualizar_cliente(id, nombre, apellido, dni, telefono):
     for clien in clientes:
-        if  clien["id"] == id:
-            clien["nombre"] = nombre
-            clien["apellido"] = apellido
-            clien["dni"] = dni
-            clien["telefono"] = telefono
+        if  clien[ID_CLIENTE] == id:
+            clien[NOMBRE_CLIENTE] = nombre
+            clien[APELLIDO_CLIENTE] = apellido
+            clien[DNI_CLIENTE] = dni
+            clien[TELEFONO_CLIENTE] = telefono
            
             return clientes
         else:
@@ -109,7 +109,7 @@ def buscar_cliente_por_dni(dni):
     
     i = 0
     while i < len(clientes):
-        if clientes[i]["DNI"] == dni:
+        if clientes[i][DNI_CLIENTE] == dni:
             return clientes[i]
         i = i + 1
     return None
@@ -119,7 +119,7 @@ def buscar_cliente_por_id(id_cliente):
     
     i = 0
     while i < len(clientes):
-        if clientes[i]["ID"] == id_cliente:
+        if clientes[i][ID_CLIENTE] == id_cliente:
             return clientes[i]
         i = i + 1
     return None
@@ -128,7 +128,7 @@ def buscar_cliente_por_id(id_cliente):
 
 def cliente_activo(id_cliente):
     cliente = buscar_cliente_por_id(id_cliente)
-    if cliente and "Activo" in cliente and cliente["Activo"] == True:
+    if cliente and ACTIVO_CLIENTE in cliente and cliente[ACTIVO_CLIENTE] == True:
         return True
     return False
 
@@ -142,7 +142,7 @@ def lista_clientes_copia():
 def listar_clientes_activos(id_cliente):
     clientes_activos=[]
     for cliente in clientes:
-        if cliente["Activo"] == True:
+        if cliente[ACTIVO_CLIENTE] == True:
             clientes_activos.append(cliente)
     return clientes_activos
         
