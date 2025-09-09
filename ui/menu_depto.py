@@ -38,7 +38,7 @@ def imprimir_lista(lista: list):
 
 def creacion_depto():
     mostrar_subtitulo("Crear departamento")
-    ubicacion = pedir_input_con_validacion("Ubicación", lambda valor: validar_campos(valor), "No puede estar vacío")
+    ubicacion = pedir_input_con_validacion("Ubicacion", lambda valor: validar_campos(valor), "No puede estar vacio")
     ambientes = pedir_numero_entero("Ambientes (≥ 1)", minimo=1)
     capacidad = pedir_numero_entero("Capacidad (≥ 1)", minimo=1)
     estado = pedir_estado_departamento()
@@ -61,8 +61,8 @@ def eliminar_depto_fisico():
     imprimir_lista(departamentos)
     id_dep = pedir_numero_entero("ID a eliminar", minimo=1)
 
-    if not confirmar_accion("¿Está seguro de eliminar definitivamente"):
-        mostrar_mensaje_info("Acción cancelada.")
+    if not confirmar_accion("¿Estas seguro de eliminar definitivamente"):
+        mostrar_mensaje_info("Accion cancelada.")
         pausar(); return
 
     ok = eliminar_departamento(id_dep)
@@ -86,17 +86,17 @@ def actualizar_depto():
         mostrar_mensaje_error("ID no encontrado.")
         pausar(); return
 
-    # Mostrar valores actuales y permitir mantenerlos dejando vacío
+
     idd = dep.get(ID_DEPARTAMENTO)
     ubicacion = dep.get(UBICACION_DEPARTAMENTO)
     ambientes = dep.get(AMBIENTES_DEPARTAMENTO)
     capacidad = dep.get(CAPACIDAD_DEPARTAMENTO)
     estado = dep.get(ESTADO_DEPARTAMENTO)
     precio = dep.get(PRECIO_DEPARTAMENTO)
-    # activo no se usa en este flujo
-    print(f"Dejá vacío para mantener el valor actual.")
 
-    # Ubicación opcional
+    print(f"Deja vacío para mantener el valor actual.")
+
+
     nueva_ubi = pedir_input_con_validacion(
         f"Ubicación actual [{ubicacion}] (enter para mantener)",
         lambda valor: validar_campos(valor),
@@ -131,7 +131,7 @@ def actualizar_depto():
     else:
         nueva_cap = int(val)
 
-    # Estado opcional (ofrezco atajo: ENTER = mantener, o podés volver a usar pedir_estado_departamento)
+
     print(f"Estado actual: {estado}. Si querés cambiarlo, elegí una opción; ENTER para mantener.")
     print(f"1. {ESTADO_DISPONIBLE}\n2. {ESTADO_OCUPADO}\n3. {ESTADO_MANTENIMIENTO}")
     val = pedir_input_con_validacion(
@@ -145,7 +145,7 @@ def actualizar_depto():
     else:
         nuevo_est = {"1": ESTADO_DISPONIBLE, "2": ESTADO_OCUPADO, "3": ESTADO_MANTENIMIENTO}[val]
 
-    # Precio opcional
+
     val = pedir_input_con_validacion(
         f"Precio/noche actual [{precio}] (enter para mantener)",
         lambda s: s.replace(".", "", 1).isdigit() and float(s) >= 0.01,
@@ -237,14 +237,14 @@ def buscar_depto_por_id():
         mostrar_mensaje_error("ID no encontrado.")
     pausar()
 
-
+#Funion que lista deptos activos
 def listar_deptos_activos():
     mostrar_subtitulo("Listar ACTIVOS")
     activos = listar_departamentos_activos()
     imprimir_lista(activos)
     pausar()
 
-
+#Funcion que lista deptos
 def listar_deptos():
     mostrar_subtitulo("Listar TODOS")
     imprimir_lista(departamentos)
@@ -289,6 +289,6 @@ def menu_departamentos():
             break
 
 
-# Para pruebas rápidas
+
 if __name__ == "__main__":
     menu_departamentos()
