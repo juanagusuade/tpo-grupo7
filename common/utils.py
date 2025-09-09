@@ -161,7 +161,7 @@ def pedir_input_con_validacion(prompt, funcion_validacion=None, mensaje_error="D
 
         # Si no es opcional y esta vacio, pide de nuevo
         if not valor and not es_opcional:
-            mostrar_mensaje_error("Este campo es obligatorio")
+            mostrar_mensaje_error(mensaje_error or "Este campo es obligatorio") #Cambio con el or pq antes cuando el valor estaba vacio, saltaba este mensaje y no el que pasaba por el lambda
             continue
 
         # Si hay funcion de validacion, usarla
