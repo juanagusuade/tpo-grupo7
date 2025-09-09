@@ -15,9 +15,9 @@ def imprimir_departamento(dep: dict):
 
     etiqueta_activo = f"{COLOR_VERDE}✅ ACTIVO{COLOR_RESET}" if activo else f"{COLOR_ROJO}⛔ INACTIVO{COLOR_RESET}"
 
-    print(f"\n{COLOR_AZUL}--- Departamento ---{COLOR_RESET}")
+    print(f"\n{COLOR_AZUL}Departamento{COLOR_RESET}")
     print(f"{COLOR_CYAN}ID:{COLOR_RESET} {idd}")
-    print(f"{COLOR_CYAN}Ubicación:{COLOR_RESET} {ubicacion}")
+    print(f"{COLOR_CYAN}Ubicacion:{COLOR_RESET} {ubicacion}")
     print(f"{COLOR_CYAN}Ambientes:{COLOR_RESET} {ambientes}")
     print(f"{COLOR_CYAN}Capacidad:{COLOR_RESET} {capacidad}")
     print(f"{COLOR_CYAN}Estado:{COLOR_RESET} {estado}")
@@ -106,7 +106,6 @@ def actualizar_depto():
     if nueva_ubi is None:
         nueva_ubi = ubicacion
 
-    # Ambientes opcional
     val = pedir_input_con_validacion(
         f"Ambientes actual [{ambientes}] (enter para mantener)",
         lambda s: s.isdigit(),
@@ -119,7 +118,7 @@ def actualizar_depto():
         nuevo_amb = int(val)
 
 
-    # Capacidad opcional
+
     val = pedir_input_con_validacion(
         f"Capacidad actual [{capacidad}] (enter para mantener)",
         lambda s: s.isdigit(),
