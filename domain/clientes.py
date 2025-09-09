@@ -19,39 +19,35 @@ clientes = [
 def agregar_cliente(nombre, apellido, dni, telefono):
         i = 0
         repetido = False
-        while i < len(clientes): #Recorro la lista clientes y verifico dni repetidos
-         if clientes[i][DNI_CLIENTE] == dni:
-            repetido = True
-         i = i + 1
-        id=generar_id_unico_diccionario(clientes)
-        if repetido == False:
-         nuevo_cliente = {
-          ID_CLIENTE: id,
-          NOMBRE_CLIENTE:nombre,
-          APELLIDO_CLIENTE: apellido,
-          DNI_CLIENTE: dni,
-          TELEFONO_CLIENTE:telefono,
-          ACTIVO_CLIENTE: True 
+        while i < len(clientes) and (not repetido): #Recorro la lista clientes y verifico dni repetidos
+            if clientes[i][DNI_CLIENTE] == dni:
+                repetido = True
+            i = i + 1
+            id=generar_id_unico_diccionario(clientes)
+            if repetido == False:
+                nuevo_cliente = {
+                ID_CLIENTE: id,
+                NOMBRE_CLIENTE:nombre,
+                APELLIDO_CLIENTE: apellido,
+                DNI_CLIENTE: dni,
+                TELEFONO_CLIENTE:telefono,
+                ACTIVO_CLIENTE: True 
     }
-         clientes.append(nuevo_cliente)
-         print("Cliente agregado con éxito.")
-        else:
-         print("Error: el DNI ya está registrado.")
-        return clientes
+            clientes.append(nuevo_cliente)
+         
+        
+            return True
 
 
 
 
 #Funcion que elimina un cliente fisico de la lista de clientes
 def eliminar_cliente(id):
-    i = 0
-    while i < len(clientes):
+    
+    for i in range(len(clientes)):
         if clientes[i][ID_CLIENTE] == id:
             clientes.remove(clientes[i])
-            print("Cliente con id", id, "eliminado")
             return id
-        i = i + 1
-    
     
     return False
 
@@ -65,26 +61,20 @@ def baja_logica_cliente(id):
             return clientes
         i = i + 1
     
-    
     return False
 
 #Funcion que da de alta logica  un cliente de la lista de clientes que estaba de baja
 
 def alta_logica_cliente(id):
-    i = 0
-    while i < len(clientes):
-        if clientes[i][ID_CLIENTE] == id:
-            if clientes[i][ACTIVO_CLIENTE] == False:
-               clientes[i][ACTIVO_CLIENTE] = True
-               print("Cliente con id", id, " activo")
-               return clientes
-            else:
-             print("El cliente con id", id, "ya estaba activo")
-             return clientes
-        i = i + 1
 
-    
-    return False
+
+    for clien in clientes:
+        if clien[ID_CLIENTE] == id:
+            if clien[ACTIVO_CLIENTE] == False:
+                clien[ACTIVO_CLIENTE] = True
+                return clien
+        else:
+            return False
             
 
     #Funcion que permita actualizar un cliente  de la lista de cliente
