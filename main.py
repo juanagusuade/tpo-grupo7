@@ -1,82 +1,31 @@
-# main.py
-from domain.departamentos import (
-    agregar_departamento,
-    eliminar_departamento,
-    actualizar_departamento,
-    departamentos
-)
+from ui.menu_cliente import menu_cliente
+from ui.menu_depto import menu_departamento
+from common.utils import pedir_input_con_validacion
 
 
-def mostrar_menu():
-    print("\n--- MENÚ DEPARTAMENTOS ---")
-    print("1. Agregar departamento")
-    print("2. Eliminar departamento")
-    print("3. Actualizar departamento")
-    print("4. Listar departamentos")
-    print("5. Salir")
 
-
-def listar_departamentos():
-    if not departamentos:
-        print("\nNo hay departamentos registrados.")
-        return
-
-    print("\n--- LISTADO DE DEPARTAMENTOS ---")
-    for d in departamentos:
-        print(
-            f"ID: {d['id']} | Ubicación: {d['ubicacion']} | Ambientes: {d['ambientes']} "
-            f"| Capacidad: {d['capacidad']} | Estado: {d['estado']} "
-            f"| Precio/noche: {d['precio_noche']} | Activo: {d['activo']}"
-        )
-
-
-def main():
+def menu_principal():
     while True:
-        mostrar_menu()
-        opcion = input("Elegí una opción: ")
+        print("\n" + "=" * 50)
+        print(" SISTEMA DE GESTIÓN — MENÚ PRINCIPAL")
+        print("=" * 50)
+        print("1) Menú de Clientes")
+        print("2) Menú de Departamentos")
+        #FALTARIA RESERVAS
+        print("0) Salir")
+        opcion = pedir_input_con_validacion("Elegí una opción: ").strip()
 
         if opcion == "1":
-            ubicacion = input("Ubicación: ")
-            ambientes = int(input("Ambientes: "))
-            capacidad = int(input("Capacidad: "))
-            estado = input("Estado: ")
-            precio_noche = float(input("Precio por noche: "))
-
-            if agregar_departamento(ubicacion, ambientes, capacidad, estado, precio_noche):
-                print("Departamento agregado correctamente.")
-
+                menu_cliente()
         elif opcion == "2":
-            listar_departamentos()
-            id_dep = int(input("ID del departamento a eliminar: "))
-            if eliminar_departamento(id_dep):
-                print("Departamento eliminado.")
-            else:
-                print("No se encontró ese ID.")
-
+                  menu_departamento()
         elif opcion == "3":
-            listar_departamentos()
-            id_dep = int(input("ID del departamento a actualizar: "))
-            ubicacion = input("Nueva ubicación: ")
-            ambientes = int(input("Nuevos ambientes: "))
-            capacidad = int(input("Nueva capacidad: "))
-            estado = input("Nuevo estado: ")
-            precio_noche = float(input("Nuevo precio por noche: "))
-
-            if actualizar_departamento(id_dep, ubicacion, ambientes, capacidad, estado, precio_noche):
-                print("Departamento actualizado.")
-            else:
-                print("No se encontró ese ID.")
-
-        elif opcion == "4":
-            listar_departamentos()
-
-        elif opcion == "5":
-            print("Saliendo")
+            print("Aca irian reservas xd")
+        elif opcion == "0":
+            print("Gracias por utilizar el sistema")
             break
-
         else:
-            print("Opción inválida, intenta de nuevo")
-
+            print("Opción inválida, pruebe de nuevo.")
 
 if __name__ == "__main__":
-    main()
+    menu_principal()

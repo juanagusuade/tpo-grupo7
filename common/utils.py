@@ -24,7 +24,7 @@ def generar_id_unico_lista(lista):
 def generar_id_unico_diccionario(lista, clave_id):
     """
     Genera un ID unico para lista de diccionarios.
-    Para usar con clientes y departamentos
+    Para usar con clientes y departamentos.
     lista: Lista de diccionarios
     clave_id: Nombre de la key que contiene el ID
     """
@@ -288,13 +288,3 @@ def mostrar_opciones_menu(opciones, titulo="Menu"):
     for i, opcion in enumerate(opciones, 1):
         print(f"{COLOR_CYAN}{i:2d}. {COLOR_RESET}{opcion}")
     mostrar_separador()
-
-
-
-
-
-
-
-
-
-
