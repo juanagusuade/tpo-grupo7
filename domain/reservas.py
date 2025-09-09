@@ -1,4 +1,4 @@
-from common.utils import validar_fecha, validar_campos
+from common.utils import validar_fecha, validar_campos, generar_id_unico_lista
 from common.constantes import *
 
 # Estructura: [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, estado]
@@ -29,7 +29,6 @@ def comparar_fechas_string(fecha1_str, fecha2_str):
 
 def agregar_reserva(id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str):
     """Agrega una nueva reserva"""
-    from common.utils import generar_id_unico_lista
 
     if not validar_fecha(fecha_ingreso_str) or not validar_fecha(fecha_egreso_str):
         return False

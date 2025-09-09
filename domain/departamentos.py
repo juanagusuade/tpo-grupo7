@@ -3,8 +3,6 @@ from common.constantes import *
 
 departamentos = []
 
-
-
 def agregar_departamento(ubicacion, ambientes, capacidad, estado, precio_noche):
     """Agrega un nuevo departamento a la lista"""
     id_departamento = generar_id_unico_diccionario(departamentos, ID_DEPARTAMENTO)

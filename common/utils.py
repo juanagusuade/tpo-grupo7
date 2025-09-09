@@ -1,6 +1,6 @@
 import random
 from common.constantes import *
-
+import re
 
 def generar_id_unico_lista(lista):
     """
@@ -51,10 +51,13 @@ def validar_campos(*campos):
     for campo in campos:
         if campo is None:
             return False
+
+        # Las dos validaciones de abajo se pueden hacer en una sola con un OR, pero asi es mas claro
         if isinstance(campo, str) and len(campo.strip()) == 0:
             return False
         if isinstance(campo, list) and len(campo) == 0:
             return False
+
     return True
 
 
@@ -65,61 +68,33 @@ def validar_fecha(fecha_str):
     if not isinstance(fecha_str, str):
         return False
 
-    if not fecha_str.strip():
+    # Regex para matchear el formato dd/mm/yyyy
+    patron = r"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$"
+    if not re.match(patron, fecha_str):
         return False
 
-    if len(fecha_str) != 10:
-        return False
-
-    if fecha_str[2] != '/' or fecha_str[5] != '/':
-        return False
-
+    # Divido la fecha en partes
     partes = fecha_str.split('/')
-    if len(partes) != 3:
-        return False
 
-    dia_str, mes_str, anio_str = partes
+    # Convierto cada parte a entero
+    dia = int(partes[0])
+    mes = int(partes[1])
+    anio = int(partes[2])
 
-    if not (dia_str.isdigit() and mes_str.isdigit() and anio_str.isdigit()):
-        return False
-
-    dia = int(dia_str)
-    mes = int(mes_str)
-    anio = int(anio_str)
-
-    if mes < 1 or mes > 12:
-        return False
-
-    if dia < 1 or dia > 31:
-        return False
-
-    if anio < 1900 or anio > 2100:
-        return False
-
+    # Dias del mes
     dias_por_mes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-
     es_bisiesto = (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
     if es_bisiesto:
         dias_por_mes[1] = 29
 
-    if dia > dias_por_mes[mes - 1]:
-        return False
-
-    return True
-
+    return dia <= dias_por_mes[mes - 1]
 
 def validar_numero_entero(valor_str):
     """Valida que un string represente un numero entero positivo"""
     if not isinstance(valor_str, str):
         return False
 
-    if not valor_str.strip():
-        return False
-
-    if not valor_str.isdigit():
-        return False
-
-    return int(valor_str) > 0
+    return bool(re.fullmatch(r"[1-9]\d*", valor_str))
 
 
 def validar_numero_decimal(valor_str):
@@ -127,19 +102,8 @@ def validar_numero_decimal(valor_str):
     if not isinstance(valor_str, str):
         return False
 
-    if not valor_str.strip():
-        return False
-
-    if valor_str.count('.') > 1:
-        return False
-
-    partes = valor_str.split('.')
-    if len(partes) == 1:
-        return partes[0].isdigit() and int(partes[0]) > 0
-    elif len(partes) == 2:
-        return partes[0].isdigit() and partes[1].isdigit() and int(partes[0]) >= 0
-
-    return False
+    # Regex para matchear decimales positivos
+    return bool(re.fullmatch(r"(0|[1-9]\d*)(\.\d+)?", valor_str))
 
 def pausar():
     """Pausa la ejecucion hasta que el usuario presione Enter"""
@@ -239,26 +203,29 @@ def pedir_telefono():
     )
 
 
+def validar_entero_rango(valor, minimo=1, maximo=None):
+    """Valida que un valor sea un entero dentro de un rango"""
+    if not valor.isdigit():
+        return False
+    num = int(valor)
+    if num < minimo:
+        return False
+    if maximo and num > maximo:
+        return False
+    return True
+
 def pedir_numero_entero(prompt, minimo=1, maximo=None):
     """Pide un numero entero con validacion de rango"""
-
-    def validar_entero(valor):
-        if not valor.isdigit():
-            return False
-        num = int(valor)
-        if num < minimo:
-            return False
-        if maximo and num > maximo:
-            return False
-        return True
-
     mensaje_error = f"Debe ser un numero entero mayor o igual a {minimo}"
     if maximo:
         mensaje_error += f" y menor o igual a {maximo}"
 
-    valor_str = pedir_input_con_validacion(prompt, validar_entero, mensaje_error)
+    valor_str = pedir_input_con_validacion(
+        prompt,
+        lambda valor: validar_entero_rango(valor, minimo, maximo),
+        mensaje_error
+    )
     return int(valor_str)
-
 
 def pedir_numero_decimal(prompt, minimo=0.01):
     """Pide un numero decimal con validacion"""
@@ -278,7 +245,6 @@ def pedir_fecha(prompt="Fecha (dd/mm/yyyy)"):
         validar_fecha,
         "La fecha debe tener formato dd/mm/yyyy y ser valida"
     )
-
 
 def pedir_estado_departamento():
     """Pide el estado de un departamento con opciones predefinidas"""

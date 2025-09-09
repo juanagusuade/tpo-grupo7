@@ -1,3 +1,5 @@
+from operator import indexOf
+
 from common.utils import generar_id_unico_diccionario
 from common.constantes import *
 #Crear clases de cliente Atributos: id, nombre, apellido, dni, telefono.
@@ -15,14 +17,15 @@ clientes = [
 
 
 #Funcion que Permite registrar un nuevo cliente verificando que el DNI no se repita
-
 def agregar_cliente(nombre, apellido, dni, telefono):
-        i = 0
-        repetido = False
-        while i < len(clientes): #Recorro la lista clientes y verifico dni repetidos
-         if clientes[i][DNI_CLIENTE] == dni:
+
+    i = 0
+    repetido = False
+    while i < len(clientes) and (not repetido): #Recorro la lista clientes y verifico dni repetidos
+        if clientes[i][DNI_CLIENTE] == dni:
             repetido = True
-         i = i + 1
+        i = i + 1
+
         id=generar_id_unico_diccionario(clientes)
         if repetido == False:
          nuevo_cliente = {
@@ -45,14 +48,13 @@ def agregar_cliente(nombre, apellido, dni, telefono):
 #Funcion que elimina un cliente fisico de la lista de clientes
 def eliminar_cliente(id):
     i = 0
-    while i < len(clientes):
+    for i in range(len(clientes)):
         if clientes[i][ID_CLIENTE] == id:
             clientes.remove(clientes[i])
             print("Cliente con id", id, "eliminado")
             return id
         i = i + 1
-    
-    
+
     return False
 
 #Funcion que da de baja logica  un cliente de la lista de clientes
@@ -68,7 +70,7 @@ def baja_logica_cliente(id):
     
     return False
 
-#Funcion que da de alta logica  un cliente de la lista de clientes que estaba de baja
+#Funcion que da de alta logica un cliente de la lista de clientes que estaba de baja
 
 def alta_logica_cliente(id):
     i = 0
@@ -87,7 +89,7 @@ def alta_logica_cliente(id):
     return False
             
 
-    #Funcion que permita actualizar un cliente  de la lista de cliente
+#Funcion que permita actualizar un cliente  de la lista de cliente
 
 def actualizar_cliente(id, nombre, apellido, dni, telefono):
     for clien in clientes:
@@ -106,7 +108,12 @@ def actualizar_cliente(id, nombre, apellido, dni, telefono):
  #Funcion que permita buscar cliente por DNI
    
 def buscar_cliente_por_dni(dni):
-    
+    cliente_encontrado = list(filter(lambda c: c[DNI_CLIENTE] == dni, clientes))
+
+    if len(cliente_encontrado) == 1:
+        cliente_encontrado = cliente_encontrado[0]  # Devuelve el único cliente encontrado
+    else:
+        cliente_encontrado = False  # Devuelve False si hay más de uno o ninguno
     i = 0
     while i < len(clientes):
         if clientes[i][DNI_CLIENTE] == dni:
