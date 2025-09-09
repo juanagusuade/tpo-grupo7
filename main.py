@@ -1,81 +1,66 @@
-# main.py
-from domain.departamentos import (
-    agregar_departamento,
-    eliminar_departamento,
-    actualizar_departamento,
-    departamentos
-)
+import common.interfaz as interfaz
+import common.entrada_datos as input_datos
+from ui.menu_reservas import gestionar_reservas
 
 
-def mostrar_menu():
-    print("\n--- MENÚ DEPARTAMENTOS ---")
-    print("1. Agregar departamento")
-    print("2. Eliminar departamento")
-    print("3. Actualizar departamento")
-    print("4. Listar departamentos")
-    print("5. Salir")
+def mostrar_bienvenida():
+    """Muestra el mensaje de bienvenida del sistema"""
+    interfaz.mostrar_header_principal("SISTEMA DE GESTION DE ALQUILERES TEMPORARIOS")
+    print(f"{'Grupo VII - Programacion I':^70}")
 
 
-def listar_departamentos():
-    if not departamentos:
-        print("\nNo hay departamentos registrados.")
-        return
+def mostrar_menu_principal():
+    """Muestra las opciones del menu principal"""
+    opciones = [
+        "Gestionar Clientes",
+        "Gestionar Departamentos",
+        "Gestionar Reservas",
+        "Salir"
+    ]
+    interfaz.mostrar_menu_opciones(opciones, "MENU PRINCIPAL", 50)
 
-    print("\n--- LISTADO DE DEPARTAMENTOS ---")
-    for d in departamentos:
-        print(
-            f"ID: {d['id']} | Ubicación: {d['ubicacion']} | Ambientes: {d['ambientes']} "
-            f"| Capacidad: {d['capacidad']} | Estado: {d['estado']} "
-            f"| Precio/noche: {d['precio_noche']} | Activo: {d['activo']}"
-        )
+
+def gestionar_clientes():
+    """Placeholder para el modulo de gestion de clientes"""
+    interfaz.mostrar_en_construccion("GESTION DE CLIENTES")
+
+
+def gestionar_departamentos():
+    """Placeholder para el modulo de gestion de departamentos"""
+    interfaz.mostrar_en_construccion("GESTION DE DEPARTAMENTOS")
+
+
+def confirmar_salida():
+    """Solicita confirmacion antes de salir del sistema"""
+    return input_datos.confirmar_accion("Esta seguro que desea salir del sistema")
 
 
 def main():
-    while True:
-        mostrar_menu()
-        opcion = input("Elegí una opción: ")
+    """Funcion principal del sistema"""
+    mostrar_bienvenida()
 
-        if opcion == "1":
-            ubicacion = input("Ubicación: ")
-            ambientes = int(input("Ambientes: "))
-            capacidad = int(input("Capacidad: "))
-            estado = input("Estado: ")
-            precio_noche = float(input("Precio por noche: "))
+    sistema_activo = True
 
-            if agregar_departamento(ubicacion, ambientes, capacidad, estado, precio_noche):
-                print("Departamento agregado correctamente.")
+    while sistema_activo:
+        mostrar_menu_principal()
+        opcion = input_datos.pedir_opcion_menu(4)
 
-        elif opcion == "2":
-            listar_departamentos()
-            id_dep = int(input("ID del departamento a eliminar: "))
-            if eliminar_departamento(id_dep):
-                print("Departamento eliminado.")
-            else:
-                print("No se encontró ese ID.")
+        # Procesar la opcion seleccionada
+        if opcion == '1':
+            gestionar_clientes()
+        elif opcion == '2':
+            gestionar_departamentos()
+        elif opcion == '3':
+            gestionar_reservas()
+        elif opcion == '4':
+            if confirmar_salida():
+                sistema_activo = False
 
-        elif opcion == "3":
-            listar_departamentos()
-            id_dep = int(input("ID del departamento a actualizar: "))
-            ubicacion = input("Nueva ubicación: ")
-            ambientes = int(input("Nuevos ambientes: "))
-            capacidad = int(input("Nueva capacidad: "))
-            estado = input("Nuevo estado: ")
-            precio_noche = float(input("Nuevo precio por noche: "))
+        # Separador visual entre iteraciones (excepto al salir)
+        if sistema_activo:
+            interfaz.separador_operaciones()
 
-            if actualizar_departamento(id_dep, ubicacion, ambientes, capacidad, estado, precio_noche):
-                print("Departamento actualizado.")
-            else:
-                print("No se encontró ese ID.")
-
-        elif opcion == "4":
-            listar_departamentos()
-
-        elif opcion == "5":
-            print("Saliendo")
-            break
-
-        else:
-            print("Opción inválida, intenta de nuevo")
+    interfaz.mostrar_despedida()
 
 
 if __name__ == "__main__":

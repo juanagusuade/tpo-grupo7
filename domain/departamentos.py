@@ -1,4 +1,4 @@
-from common.utils import generar_id_unico_diccionario
+from common.generadores import generar_id_unico_diccionario
 from common.constantes import *
 
 departamentos = []
