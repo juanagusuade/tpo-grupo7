@@ -1,6 +1,7 @@
 import common.interfaz as interfaz
 import common.entrada_datos as input_datos
 from ui.menu_reservas import gestionar_reservas
+from ui.menu_depto import *
 
 
 def mostrar_bienvenida():
@@ -55,6 +56,7 @@ def main():
         elif opcion == '4':
             if confirmar_salida():
                 sistema_activo = False
+        
 
         # Separador visual entre iteraciones (excepto al salir)
         if sistema_activo:
