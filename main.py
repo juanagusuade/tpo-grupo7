@@ -50,7 +50,7 @@ def main():
         if opcion == '1':
             gestionar_clientes()
         elif opcion == '2':
-            gestionar_departamentos()
+            menu_departamentos()
         elif opcion == '3':
             gestionar_reservas()
         elif opcion == '4':
