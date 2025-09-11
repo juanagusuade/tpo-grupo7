@@ -201,15 +201,6 @@ def confirmar_operacion(tipo_operacion, detalles=""):
 
 # ======================= VALIDACIONES CON LAMBDAS ESPECIALIZADAS =======================
 
-def pedir_email():
-    """Pide un email con validacion basica"""
-    return pedir_input_con_validacion(
-        "Email",
-        lambda valor: "@" in valor and "." in valor.split("@")[-1] and len(valor) >= 5,
-        "Ingrese un email valido (ejemplo@dominio.com)"
-    )
-
-
 def pedir_entero_positivo(prompt):
     """Pide un entero positivo"""
     return pedir_input_con_validacion(
@@ -217,16 +208,6 @@ def pedir_entero_positivo(prompt):
         lambda valor: valor.isdigit() and int(valor) > 0,
         "Debe ingresar un numero entero positivo"
     )
-
-
-def pedir_codigo_postal():
-    """Pide un codigo postal argentino"""
-    return pedir_input_con_validacion(
-        "Codigo Postal",
-        lambda valor: valor.isdigit() and len(valor) == 4,
-        "El codigo postal debe tener 4 digitos"
-    )
-
 
 def pedir_opcion_si_no(prompt):
     """Pide una confirmación simple si/no y retorna boolean"""
@@ -236,7 +217,6 @@ def pedir_opcion_si_no(prompt):
         "Responda con 's' para Si o 'n' para No"
     )
     return respuesta.lower() in ['s', 'si']
-
 
 # ======================= PAUSA =======================
 
