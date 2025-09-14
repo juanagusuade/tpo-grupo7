@@ -1,108 +1,96 @@
-from operator import indexOf
-
-from common.utils import generar_id_unico_diccionario
+from common.generadores import generar_id_unico_diccionario
 from common.constantes import *
-#Crear clases de cliente Atributos: id, nombre, apellido, dni, telefono.
+
+# Crear clases de cliente Atributos: id, nombre, apellido, dni, telefono.
 clientes = [
     {
         ID_CLIENTE: 1,
         NOMBRE_CLIENTE: "Carlos",
         APELLIDO_CLIENTE: "Martinez",
         DNI_CLIENTE: 39056237,
-        TELEFONO_CLIENTE:1156378923,
-        ACTIVO_CLIENTE:True
+        TELEFONO_CLIENTE: 1156378923,
+        ACTIVO_CLIENTE: True
     },
 ]
 
 
-
-#Funcion que Permite registrar un nuevo cliente verificando que el DNI no se repita
+# Funcion que Permite registrar un nuevo cliente verificando que el DNI no se repita
 def agregar_cliente(nombre, apellido, dni, telefono):
-        i = 0
-        repetido = False
-        while i < len(clientes) and (not repetido): #Recorro la lista clientes y verifico dni repetidos
-            if clientes[i][DNI_CLIENTE] == dni:
-                repetido = True
-            i = i + 1
-            id=generar_id_unico_diccionario(clientes)
-            if repetido == False:
-                nuevo_cliente = {
-                ID_CLIENTE: id,
-                NOMBRE_CLIENTE:nombre,
-                APELLIDO_CLIENTE: apellido,
-                DNI_CLIENTE: dni,
-                TELEFONO_CLIENTE:telefono,
-                ACTIVO_CLIENTE: True 
-    }
-            clientes.append(nuevo_cliente)
-         
-        
-            return True
+    i = 0
+    repetido = False
+    while i < len(clientes) and (not repetido):  # Recorro la lista clientes y verifico dni repetidos
+        if clientes[i][DNI_CLIENTE] == dni:
+            repetido = True
+        i = i + 1
+
+    id_nuevo = generar_id_unico_diccionario(clientes, ID_CLIENTE)
+    if repetido == False:
+        nuevo_cliente = {
+            ID_CLIENTE: id_nuevo,
+            NOMBRE_CLIENTE: nombre,
+            APELLIDO_CLIENTE: apellido,
+            DNI_CLIENTE: dni,
+            TELEFONO_CLIENTE: telefono,
+            ACTIVO_CLIENTE: True
+        }
+        clientes.append(nuevo_cliente)
+        return True
+    else:
+        return False
 
 
-
-
-#Funcion que elimina un cliente fisico de la lista de clientes
-def eliminar_cliente(id):
-    
-    for i in range(len(clientes)):
-        if clientes[i][ID_CLIENTE] == id:
-            clientes.remove(clientes[i])
-            return id
-    
-    return False
-
-#Funcion que da de baja logica  un cliente de la lista de clientes
-def baja_logica_cliente(id):
+# Funcion que elimina un cliente fisico de la lista de clientes
+def eliminar_cliente(id_cliente):
     i = 0
     while i < len(clientes):
-        if clientes[i][ID_CLIENTE] == id:
-            clientes[i][ACTIVO_CLIENTE] = False
-            print("Cliente con id", id, " dado de baja (lógica)")
-            return clientes
+        if clientes[i][ID_CLIENTE] == id_cliente:
+            clientes.pop(i)
+            return True
         i = i + 1
-    
     return False
 
-#Funcion que da de alta logica un cliente de la lista de clientes que estaba de baja
 
-def alta_logica_cliente(id):
+# Funcion que da de baja logica un cliente de la lista de clientes
+def baja_logica_cliente(id_cliente):
+    i = 0
+    while i < len(clientes):
+        if clientes[i][ID_CLIENTE] == id_cliente:
+            clientes[i][ACTIVO_CLIENTE] = False
+            return True
+        i = i + 1
+    return False
 
 
-    for clien in clientes:
-        if clien[ID_CLIENTE] == id:
-            if clien[ACTIVO_CLIENTE] == False:
-                clien[ACTIVO_CLIENTE] = True
-                return clien
-        else:
-            return False
-            
+# Funcion que da de alta logica un cliente de la lista de clientes que estaba de baja
+def alta_logica_cliente(id_cliente):
+    i = 0
+    while i < len(clientes):
+        if clientes[i][ID_CLIENTE] == id_cliente:
+            if clientes[i][ACTIVO_CLIENTE] == False:
+                clientes[i][ACTIVO_CLIENTE] = True
+                return True
+            else:
+                return False  # Ya estaba activo
+        i = i + 1
+    return False
 
-#Funcion que permita actualizar un cliente  de la lista de cliente
 
-def actualizar_cliente(id, nombre, apellido, dni, telefono):
-    for clien in clientes:
-        if  clien[ID_CLIENTE] == id:
-            clien[NOMBRE_CLIENTE] = nombre
-            clien[APELLIDO_CLIENTE] = apellido
-            clien[DNI_CLIENTE] = dni
-            clien[TELEFONO_CLIENTE] = telefono
-           
-            return clientes
-        else:
-        
-         return False
-    
+# Funcion que permita actualizar un cliente de la lista de cliente
+def actualizar_cliente(id_cliente, nombre, apellido, dni, telefono):
+    i = 0
+    while i < len(clientes):
+        if clientes[i][ID_CLIENTE] == id_cliente:
+            clientes[i][NOMBRE_CLIENTE] = nombre
+            clientes[i][APELLIDO_CLIENTE] = apellido
+            clientes[i][DNI_CLIENTE] = dni
+            clientes[i][TELEFONO_CLIENTE] = telefono
+            return True
+        i = i + 1
+    return False
 
- #Funcion que permita buscar cliente por DNI
-   
+
+# Funcion que permita buscar cliente por DNI
 def buscar_cliente_por_dni(dni):
-    cliente_encontrado = list(filter(lambda c: c[DNI_CLIENTE] == dni, clientes))
-
-    if len(cliente_encontrado) == 1:
-        cliente_encontrado = cliente_encontrado[0]  # Devuelve el único cliente encontrado
-    else:
-        cliente_encontrado = False  # Devuelve False si hay más de uno o ninguno
     i = 0
     while i < len(clientes):
         if clientes[i][DNI_CLIENTE] == dni:
@@ -110,9 +98,9 @@ def buscar_cliente_por_dni(dni):
         i = i + 1
     return None
 
-#Funcion que permita buscar cliente por ID y que exista en la lista
+
+# Funcion que permita buscar cliente por ID y que exista en la lista
 def buscar_cliente_por_id(id_cliente):
-    
     i = 0
     while i < len(clientes):
         if clientes[i][ID_CLIENTE] == id_cliente:
@@ -120,25 +108,24 @@ def buscar_cliente_por_id(id_cliente):
         i = i + 1
     return None
 
-#Funcion que permita verificar si un cliente esta activo
 
+# Funcion que permita verificar si un cliente esta activo
 def cliente_activo(id_cliente):
     cliente = buscar_cliente_por_id(id_cliente)
     if cliente and ACTIVO_CLIENTE in cliente and cliente[ACTIVO_CLIENTE] == True:
         return True
     return False
 
-#Funcion que permita listar todos los clientes en una copia
 
-
+# Funcion que permita listar todos los clientes en una copia
 def lista_clientes_copia():
     return clientes[:]
 
-#Funcion que permita listar todos los clientes activos 
-def listar_clientes_activos(id_cliente):
-    clientes_activos=[]
+
+# Funcion que permita listar todos los clientes activos
+def listar_clientes_activos(filtro_id=None):  # Parametro renombrado para claridad
+    clientes_activos = []
     for cliente in clientes:
         if cliente[ACTIVO_CLIENTE] == True:
             clientes_activos.append(cliente)
     return clientes_activos
-        

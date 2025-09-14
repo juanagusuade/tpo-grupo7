@@ -1,5 +1,6 @@
-from common.utils import validar_fecha, validar_campos, generar_id_unico_lista
 from common.constantes import *
+from common.generadores import generar_id_unico_lista
+from common.validaciones import validar_fecha, validar_campos
 
 # Estructura: [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, estado]
 reservas = []

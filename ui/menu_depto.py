@@ -1,4 +1,6 @@
-from common.utils import *
+from common.constantes import *
+from common.entrada_datos import *
+from common.interfaz import *
 from domain.departamentos import *
 
 
