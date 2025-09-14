@@ -20,7 +20,7 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
     """
     # Se ejecuta solo si el sistema no tiene ningun cliente
     if not clientes.listar_clientes_activos():
-        interfaz.mostrar_mensaje_info("Sistema vacio. Cargando datos de ejemplo para la demostracion...")
+        interfaz.mostrar_mensaje_info("Sistema vacio. Cargando datos de ejemplo...")
 
         # --- 1. Crear Clientes ---
         i = 0

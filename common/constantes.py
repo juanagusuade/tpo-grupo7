@@ -60,8 +60,9 @@ MARCA_ERROR = "✗"
 
 # Tupla de tuplas para almacenar usuarios validos (usuario, contrasenia)
 USUARIOS = (
-    ("admin", "admin123"),
-    ("user", "user123"),
-    ("test", "test")
+    ("evecent", "evelamaspiola123"),
+    ("baltaa", "baltalocuradelcodigo"),
+    ("valen", "valentiburondelatlantico"),
+    ("juanagus", "password1234noolvidar")
 )
 
