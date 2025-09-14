@@ -98,10 +98,4 @@ def buscar_departamento_por_id(id_departamento):
 
 def listar_departamentos_activos():
     """Lista todos los departamentos activos"""
-    departamentos_activos = []
-    i = 0
-    while i < len(departamentos):
-        if departamentos[i][ACTIVO_DEPARTAMENTO]:
-            departamentos_activos.append(departamentos[i])
-        i = i + 1
-    return departamentos_activos
+    return [depto for depto in departamentos if depto[ACTIVO_DEPARTAMENTO]]

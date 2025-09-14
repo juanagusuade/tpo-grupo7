@@ -156,10 +156,21 @@ def seleccionar_elemento_de_lista(elementos, campo_id, mensaje):
     if not elementos:
         return None
 
-    try:
-        ids_validos = [elemento[campo_id] for elemento in elementos]
-    except (TypeError, KeyError):
-        ids_validos = [elemento[campo_id] for elemento in elementos]
+    ids_validos = []
+    if not elementos:
+        return None  # Si la lista esta vacia, retorna None
+
+    # Verifica el tipo del primer elemento para decidir como actuar
+    if type(elementos[0]) == dict:
+        i = 0
+        while i < len(elementos):
+            ids_validos.append(elementos[i][campo_id])
+            i = i + 1
+    elif type(elementos[0]) == list:
+        i = 0
+        while i < len(elementos):
+            ids_validos.append(elementos[i][campo_id])
+            i = i + 1
 
     while True:
         entrada = input(f"\n{COLOR_CYAN}{mensaje}: {COLOR_RESET}").strip()

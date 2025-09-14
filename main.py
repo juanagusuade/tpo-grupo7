@@ -26,11 +26,6 @@ def gestionar_clientes():
     interfaz.mostrar_en_construccion("GESTION DE CLIENTES")
 
 
-def gestionar_departamentos():
-    """Placeholder para el modulo de gestion de departamentos"""
-    interfaz.mostrar_en_construccion("GESTION DE DEPARTAMENTOS")
-
-
 def confirmar_salida():
     """Solicita confirmacion antes de salir del sistema"""
     return input_datos.confirmar_accion("Esta seguro que desea salir del sistema")

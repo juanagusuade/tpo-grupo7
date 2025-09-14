@@ -171,7 +171,6 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
             return False
 
     # Verificar que fecha de ingreso sea anterior a fecha de egreso
-    #TODO: Evaluar si pueden ingresar el mismo dia que un egreso.
     if comparar_fechas_string(reserva[INDICE_FECHA_INGRESO], reserva[INDICE_FECHA_EGRESO]) >= 0:
         return False
 
@@ -180,31 +179,16 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
 
 def obtener_reservas_activas():
     """Obtiene todas las reservas activas"""
-    reservas_activas = []
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ESTADO] == ESTADO_ACTIVO:
-            reservas_activas.append(reserva)
-        i = i + 1
-    return reservas_activas
+    return list(filter(lambda r: r[INDICE_ESTADO] == ESTADO_ACTIVO, reservas))
 
 
 def obtener_reservas_canceladas():
     """Obtiene todas las reservas canceladas"""
-    reservas_canceladas = []
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ESTADO] == ESTADO_CANCELADO:
-            reservas_canceladas.append(reserva)
-        i = i + 1
-    return reservas_canceladas
+    return list(filter(lambda r: r[INDICE_ESTADO] == ESTADO_CANCELADO, reservas))
 
 
 def obtener_estadisticas_reservas():
     """Obtiene estadisticas basicas de las reservas"""
-    #TODO: Preguntar si hay que tomar mas estadisticas o con esas esetan bien.
     total = len(reservas)
     activas = 0
     canceladas = 0

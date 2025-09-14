@@ -10,10 +10,9 @@ def generar_id_unico_lista(lista):
         id_generado = random.randint(10000, 99999)
         existe_id = False
         i = 0
-        while i < len(lista):
+        while i < len(lista) and not existe_id:
             if lista[i][0] == id_generado:
                 existe_id = True
-                break
             i = i + 1
         if not existe_id:
             return id_generado
@@ -30,10 +29,9 @@ def generar_id_unico_diccionario(lista, clave_id):
         id_generado = random.randint(10000, 99999)
         existe_id = False
         i = 0
-        while i < len(lista):
+        while i < len(lista) and not existe_id:
             if lista[i][clave_id] == id_generado:
                 existe_id = True
-                break
             i = i + 1
         if not existe_id:
             return id_generado

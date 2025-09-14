@@ -258,7 +258,8 @@ def mostrar_menu_busqueda():
 
 def buscar_reservas_submenu():
     """Submenu para buscar reservas"""
-    while True:
+    continuar_menu = True
+    while continuar_menu:
         mostrar_menu_busqueda()
         opcion = input_datos.pedir_opcion_menu(3)
 
@@ -267,7 +268,7 @@ def buscar_reservas_submenu():
         elif opcion == '2':
             buscar_por_departamento()
         elif opcion == '3':
-            break
+            continuar_menu = False
 
 
 def buscar_por_cliente():
@@ -394,8 +395,9 @@ def listar_todas_las_reservas_activas():
 def gestionar_reservas():
     """Menu principal de gestion de reservas"""
     mostrar_header_reservas()
+    continuar_menu = True
 
-    while True:
+    while continuar_menu:
         mostrar_menu_reservas()
         opcion = pedir_opcion_reservas()
 
@@ -411,7 +413,7 @@ def gestionar_reservas():
             listar_todas_las_reservas_activas()
         elif opcion == '6':
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
-            break
+            continuar_menu = False
 
         # Pausa entre operaciones
         input_datos.pausar()

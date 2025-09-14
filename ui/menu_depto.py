@@ -267,7 +267,9 @@ def menu_departamentos():
         "Salir",
     ]
 
-    while True:
+    continuar_menu = True
+
+    while continuar_menu:
         mostrar_opciones_menu(opciones, "Opciones")
         elec = pedir_input_con_validacion(
             "Eleji una opcion (1-10)",
@@ -286,9 +288,8 @@ def menu_departamentos():
         elif elec == 8: listar_deptos_activos()
         elif elec == 9: listar_deptos()
         elif elec == 10:
-            mostrar_mensaje_info("Saliendooo")
-            break
-
+            mostrar_mensaje_info("Saliendo")
+            continuar_menu = False
 
 
 if __name__ == "__main__":

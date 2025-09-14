@@ -115,8 +115,3 @@ def validar_telefono(tel):
             return False
         i = i + 1
     return True
-
-
-def validar_opcion_estado(valor):
-    """Valida opcion de estado de departamento"""
-    return valor == "1" or valor == "2" or valor == "3"

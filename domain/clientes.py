@@ -7,8 +7,8 @@ clientes = [
         ID_CLIENTE: 1,
         NOMBRE_CLIENTE: "Carlos",
         APELLIDO_CLIENTE: "Martinez",
-        DNI_CLIENTE: 39056237,
-        TELEFONO_CLIENTE: 1156378923,
+        DNI_CLIENTE: "39056237",
+        TELEFONO_CLIENTE: "1156378923",
         ACTIVO_CLIENTE: True
     },
 ]
@@ -123,9 +123,5 @@ def lista_clientes_copia():
 
 
 # Funcion que permita listar todos los clientes activos
-def listar_clientes_activos(filtro_id=None):  # Parametro renombrado para claridad
-    clientes_activos = []
-    for cliente in clientes:
-        if cliente[ACTIVO_CLIENTE] == True:
-            clientes_activos.append(cliente)
-    return clientes_activos
+def listar_clientes_activos():
+    return [cliente for cliente in clientes if cliente[ACTIVO_CLIENTE]]

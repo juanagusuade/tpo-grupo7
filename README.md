@@ -21,8 +21,7 @@ Las entidades principales serán:
 - Validación de datos para evitar reservas superpuestas o departamentos ya ocupados.
 - Búsqueda de reservas por cliente o por departamento.
 - Consulta de disponibilidad de un departamento en fechas específicas.
-- Generación de estadísticas básicas: porcentaje de ocupación por departamento, promedio de duración de reservas y cantidad total de reservas realizadas en un período.
-- Almacenamiento y recuperación de la información registrada.
+- Generación de estadísticas básicas: porcentaje de ocupación por departamento y promedio de duración de reservas.
 
 ## Esbozo de matrices de datos y tipos de datos
 
