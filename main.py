@@ -2,7 +2,7 @@ import common.interfaz as interfaz
 import common.entrada_datos as input_datos
 from ui.menu_reservas import gestionar_reservas
 from ui.menu_depto import *
-
+from ui.menu_clientes import menuClientes
 
 def mostrar_bienvenida():
     """Muestra el mensaje de bienvenida del sistema"""
@@ -22,8 +22,7 @@ def mostrar_menu_principal():
 
 
 def gestionar_clientes():
-    """Placeholder para el modulo de gestion de clientes"""
-    interfaz.mostrar_en_construccion("GESTION DE CLIENTES")
+    menuClientes()
 
 
 def confirmar_salida():

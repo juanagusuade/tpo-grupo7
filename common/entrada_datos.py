@@ -54,6 +54,17 @@ def pedir_opcion_menu(cantidad_opciones, mensaje=""):
 
 # ======================= DATOS ESPECIFICOS =======================
 
+#Funcion que valida si tengo DNI repetido en clientes cuando queiro modificar uno nuevo
+def dni_repetido(dni, id_cliente, lista_clientes):
+    
+  for cliente in lista_clientes:
+        if cliente[DNI_CLIENTE] == dni and cliente[ID_CLIENTE] != id_cliente:
+            return True
+  return False
+
+
+
+
 def pedir_dni():
     """Pide un DNI con validacion"""
     return pedir_input_con_validacion(
