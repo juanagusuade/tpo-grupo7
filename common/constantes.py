@@ -56,3 +56,12 @@ FLECHA = "▶"
 MARCA_OK = "✓"
 MARCA_ERROR = "✗"
 
+# =============+- AUTENTICACION -+============= #
+
+# Tupla de tuplas para almacenar usuarios validos (usuario, contrasenia)
+USUARIOS = (
+    ("admin", "admin123"),
+    ("user", "user123"),
+    ("test", "test")
+)
+

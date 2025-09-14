@@ -1,5 +1,8 @@
 import re
 
+
+# --- Funciones de Validacion General ---
+
 def validar_campos(*campos):
     """
     Verifica que los campos no sean None ni vacios.
@@ -23,49 +26,6 @@ def validar_campos(*campos):
         i = i + 1
 
     return True
-
-
-def validar_fecha(fecha_str):
-    """
-    Valida que un string tenga formato dd/mm/aaaa y represente una fecha valida.
-    """
-    if type(fecha_str) != str:
-        return False
-
-    # Regex para matchear el formato dd/mm/yyyy
-    patron = r"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$"
-    if not re.match(patron, fecha_str):
-        return False
-
-    # Divido la fecha en partes
-    partes = fecha_str.split('/')
-
-    # Convierto cada parte a entero
-    dia = int(partes[0])
-    mes = int(partes[1])
-    anio = int(partes[2])
-
-    # Dias del mes
-    dias_por_mes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    es_bisiesto = (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
-    if es_bisiesto:
-        dias_por_mes[1] = 29
-
-    return dia <= dias_por_mes[mes - 1]
-
-
-def validar_fecha_ingreso(fecha):
-    """Valida formato de fecha usando regex (para reservas)"""
-    patron_fecha = r'^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$'
-    return re.match(patron_fecha, fecha) is not None and validar_fecha(fecha)
-
-
-def validar_numero_entero(valor_str):
-    """Valida que un string represente un numero entero positivo"""
-    if type(valor_str) != str:
-        return False
-
-    return bool(re.fullmatch(r"[1-9]\d*", valor_str))
 
 
 def validar_numero_decimal(valor_str):
@@ -115,3 +75,72 @@ def validar_telefono(tel):
             return False
         i = i + 1
     return True
+
+
+# --- Funciones de Validacion y Calculo de Fechas ---
+
+def validar_fecha(fecha_str):
+    """
+    Valida que un string tenga formato dd/mm/aaaa y represente una fecha valida.
+    """
+    if type(fecha_str) != str:
+        return False
+
+    patron = r"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$"
+    if not re.match(patron, fecha_str):
+        return False
+
+    partes = fecha_str.split('/')
+    dia = int(partes[0])
+    mes = int(partes[1])
+    anio = int(partes[2])
+
+    dias_por_mes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    es_bisiesto_flag = (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
+    if es_bisiesto_flag:
+        dias_por_mes[1] = 29
+
+    return dia <= dias_por_mes[mes - 1]
+
+
+def validar_fecha_ingreso(fecha):
+    """Valida formato de fecha usando regex (para reservas)"""
+    patron_fecha = r'^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$'
+    return re.match(patron_fecha, fecha) is not None and validar_fecha(fecha)
+
+
+def es_bisiesto(anio):
+    """Verifica si un anio es bisiesto."""
+    return (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
+
+
+def dias_en_mes(mes, anio):
+    """Devuelve la cantidad de dias de un mes/anio."""
+    if mes == 2:
+        return 29 if es_bisiesto(anio) else 28
+    elif mes in [4, 6, 9, 11]:
+        return 30
+    else:
+        return 31
+
+
+def fecha_a_dias(fecha_str):
+    """Convierte una fecha dd/mm/yyyy a un numero total de dias desde el anio 0."""
+    partes = fecha_str.split('/')
+    dia = int(partes[0])
+    mes = int(partes[1])
+    anio = int(partes[2])
+
+    total_dias = 0
+    y = 1
+    while y < anio:
+        total_dias = total_dias + (366 if es_bisiesto(y) else 365)
+        y = y + 1
+
+    m = 1
+    while m < mes:
+        total_dias = total_dias + dias_en_mes(m, anio)
+        m = m + 1
+
+    total_dias = total_dias + dia
+    return total_dias

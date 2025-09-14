@@ -1,9 +1,10 @@
 from common.constantes import *
 from common.generadores import generar_id_unico_lista
-from common.validaciones import validar_fecha, validar_campos
+from common.validaciones import validar_fecha, validar_campos, fecha_a_dias
 
 # Estructura: [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, estado]
 reservas = []
+
 
 def comparar_fechas_string(fecha1_str, fecha2_str):
     """
@@ -60,7 +61,6 @@ def verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fe
             reserva_egreso_str = reserva[INDICE_FECHA_EGRESO]
 
             # Verificar solapamiento
-            # TODO: Evaluar si pueden ingresar el mismo dia que un egreso (ver actualizar_reserva).
             if not (comparar_fechas_string(fecha_egreso_str, reserva_ingreso_str) <= 0 or
                     comparar_fechas_string(fecha_ingreso_str, reserva_egreso_str) >= 0):
                 return False
@@ -151,7 +151,6 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
     if not reserva or reserva[INDICE_ESTADO] != ESTADO_ACTIVO:
         return False
 
-    # Actualizar campos si se proporcionan
     if id_cliente is not None:
         reserva[INDICE_ID_CLIENTE] = id_cliente
 
@@ -170,7 +169,6 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
         else:
             return False
 
-    # Verificar que fecha de ingreso sea anterior a fecha de egreso
     if comparar_fechas_string(reserva[INDICE_FECHA_INGRESO], reserva[INDICE_FECHA_EGRESO]) >= 0:
         return False
 
@@ -233,3 +231,38 @@ def reserva_esta_cancelada(id_reserva):
 def obtener_todas_las_reservas():
     """Obtiene todas las reservas (incluidas las eliminadas)"""
     return reservas[:]
+
+
+# --- Funciones para Estadisticas ---
+
+def calcular_dias_ocupados_depto(id_departamento, periodo_dias):
+    """Calcula el total de dias que un depto estuvo ocupado en un periodo."""
+    total_dias = 0
+    i = 0
+    while i < len(reservas):
+        reserva = reservas[i]
+        if reserva[INDICE_ID_DEPARTAMENTO] == id_departamento and reserva[INDICE_ESTADO] == ESTADO_ACTIVO:
+            dias_ingreso = fecha_a_dias(reserva[INDICE_FECHA_INGRESO])
+            dias_egreso = fecha_a_dias(reserva[INDICE_FECHA_EGRESO])
+            total_dias = total_dias + (dias_egreso - dias_ingreso)
+        i = i + 1
+    return total_dias
+
+
+def calcular_duracion_promedio_reservas():
+    """Calcula la duracion promedio en dias de todas las reservas activas."""
+    reservas_activas = obtener_reservas_activas()
+    if not reservas_activas:
+        return None
+
+    total_dias = 0
+    i = 0
+    while i < len(reservas_activas):
+        reserva = reservas_activas[i]
+        dias_ingreso = fecha_a_dias(reserva[INDICE_FECHA_INGRESO])
+        dias_egreso = fecha_a_dias(reserva[INDICE_FECHA_EGRESO])
+        duracion = dias_egreso - dias_ingreso
+        total_dias = total_dias + duracion
+        i = i + 1
+
+    return float(total_dias) / len(reservas_activas)

@@ -24,7 +24,7 @@ def imprimir_departamento(dep: dict):
     print(f"{COLOR_CYAN}Capacidad:{COLOR_RESET} {capacidad}")
     print(f"{COLOR_CYAN}Estado:{COLOR_RESET} {estado}")
     print(f"{COLOR_CYAN}Precio/Noche:{COLOR_RESET} {precio}")
-    print(f"{COLOR_CYAN}Activo:{COLOR_RESET} {etiqueta_activo}\n")
+    print(f"{COLOR_CYAN}Activo:{COLOR_RESET} {etiqueta_activo}\n") #TODO: HAY UNA FUNCION EN INTERFAZ.PY PARA ESTO
 
 
 
@@ -79,17 +79,19 @@ def actualizar_depto():
     mostrar_subtitulo("Actualizar (parcial)")
     if not departamentos:
         mostrar_mensaje_info("No hay departamentos para actualizar.")
-        pausar(); return
+        pausar()
+        return
 
     imprimir_lista(departamentos)
     id_dep = pedir_numero_entero("ID a actualizar", minimo=1)
     dep = buscar_departamento_por_id(id_dep)
     if not dep:
         mostrar_mensaje_error("ID no encontrado.")
-        pausar(); return
+        pausar()
+        return
 
 
-    idd = dep.get(ID_DEPARTAMENTO)
+    idd = dep.get(ID_DEPARTAMENTO) #TODO: no se que es esto
     ubicacion = dep.get(UBICACION_DEPARTAMENTO)
     ambientes = dep.get(AMBIENTES_DEPARTAMENTO)
     capacidad = dep.get(CAPACIDAD_DEPARTAMENTO)
@@ -118,8 +120,6 @@ def actualizar_depto():
         nuevo_amb = ambientes
     else:
         nuevo_amb = int(val)
-
-
 
     val = pedir_input_con_validacion(
         f"Capacidad actual [{capacidad}] (enter para mantener)",

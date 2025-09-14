@@ -2,16 +2,7 @@ from common.generadores import generar_id_unico_diccionario
 from common.constantes import *
 
 # Crear clases de cliente Atributos: id, nombre, apellido, dni, telefono.
-clientes = [
-    {
-        ID_CLIENTE: 1,
-        NOMBRE_CLIENTE: "Carlos",
-        APELLIDO_CLIENTE: "Martinez",
-        DNI_CLIENTE: "39056237",
-        TELEFONO_CLIENTE: "1156378923",
-        ACTIVO_CLIENTE: True
-    },
-]
+clientes = []
 
 
 # Funcion que Permite registrar un nuevo cliente verificando que el DNI no se repita
@@ -125,3 +116,11 @@ def lista_clientes_copia():
 # Funcion que permita listar todos los clientes activos
 def listar_clientes_activos():
     return [cliente for cliente in clientes if cliente[ACTIVO_CLIENTE]]
+
+
+def dni_repetido(dni, id_cliente, lista_clientes):
+    """Verifica si un DNI ya existe en la lista para un cliente distinto."""
+    for cliente in lista_clientes:
+        if cliente[DNI_CLIENTE] == dni and cliente[ID_CLIENTE] != id_cliente:
+            return True
+    return False

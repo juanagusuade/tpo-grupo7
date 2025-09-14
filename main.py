@@ -1,8 +1,48 @@
 import common.interfaz as interfaz
 import common.entrada_datos as input_datos
-from ui.menu_reservas import gestionar_reservas
+from ui.menu_reservas import menu_reservas
 from ui.menu_depto import *
-from ui.menu_clientes import menuClientes
+from ui.menu_clientes import menu_clientes
+from ui.menu_estadisticas import gestionar_estadisticas
+import common.poblador as poblador
+from common.constantes import USUARIOS
+
+
+def autenticar_usuario():
+    """
+    Solicita usuario y contrasenia, y los valida contra la tupla de USUARIOS.
+    Ofrece un maximo de 3 intentos.
+    Retorna el nombre de usuario si la autenticacion es exitosa, o None si falla.
+    """
+    intentos = 3
+    autenticado = False
+    usuario_logueado = None
+
+    interfaz.mostrar_subtitulo("INICIO DE SESION")
+
+    while intentos > 0 and not autenticado:
+        usuario = input(f"{interfaz.COLOR_CYAN}Ingrese su usuario: {interfaz.COLOR_RESET}")
+        contrasenia = input(f"{interfaz.COLOR_CYAN}Ingrese su contrasenia: {interfaz.COLOR_RESET}")
+
+        # Iterar sobre la tupla de usuarios para validar las credenciales
+        i = 0
+        while i < len(USUARIOS) and not autenticado: # <-- Condicion agregada aqui
+            usuario_valido, contrasenia_valida = USUARIOS[i]
+            if usuario == usuario_valido and contrasenia == contrasenia_valida:
+                autenticado = True
+                usuario_logueado = usuario
+                # Ya no se necesita el 'break'
+            i = i + 1
+
+        if not autenticado:
+            intentos = intentos - 1
+            if intentos > 0:
+                interfaz.mostrar_mensaje_error(f"Credenciales incorrectas. Quedan {intentos} intentos.")
+            else:
+                interfaz.mostrar_mensaje_error("Ha superado el numero de intentos. El programa se cerrara.")
+
+    return usuario_logueado
+
 
 def mostrar_bienvenida():
     """Muestra el mensaje de bienvenida del sistema"""
@@ -16,13 +56,10 @@ def mostrar_menu_principal():
         "Gestionar Clientes",
         "Gestionar Departamentos",
         "Gestionar Reservas",
+        "Ver Estadisticas",
         "Salir"
     ]
     interfaz.mostrar_menu_opciones(opciones, "MENU PRINCIPAL", 50)
-
-
-def gestionar_clientes():
-    menuClientes()
 
 
 def confirmar_salida():
@@ -34,25 +71,35 @@ def main():
     """Funcion principal del sistema"""
     mostrar_bienvenida()
 
+    usuario_logueado = autenticar_usuario()
+
+    if usuario_logueado is None:
+        # Si la autenticacion falla, termina el programa
+        interfaz.mostrar_despedida()
+        return  # Sale de la funcion main
+
+    interfaz.mostrar_mensaje_exito(f"Inicio de sesion exitoso. ¡Bienvenido, {usuario_logueado}!")
+
+    poblador.poblar_datos_iniciales()
+
     sistema_activo = True
 
     while sistema_activo:
         mostrar_menu_principal()
-        opcion = input_datos.pedir_opcion_menu(4)
+        opcion = input_datos.pedir_opcion_menu(5)
 
-        # Procesar la opcion seleccionada
         if opcion == '1':
-            gestionar_clientes()
+            menu_clientes()
         elif opcion == '2':
             menu_departamentos()
         elif opcion == '3':
-            gestionar_reservas()
+            menu_reservas()
         elif opcion == '4':
+            gestionar_estadisticas()
+        elif opcion == '5':
             if confirmar_salida():
                 sistema_activo = False
-        
 
-        # Separador visual entre iteraciones (excepto al salir)
         if sistema_activo:
             interfaz.separador_operaciones()
 

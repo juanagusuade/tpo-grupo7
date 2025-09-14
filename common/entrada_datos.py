@@ -17,16 +17,13 @@ def pedir_input_con_validacion(prompt, funcion_validacion=None, mensaje_error="D
     while True:
         valor = input(f"{COLOR_CYAN}{FLECHA} {prompt}: {COLOR_RESET}").strip()
 
-        # Si es opcional y esta vacio, retorna None
         if es_opcional and not valor:
             return None
 
-        # Si no es opcional y esta vacio, pide de nuevo
         if not valor and not es_opcional:
             mostrar_mensaje_error("Este campo es obligatorio")
             continue
 
-        # Si hay funcion de validacion, usarla
         if funcion_validacion:
             if funcion_validacion(valor):
                 return valor
@@ -53,17 +50,6 @@ def pedir_opcion_menu(cantidad_opciones, mensaje=""):
 
 
 # ======================= DATOS ESPECIFICOS =======================
-
-#Funcion que valida si tengo DNI repetido en clientes cuando queiro modificar uno nuevo
-def dni_repetido(dni, id_cliente, lista_clientes):
-    
-  for cliente in lista_clientes:
-        if cliente[DNI_CLIENTE] == dni and cliente[ID_CLIENTE] != id_cliente:
-            return True
-  return False
-
-
-
 
 def pedir_dni():
     """Pide un DNI con validacion"""
@@ -103,16 +89,6 @@ def pedir_numero_decimal(prompt, minimo=0.01):
         f"Debe ser un numero decimal mayor o igual a {minimo}"
     )
 
-
-def pedir_fecha(prompt="Fecha (dd/mm/yyyy)"):
-    """Pide una fecha con validacion"""
-    return pedir_input_con_validacion(
-        prompt,
-        validar_fecha,
-        "La fecha debe tener formato dd/mm/yyyy y ser valida"
-    )
-
-
 def pedir_fecha_con_validacion(prompt):
     """Pide una fecha con validacion mejorada (para reservas)"""
     return pedir_input_con_validacion(
@@ -141,24 +117,13 @@ def pedir_estado_departamento():
         "3": ESTADO_MANTENIMIENTO
     }[opcion]
 
-
-def pedir_texto_simple(prompt, longitud_minima=1, longitud_maxima=100):
-    """Pide un texto simple con validacion de longitud"""
+def pedir_texto_alfabetico(prompt):
+    """Pide un texto que solo contenga letras y espacios"""
     return pedir_input_con_validacion(
         prompt,
-        lambda valor: longitud_minima <= len(valor.strip()) <= longitud_maxima,
-        f"El texto debe tener entre {longitud_minima} y {longitud_maxima} caracteres"
+        lambda valor: all(c.isalpha() or c.isspace() for c in valor) and len(valor.strip()) > 0,
+        "Solo se permiten letras y espacios"
     )
-
-
-def pedir_texto_no_vacio(prompt):
-    """Pide un texto que no puede estar vacio"""
-    return pedir_input_con_validacion(
-        prompt,
-        lambda valor: len(valor.strip()) > 0,
-        "Este campo no puede estar vacio"
-    )
-
 
 # ======================= SELECCION DE ELEMENTOS =======================
 
@@ -169,9 +134,8 @@ def seleccionar_elemento_de_lista(elementos, campo_id, mensaje):
 
     ids_validos = []
     if not elementos:
-        return None  # Si la lista esta vacia, retorna None
+        return None
 
-    # Verifica el tipo del primer elemento para decidir como actuar
     if type(elementos[0]) == dict:
         i = 0
         while i < len(elementos):
@@ -221,57 +185,8 @@ def confirmar_operacion(tipo_operacion, detalles=""):
     return confirmar_accion(f"Confirmar {tipo_operacion.lower()}")
 
 
-# ======================= VALIDACIONES CON LAMBDAS ESPECIALIZADAS =======================
-
-def pedir_entero_positivo(prompt):
-    """Pide un entero positivo"""
-    return pedir_input_con_validacion(
-        prompt,
-        lambda valor: valor.isdigit() and int(valor) > 0,
-        "Debe ingresar un numero entero positivo"
-    )
-
-def pedir_opcion_si_no(prompt):
-    """Pide una confirmación simple si/no y retorna boolean"""
-    respuesta = pedir_input_con_validacion(
-        f"{prompt} (s/n)",
-        lambda valor: valor.lower() in ['s', 'n', 'si', 'no'],
-        "Responda con 's' para Si o 'n' para No"
-    )
-    return respuesta.lower() in ['s', 'si']
-
 # ======================= PAUSA =======================
 
 def pausar(mensaje="Presione Enter para continuar..."):
     """Pausa la ejecucion hasta que el usuario presione Enter"""
     input(f"\n{COLOR_CYAN}{mensaje}{COLOR_RESET}")
-
-
-# ======================= VALIDACIONES AVANZADAS CON LAMBDAS =======================
-
-def pedir_rango_numerico(prompt, minimo, maximo):
-    """Pide un numero en un rango específico"""
-    return int(pedir_input_con_validacion(
-        f"{prompt} ({minimo}-{maximo})",
-        lambda valor: valor.isdigit() and minimo <= int(valor) <= maximo,
-        f"Debe ingresar un numero entre {minimo} y {maximo}"
-    ))
-
-
-def pedir_texto_alfabetico(prompt):
-    """Pide un texto que solo contenga letras y espacios"""
-    return pedir_input_con_validacion(
-        prompt,
-        lambda valor: all(c.isalpha() or c.isspace() for c in valor) and len(valor.strip()) > 0,
-        "Solo se permiten letras y espacios"
-    )
-
-
-def pedir_seleccion_multiple(prompt, opciones_validas):
-    """Permite seleccionar múltiples opciones de una lista"""
-    opciones_str = ", ".join(opciones_validas)
-    return pedir_input_con_validacion(
-        f"{prompt} ({opciones_str})",
-        lambda valor: valor.lower() in [op.lower() for op in opciones_validas],
-        f"Seleccione una opción válida: {opciones_str}"
-    )

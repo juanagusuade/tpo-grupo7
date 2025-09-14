@@ -21,6 +21,7 @@ def mostrar_menu_reservas():
         "Cancelar Reserva",
         "Buscar Reservas",
         "Listar Todas las Reservas Activas",
+        "Consultar Disponibilidad de Departamento",
         "Volver al Menu Principal"
     ]
     interfaz.mostrar_menu_opciones(opciones, "MENU DE RESERVAS", 45)
@@ -28,7 +29,7 @@ def mostrar_menu_reservas():
 
 def pedir_opcion_reservas():
     """Solicita y valida la opcion del menu de reservas"""
-    return input_datos.pedir_opcion_menu(6)
+    return input_datos.pedir_opcion_menu(7)
 
 
 def validar_fecha_ingreso(fecha):
@@ -48,7 +49,7 @@ def pedir_fecha_con_validacion(prompt):
 
 def mostrar_clientes_activos():
     """Muestra la lista de clientes activos disponibles"""
-    clientes_activos = clientes.listar_clientes_activos()  # Parametro removido
+    clientes_activos = clientes.listar_clientes_activos()
     return interfaz.mostrar_lista_clientes(clientes_activos)
 
 
@@ -103,26 +104,21 @@ def agregar_nueva_reserva():
     """Guia al usuario para crear una nueva reserva"""
     interfaz.mostrar_titulo_seccion("AGREGAR NUEVA RESERVA")
 
-    # Seleccionar cliente
     id_cliente = seleccionar_cliente()
     if not id_cliente:
         return
 
-    # Pedir fechas
     fecha_ingreso = pedir_fecha_con_validacion("Fecha de ingreso")
     fecha_egreso = pedir_fecha_con_validacion("Fecha de egreso")
 
-    # Validar que fecha egreso sea posterior a ingreso
     if reservas.comparar_fechas_string(fecha_ingreso, fecha_egreso) >= 0:
         interfaz.mostrar_mensaje_error("La fecha de egreso debe ser posterior a la de ingreso")
         return
 
-    # Seleccionar departamento
     id_departamento = seleccionar_departamento(fecha_ingreso, fecha_egreso)
     if not id_departamento:
         return
 
-    # Confirmar la reserva
     cliente = clientes.buscar_cliente_por_id(id_cliente)
     departamento = departamentos.buscar_departamento_por_id(id_departamento)
 
@@ -200,7 +196,6 @@ def modificar_reserva_existente():
 
     interfaz.mostrar_mensaje_info("Ingrese los nuevos valores (presione Enter para mantener el actual)")
 
-    # Modificar fechas
     nueva_fecha_ingreso = input_datos.pedir_input_con_validacion(
         f"Nueva fecha de ingreso ({reserva[INDICE_FECHA_INGRESO]})",
         validar_fecha_ingreso,
@@ -245,6 +240,7 @@ def cancelar_reserva_activa():
             interfaz.mostrar_mensaje_error("Error al cancelar la reserva")
     else:
         interfaz.mostrar_mensaje_info("Operacion cancelada")
+
 
 def mostrar_menu_busqueda():
     """Muestra opciones para buscar reservas"""
@@ -355,7 +351,6 @@ def listar_todas_las_reservas_activas():
         interfaz.mostrar_mensaje_info("No hay reservas activas en el sistema")
         return
 
-    # Preparar datos para tabla
     datos_tabla = []
     i = 0
     while i < len(reservas_activas):
@@ -367,7 +362,6 @@ def listar_todas_las_reservas_activas():
             nombre_completo = f"{cliente[NOMBRE_CLIENTE]} {cliente[APELLIDO_CLIENTE]}"
             periodo = f"{reserva[INDICE_FECHA_INGRESO]} al {reserva[INDICE_FECHA_EGRESO]}"
 
-            # Truncar textos largos
             nombre_truncado = nombre_completo
             if len(nombre_completo) > 19:
                 nombre_truncado = nombre_completo[:19]
@@ -392,7 +386,40 @@ def listar_todas_las_reservas_activas():
     interfaz.mostrar_tabla("LISTADO COMPLETO DE RESERVAS ACTIVAS", datos_tabla, columnas, anchos)
 
 
-def gestionar_reservas():
+def consultar_disponibilidad_directa():
+    """Permite al usuario consultar si un depto esta libre en un rango de fechas."""
+    interfaz.mostrar_titulo_seccion("CONSULTAR DISPONIBILIDAD")
+
+    deptos_activos = departamentos.listar_departamentos_activos()
+    interfaz.mostrar_lista_departamentos(deptos_activos, "DEPARTAMENTOS ACTIVOS")
+    if not deptos_activos:
+        interfaz.mostrar_mensaje_error("No hay departamentos activos para consultar.")
+        return
+
+    id_depto = input_datos.seleccionar_elemento_de_lista(
+        deptos_activos,
+        ID_DEPARTAMENTO,
+        "Ingrese el ID del departamento a consultar"
+    )
+    if not id_depto:
+        interfaz.mostrar_mensaje_info("Seleccion cancelada.")
+        return
+
+    fecha_ingreso = pedir_fecha_con_validacion("Fecha de inicio de la consulta")
+    fecha_egreso = pedir_fecha_con_validacion("Fecha de fin de la consulta")
+
+    if reservas.comparar_fechas_string(fecha_ingreso, fecha_egreso) >= 0:
+        interfaz.mostrar_mensaje_error("La fecha de fin debe ser posterior a la de inicio.")
+        return
+
+    if reservas.verificar_disponibilidad_departamento(id_depto, fecha_ingreso, fecha_egreso):
+        interfaz.mostrar_mensaje_exito(
+            f"¡Disponible! El departamento esta libre del {fecha_ingreso} al {fecha_egreso}.")
+    else:
+        interfaz.mostrar_mensaje_error(f"¡No disponible! El departamento ya tiene reservas en ese periodo.")
+
+
+def menu_reservas():
     """Menu principal de gestion de reservas"""
     mostrar_header_reservas()
     continuar_menu = True
@@ -412,8 +439,9 @@ def gestionar_reservas():
         elif opcion == '5':
             listar_todas_las_reservas_activas()
         elif opcion == '6':
+            consultar_disponibilidad_directa()
+        elif opcion == '7':
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
             continuar_menu = False
 
-        # Pausa entre operaciones
         input_datos.pausar()

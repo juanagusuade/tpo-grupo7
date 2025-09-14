@@ -93,11 +93,6 @@ def mostrar_mensaje_info(mensaje):
     print(f"\n{COLOR_AMARILLO}ℹ {mensaje}{COLOR_RESET}")
 
 
-def mostrar_mensaje_advertencia(mensaje):
-    """Muestra un mensaje de advertencia"""
-    print(f"\n{COLOR_AMARILLO}⚠ {mensaje}{COLOR_RESET}")
-
-
 # ======================= LISTAS DE DATOS =======================
 
 def mostrar_lista_clientes(clientes_lista):
@@ -231,15 +226,6 @@ def separador_operaciones():
 
 
 # ======================= MENSAJES ESPECIALES =======================
-
-def mostrar_en_construccion(modulo):
-    """Muestra mensaje de modulo en construccion"""
-    print(f"\n{COLOR_AMARILLO}{'=' * 60}")
-    print(f"MODULO EN CONSTRUCCION: {modulo}")
-    print(f"Esta funcionalidad sera implementada proximamente")
-    print(f"{'=' * 60}{COLOR_RESET}")
-    input(f"\n{COLOR_CYAN}Presione Enter para volver al menu principal...{COLOR_RESET}")
-
 
 def mostrar_despedida():
     """Muestra mensaje de despedida del sistema"""
