@@ -3,241 +3,239 @@
 ## Definición de la temática del proyecto
 Este sistema permite administrar eficientemente el alquiler temporal de distintos departamentos, facilitando el control de las unidades disponibles, la gestión de clientes y la organización de reservas. Está orientado a propietarios o administradores que deseen automatizar el proceso de registro, asignación y seguimiento de estadías.
 
-Las entidades principales serán:
+Las entidades principales son:
 - **Clientes**: contienen los datos personales de los inquilinos.
 - **Departamentos**: representan cada unidad disponible para alquiler con sus características (ubicación, número de ambientes, capacidad, estado, precio por noche).
 - **Reservas**: vinculan a un cliente con un departamento en un período determinado.
 
-## Objetivos
-- Desarrollar un sistema que permita registrar, modificar, consultar y eliminar información sobre clientes, departamentos y reservas.
-- Automatizar el proceso de reserva para evitar solapamientos de fechas o unidades ya ocupadas.
-- Facilitar la consulta rápida de disponibilidad y estadísticas relacionadas con la ocupación.
-- Implementar una interfaz sencilla y comprensible.
-
 ## Funcionalidades principales
-- Registro, modificación y eliminación de clientes.
-- Registro, modificación del estado y eliminación de departamentos.
-- Creación, modificación y cancelación de reservas.
-- Validación de datos para evitar reservas superpuestas o departamentos ya ocupados.
-- Búsqueda de reservas por cliente o por departamento.
-- Consulta de disponibilidad de un departamento en fechas específicas.
-- Generación de estadísticas básicas: porcentaje de ocupación por departamento y promedio de duración de reservas.
 
-## Esbozo de matrices de datos y tipos de datos
+### Gestión de Clientes
+- Agregar nuevos clientes con validación de DNI único
+- Listar clientes activos
+- Modificar información de clientes existentes
+- Dar de baja lógica a clientes (eliminación no destructiva)
+- Validación completa de datos (nombres alfabéticos, DNI 7-8 dígitos, teléfono)
 
-### Tabla: Clientes (Lista de Diccionarios)
-| ID Cliente (int) | Nombre (string) | Apellido (string) | DNI (string) | Teléfono (string) | Activo (bool) |
-|------------------|-----------------|-------------------|--------------|-------------------|---------------|
-| 1                | Juan            | Pérez             | 30111222     | 1122334455        | True          |
-| 2                | María           | Gómez             | 29888777     | 1144455566        | True          |
-| 3                | Lucas           | Fernández         | 28444555     | 1177788899        | True          |
-| 4                | Ana             | Martínez          | 31222333     | 1133344455        | True          |
-| 5                | Pedro           | López             | 29999111     | 1199988877        | True          |
+### Gestión de Departamentos
+- Crear departamentos con todos sus atributos
+- Actualización parcial de departamentos (mantener valores actuales opcionales)
+- Reemplazo completo de departamentos
+- Eliminación física de departamentos
+- Baja y alta lógica de departamentos
+- Búsqueda por ID individual
+- Listado de departamentos activos y todos los departamentos
+- Estados: Disponible, Ocupado, Mantenimiento
 
-### Tabla: Departamentos (Lista de Diccionarios)
-| ID Dpto (int) | Ubicación (string)      | Ambientes (int) | Capacidad (int) | Estado (string) | Precio/Noche (float) | Activo (bool) |
-|---------------|-------------------------|-----------------|-----------------|-----------------|----------------------|---------------|
-| 1             | Buenos Aires, Centro    | 2               | 4               | Disponible      | 75.50                | True          |
-| 2             | Córdoba, Nueva Córdoba  | 1               | 2               | Ocupado         | 50.00                | True          |
-| 3             | Mendoza, Ciudad         | 3               | 6               | Disponible      | 120.00               | True          |
-| 4             | Rosario, Centro         | 2               | 4               | Disponible      | 80.00                | True          |
-| 5             | Mar del Plata, Playa    | 1               | 2               | Ocupado         | 65.00                | True          |
+### Gestión de Reservas
+- **Crear reservas** con validación automática de disponibilidad
+- **Modificar reservas** activas (fechas de ingreso y egreso)
+- **Cancelar reservas** con confirmación del usuario
+- **Búsqueda de reservas** por cliente o por departamento
+- **Listar todas las reservas activas** con formato de tabla
+- **Consulta directa de disponibilidad** de departamentos para fechas específicas
+- Validación automática de solapamiento de fechas
+- Verificación de que fecha de egreso sea posterior a ingreso
 
-### Tabla: Reservas (Matriz - Lista de Listas)
-| ID Reserva (int) | ID Cliente (int) | ID Dpto (int) | Fecha Ingreso (string) | Fecha Egreso (string) | Estado (string) |
-|------------------|------------------|---------------|------------------------|----------------------|-----------------|
-| 1                | 1                | 2             | 10/08/2025             | 15/08/2025           | ACTIVO          |
-| 2                | 3                | 5             | 01/09/2025             | 05/09/2025           | ACTIVO          |
-| 3                | 2                | 1             | 20/08/2025             | 25/08/2025           | ACTIVO          |
-| 4                | 4                | 4             | 18/08/2025             | 22/08/2025           | ACTIVO          |
-| 5                | 5                | 3             | 10/09/2025             | 15/09/2025           | ACTIVO          |
+### Reportes y Estadísticas
+- **Porcentaje de ocupación por departamento** en los últimos 365 días
+- **Duración promedio de reservas** activas en el sistema
+- Formato de tablas profesionales para presentación de datos
 
-## Convenciones de Codificación
+### Sistema de Autenticación
+- Sistema de login con múltiples usuarios válidos
+- Máximo 3 intentos de autenticación
+- Credenciales predefinidas para 4 usuarios diferentes
+- Bloqueo del sistema tras superar intentos
 
-### 1. Estructura General del Proyecto
+### Interfaz y Experiencia de Usuario
+- Interfaz colorizada con códigos ANSI para mejor visualización
+- Menús numerados intuitivos con validación de opciones
+- Confirmaciones explícitas para operaciones críticas
+- Mensajes de éxito, error e información diferenciados
+- Separadores visuales y formato de tablas profesional
+- Sistema de pausa entre operaciones
+
+## Arquitectura del Sistema
+
+### Estructura de Directorios
 ```
 Sistema-Alquileres/
-├── main.py                              # Punto de entrada, menús e interfaz
-├── README.md                            # Esta documentación facherita
+├── main.py                          # Punto de entrada y autenticación
+├── README.md                        # Documentación del proyecto
 
-└── ui/                                  # Ayudas para UI
-    ├── presentacion_clientes.py         # Presentacion de UI para clientes
-    ├── presentacion_departamentos.py    # Presentacion de UI para departamentos
-    
-└── common/                              # Funcionalidades comunes a las entidades.
-    ├── utils.py                         # Utilidades basicas y validaciones
-    ├── constantes.py                    # Constantes varias
-    
-└── domain/                              # Lógica de negocio
-    ├── clientes.py                      # CRUD de clientes (diccionarios)
-    ├── departamentos.py                 # CRUD de departamentos (diccionarios)
-    └── reservas.py                      # CRUD de reservas (matriz)
+├── ui/                              # Módulos de interfaz de usuario
+│   ├── menu_clientes.py            # Interfaz para gestión de clientes
+│   ├── menu_depto.py               # Interfaz para gestión de departamentos
+│   ├── menu_reservas.py            # Interfaz para gestión de reservas
+│   └── menu_estadisticas.py        # Interfaz para reportes y estadísticas
+
+├── domain/                          # Lógica de negocio
+│   ├── clientes.py                 # CRUD de clientes
+│   ├── departamentos.py            # CRUD de departamentos
+│   └── reservas.py                 # CRUD de reservas y validaciones
+
+└── common/                          # Funcionalidades comunes
+    ├── constantes.py               # Constantes del sistema
+    ├── interfaz.py                 # Funciones de presentación UI
+    ├── entrada_datos.py            # Validaciones y entrada de datos
+    ├── validaciones.py             # Validaciones específicas y fechas
+    ├── generadores.py              # Generadores de IDs únicos
+    └── poblador.py                 # Datos de ejemplo inicial
 ```
 
-### 2. Estructuras de Datos
-- **Clientes**: Lista de diccionarios
-- **Departamentos**: Lista de diccionarios 
-- **Reservas**: Matriz (lista de listas) con constantes para índices
-- **Fechas**: Se almacenan como strings en formato "dd/mm/yyyy"
-- **IDs**: Se generan como números enteros únicos de 5 dígitos
+## Estructuras de Datos Implementadas
 
-#### Estructura de Cliente (Diccionario):
+### Clientes (Lista de Diccionarios)
 ```python
 cliente = {
-    "id": 12345,
-    "nombre": "Juan",
-    "apellido": "Perez",
-    "dni": "12345678",
-    "telefono": "1122334455",
-    "activo": True
+    "id": 12345,                    # ID único de 5 dígitos
+    "nombre": "Juan",               # Solo caracteres alfabéticos
+    "apellido": "Pérez",            # Solo caracteres alfabéticos
+    "dni": "12345678",              # 7-8 dígitos numéricos
+    "telefono": "1122334455",       # Formato validado
+    "activo": True                  # Estado lógico
 }
 ```
 
-#### Estructura de Departamento (Diccionario):
+### Departamentos (Lista de Diccionarios)
 ```python
 departamento = {
-    "id": 12345,
-    "ubicacion": "Centro",
-    "ambientes": 3,
-    "capacidad": 4,
-    "estado": "Disponible",
-    "precio_noche": 100.0,
-    "activo": True
+    "id": 12345,                    # ID único de 5 dígitos
+    "ubicacion": "Buenos Aires, Centro",  # Texto descriptivo
+    "ambientes": 3,                 # Número entero ≥ 1
+    "capacidad": 4,                 # Número entero ≥ 1
+    "estado": "Disponible",         # Disponible/Ocupado/Mantenimiento
+    "precio_noche": 100.50,         # Decimal ≥ 0.01
+    "activo": True                  # Estado lógico
 }
 ```
 
-#### Estructura de Reserva (Lista con constantes):
+### Reservas (Lista de Listas)
 ```python
-# Constantes para acceso a indices
-INDICE_ID_RESERVA = 0
-INDICE_ID_CLIENTE = 1
-INDICE_ID_DEPARTAMENTO = 2
-INDICE_FECHA_INGRESO = 3
-INDICE_FECHA_EGRESO = 4
-INDICE_ESTADO = 5
+# Índices definidos por constantes para mejor legibilidad
+INDICE_ID_RESERVA = 0          # ID único de la reserva
+INDICE_ID_CLIENTE = 1          # ID del cliente
+INDICE_ID_DEPARTAMENTO = 2     # ID del departamento
+INDICE_FECHA_INGRESO = 3       # Fecha formato "dd/mm/yyyy"
+INDICE_FECHA_EGRESO = 4        # Fecha formato "dd/mm/yyyy"
+INDICE_ESTADO = 5              # ACTIVO/CANCELADO/ELIMINADO
 
 reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 ```
 
-### 3. Convenciones de Nomenclatura
+## Validaciones Implementadas
+
+### Validaciones de Datos Generales
+- **Campos obligatorios**: Verificación de valores no nulos ni vacíos
+- **Texto alfabético**: Solo letras y espacios para nombres
+- **Números enteros**: Validación de rango con mínimos configurables
+- **Números decimales**: Formato y valor mínimo validados
+- **Opciones de menú**: Validación numérica dentro de rangos válidos
+
+### Validaciones Específicas
+- **DNI**: 7-8 dígitos numéricos, verificación de unicidad
+- **Teléfono**: Mínimo 7 caracteres, permite números, espacios, guiones, paréntesis
+- **Fechas**: Formato dd/mm/yyyy obligatorio, validación de fechas reales incluyendo años bisiestos
+- **IDs únicos**: Generación automática de 5 dígitos con verificación de unicidad
+
+### Validaciones de Negocio
+- **Reservas**: Fecha egreso posterior a ingreso, verificación de disponibilidad
+- **Solapamiento**: Algoritmo que verifica conflictos de fechas entre reservas
+- **Estados consistentes**: Validación de transiciones de estado válidas
+
+## Funcionalidades Avanzadas
+
+### Sistema de Fechas
+- **Conversión a días**: Algoritmo que convierte fechas a número total de días desde año 0
+- **Comparación de fechas**: Función especializada para comparar fechas en formato string
+- **Validación de años bisiestos**: Cálculo correcto de días por mes
+- **Cálculos de estadísticas**: Duración de reservas en días
+
+### Generación de IDs
+- **IDs únicos**: Rango 10000-99999 con verificación automática de unicidad
+- **Dos estrategias**: Función específica para listas vs diccionarios
+- **Prevención de duplicados**: Verificación exhaustiva antes de asignación
+
+### Poblado Automático de Datos
+- **Datos de ejemplo**: Generación automática de clientes, departamentos y reservas al inicio
+- **Datos realistas**: Nombres, ubicaciones y fechas con sentido
+- **Prevención de conflictos**: Verificación de disponibilidad al generar reservas ejemplo
+
+## Convenciones de Programación
+
+### Nomenclatura
 - **Variables y funciones**: snake_case (ej: `agregar_cliente`, `lista_clientes`)
 - **Constantes**: UPPER_CASE (ej: `ESTADO_ACTIVO`, `INDICE_ID_RESERVA`)
-- **Archivos**: snake_case con extensión .py (ej: `clientes.py`, `utils.py`)
+- **Archivos**: snake_case con extensión .py
 
-### 4. Funciones de Dominio
-- **Retornan valores booleanos**: `True` para éxito, `False` para error
-- **No imprimen mensajes**: Los mensajes se manejan en el archivo `main.py`
-- **Validación de entrada**: Se realiza antes de llamar a las funciones de dominio
-- **Encapsulación**: Las listas no se pasan como parámetros (excepto para ID generation en utils)
-
-#### Ejemplo de función de dominio:
-```python
-def agregar_cliente(nombre, apellido, dni, telefono):
-    """Agrega un nuevo cliente verificando que el DNI no se repita"""
-    i = 0
-    while i < len(clientes):
-        if clientes[i][DNI_CLIENTE] == dni:
-            return False
-        i = i + 1
-
-    id_cliente = generar_id_unico_diccionario(clientes, ID_CLIENTE)
-    nuevo_cliente = {
-        ID_CLIENTE: id_cliente,
-        NOMBRE_CLIENTE: nombre,
-        APELLIDO_CLIENTE: apellido,
-        DNI_CLIENTE: dni,
-        TELEFONO_CLIENTE: telefono,
-        ACTIVO_CLIENTE: True
-    }
-    clientes.append(nuevo_cliente)
-    return True
-
-```
-
-### 5. Validaciones
-- **Campos obligatorios**: Se valida que no sean None (Null o nulos) ni strings vacíos
-- **Fechas**: Formato obligatorio dd/mm/yyyy, validación de fecha real
-- **IDs únicos**: Generación automática de 5 dígitos, verificación de unicidad (que sean unicos)
-- **Tipos de datos**: Validación específica para enteros y decimales
-
-### 6. Estados del Sistema
-#### Estados de Reserva:
-- `ESTADO_ACTIVO`: Reserva vigente
-- `ESTADO_CANCELADO`: Reserva cancelada (puede reactivarse)
-- `ESTADO_ELIMINADO`: Reserva eliminada (baja lógica)
-
-#### Estados de Departamento:
-- `"Disponible"`: Listo para reservar
-- `"Ocupado"`: Con reserva activa
-- `"Mantenimiento"`: No disponible temporalmente
-
-### 7. Manejo de Fechas
-- **Almacenamiento**: Strings en formato "dd/mm/yyyy"
-- **Validación**: Función `validar_fecha()` en utils.py
-- **Comparación**: Función `comparar_fechas_string()` convierte a formato numérico
-- **Entrada del usuario**: Solo se acepta formato dd/mm/yyyy
-
-### 8. Arquitectura de la Aplicación
-- **main.py**: Interfaz de usuario, menús, entrada/salida, manejo de errores
-- **domain/**: Lógica de negocio pura, sin interfaz de usuario
-- **ui/**: Funciones de ayuda para la interfaz de usuario
-- **common/**: Funciones de utilidad que pueden ser reutilizadas
-
-### 9. Principios de Programación Aplicados
+### Principios de Diseño
 - **Separación de responsabilidades**: UI separada de lógica de negocio
-- **Funciones puras**: Las funciones de dominio no tienen efectos secundarios de impresión
-- **Validación temprana**: Se valida entrada antes de procesar
+- **Funciones puras**: Las funciones de dominio no manejan interfaz
+- **Validación temprana**: Datos validados antes del procesamiento
 - **Consistencia**: Mismo patrón para todas las operaciones CRUD
-- **Encapsulación estratégica**: Datos "privados" en módulos de dominio
+- **Manejo de errores**: Valores de retorno booleanos consistentes
 
-### 10. Generación de IDs
-- **Dos funciones especializadas** en utils.py:
-  - `generar_id_unico_lista(lista)`: Para reservas (matriz)
-  - `generar_id_unico_diccionario(lista, clave_id)`: Para clientes y departamentos
-- **Excepción a encapsulación**: Solo utils accede a las estructuras de datos para evitar duplicación de código
-- **Rango**: IDs de 5 dígitos (10000-99999)
+### Estados del Sistema
+#### Estados de Reserva
+- `ACTIVO`: Reserva vigente y válida
+- `CANCELADO`: Reserva cancelada (puede reactivarse)
+- `ELIMINADO`: Reserva eliminada (baja fisica)
 
-### 11. Comentarios y Documentación
-- **Docstrings**: Una línea descriptiva para cada función
-- **Comentarios inline**: Explicar índices en las listas y lógica compleja
-- **Formato**: Claro y conciso, enfocado en qué hace la función
+#### Estados de Departamento
+- `"Disponible"`: Listo para nuevas reservas
+- `"Ocupado"`: Con reserva activa actual
+- `"Mantenimiento"`: Temporalmente no disponible
 
-#### Ejemplo de comentarios:
-```python
-def buscar_cliente_por_id(id_cliente):
-    """Busca un cliente por su ID"""
-    i = 0
-    while i < len(clientes):
-        if clientes[i]["id"] == id_cliente:
-            return clientes[i]
-        i = i + 1
-    return None
-```
+## Credenciales de Acceso
 
-### 12. Constantes para Matrices
-Para mejorar la legibilidad del código que maneja matrices, se utilizan constantes descriptivas:
+El sistema incluye 4 usuarios predefinidos:
+- **Usuario**: `evecent` | **Contraseña**: `evelamaspiola123`
+- **Usuario**: `baltaa` | **Contraseña**: `baltalocuradelcodigo`
+- **Usuario**: `valen` | **Contraseña**: `valentiburondelatlantico`
+- **Usuario**: `juanagus` | **Contraseña**: `password1234noolvidar`
 
-```python
-# En lugar de usar números mágicos
-reserva[1] = nuevo_id  # ❌ No claro
+## Instalación y Ejecución
 
-# Se utilizan constantes descriptivas
-reserva[INDICE_ID_CLIENTE] = nuevo_id  # ✅ Claro y mantenible
-```
+### Requisitos
+- Python 3.6 o superior
+- Sistema operativo compatible con códigos de color ANSI (Windows 10+, Linux, macOS)
 
-### 13. Manejo de Errores
-- **Validación previa**: Todos los datos se validan antes de procesamiento
-- **Valores de retorno**: Funciones retornan `True`/`False` para indicar éxito/fallo, o equivalente
-- **Mensajes informativos**: Solo en main.py, nunca en funciones de dominio
-- **Estados consistentes**: El sistema siempre mantiene un estado válido
-
-## Cómo Ejecutar
-1. Asegurarse de tener Python 3.6+ instalado
-2. Descargar todos los archivos en un directorio
+### Instrucciones
+1. Descargar todos los archivos manteniendo la estructura de directorios
+2. Abrir terminal en el directorio principal
 3. Ejecutar: `python main.py`
-4. Seguir las instrucciones del menú interactivo
+4. Usar credenciales proporcionadas para autenticarse
+5. Seguir los menús interactivos
+
+### Primera Ejecución
+Al ejecutar por primera vez, el sistema detectará que está vacío y cargará automáticamente:
+- 5 clientes de ejemplo
+- 5 departamentos de ejemplo  
+- 7 reservas de ejemplo
+
+Los valores mencionados pueden cambiarse en el archivo `poblador.py`.
+## Características Técnicas
+
+### Interfaz de Usuario
+- **Colores ANSI**: Código de colores para mejor experiencia visual
+- **Menús interactivos**: Validación en tiempo real de opciones
+- **Tablas formateadas**: Presentación profesional de datos
+- **Confirmaciones**: Diálogos de confirmación para operaciones críticas
+
+### Robustez
+- **Validación exhaustiva**: Múltiples capas de validación de datos
+- **Manejo de errores**: Gestión elegante de situaciones imprevistas
+- **Consistencia de datos**: El sistema mantiene siempre un estado válido
+- **Recuperación**: Capacidad de manejar entradas incorrectas sin crash
+
+### Escalabilidad
+- **Arquitectura modular**: Fácil extensión de funcionalidades
+- **Separación de responsabilidades**: Lógica de negocio independiente de UI
+- **Reutilización**: Funciones comunes centralizadas
+- **Mantenibilidad**: Código claro y bien documentado
 
 ## Autor
-Grupo VII - Programacion I 
+**Grupo VII - Programación I**  
+**Fecha**: Septiembre 2025
 
-Fecha: Agosto 2025
