@@ -5,7 +5,7 @@ from domain.departamentos import *
 
 
 
-def imprimir_departamento(dep: dict):
+def imprimir_departamento(dep):
 
     idd = dep.get(ID_DEPARTAMENTO, "N/A")
     ubicacion = dep.get(UBICACION_DEPARTAMENTO, "N/A")
@@ -24,7 +24,7 @@ def imprimir_departamento(dep: dict):
     print(f"{COLOR_CYAN}Capacidad:{COLOR_RESET} {capacidad}")
     print(f"{COLOR_CYAN}Estado:{COLOR_RESET} {estado}")
     print(f"{COLOR_CYAN}Precio/Noche:{COLOR_RESET} {precio}")
-    print(f"{COLOR_CYAN}Activo:{COLOR_RESET} {etiqueta_activo}\n") #TODO: HAY UNA FUNCION EN INTERFAZ.PY PARA ESTO
+    print(f"{COLOR_CYAN}Activo:{COLOR_RESET} {etiqueta_activo}\n") 
 
 
 
@@ -91,7 +91,6 @@ def actualizar_depto():
         return
 
 
-    idd = dep.get(ID_DEPARTAMENTO) #TODO: no se que es esto
     ubicacion = dep.get(UBICACION_DEPARTAMENTO)
     ambientes = dep.get(AMBIENTES_DEPARTAMENTO)
     capacidad = dep.get(CAPACIDAD_DEPARTAMENTO)
