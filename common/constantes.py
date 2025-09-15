@@ -63,6 +63,7 @@ USUARIOS = (
     ("evecent", "evelamaspiola123"),
     ("baltaa", "baltalocuradelcodigo"),
     ("valen", "valentiburondelatlantico"),
-    ("juanagus", "password1234noolvidar")
+    ("juanagus", "password1234noolvidar"),
+    ("a", "a")
 )
 
