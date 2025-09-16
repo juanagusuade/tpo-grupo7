@@ -1,31 +1,111 @@
-from ui.menu_cliente import menu_cliente
-from ui.menu_depto import menu_departamento
-from common.utils import pedir_input_con_validacion
+import common.interfaz as interfaz
+import common.entrada_datos as input_datos
+from ui.menu_reservas import menu_reservas
+from ui.menu_depto import *
+from ui.menu_clientes import menu_clientes
+from ui.menu_estadisticas import gestionar_estadisticas
+import common.poblador as poblador
+from common.constantes import USUARIOS
 
 
+def autenticar_usuario():
+    """
+    Solicita usuario y contrasenia, y los valida contra la tupla de USUARIOS.
+    Ofrece un maximo de 3 intentos.
+    Retorna el nombre de usuario si la autenticacion es exitosa, o None si falla.
+    """
+    intentos = 3
+    autenticado = False
+    usuario_logueado = None
 
-def menu_principal():
-    while True:
-        print("\n" + "=" * 50)
-        print(" SISTEMA DE GESTIÓN — MENÚ PRINCIPAL")
-        print("=" * 50)
-        print("1) Menú de Clientes")
-        print("2) Menú de Departamentos")
-        #FALTARIA RESERVAS
-        print("0) Salir")
-        opcion = pedir_input_con_validacion("Elegí una opción: ").strip()
+    interfaz.mostrar_subtitulo("INICIO DE SESION")
 
-        if opcion == "1":
-                menu_cliente()
-        elif opcion == "2":
-                  menu_departamento()
-        elif opcion == "3":
-            print("Aca irian reservas xd")
-        elif opcion == "0":
-            print("Gracias por utilizar el sistema")
-            break
-        else:
-            print("Opción inválida, pruebe de nuevo.")
+    while intentos > 0 and not autenticado:
+        usuario = input(f"{interfaz.COLOR_CYAN}Ingrese su usuario: {interfaz.COLOR_RESET}")
+        contrasenia = input(f"{interfaz.COLOR_CYAN}Ingrese su contrasenia: {interfaz.COLOR_RESET}")
+
+        # Iterar sobre la tupla de usuarios para validar las credenciales
+        i = 0
+        while i < len(USUARIOS) and not autenticado: # <-- Condicion agregada aqui
+            usuario_valido, contrasenia_valida = USUARIOS[i]
+            if usuario == usuario_valido and contrasenia == contrasenia_valida:
+                autenticado = True
+                usuario_logueado = usuario
+                # Ya no se necesita el 'break'
+            i = i + 1
+
+        if not autenticado:
+            intentos = intentos - 1
+            if intentos > 0:
+                interfaz.mostrar_mensaje_error(f"Credenciales incorrectas. Quedan {intentos} intentos.")
+            else:
+                interfaz.mostrar_mensaje_error("Ha superado el numero de intentos. El programa se cerrara.")
+
+    return usuario_logueado
+
+
+def mostrar_bienvenida():
+    """Muestra el mensaje de bienvenida del sistema"""
+    interfaz.mostrar_header_principal("SISTEMA DE GESTION DE ALQUILERES TEMPORARIOS")
+    print(f"{'Grupo VII - Programacion I':^70}")
+
+
+def mostrar_menu_principal():
+    """Muestra las opciones del menu principal"""
+    opciones = [
+        "Gestionar Clientes",
+        "Gestionar Departamentos",
+        "Gestionar Reservas",
+        "Ver Estadisticas",
+        "Salir"
+    ]
+    interfaz.mostrar_menu_opciones(opciones, "MENU PRINCIPAL", 50)
+
+
+def confirmar_salida():
+    """Solicita confirmacion antes de salir del sistema"""
+    return input_datos.confirmar_accion("Esta seguro que desea salir del sistema")
+
+
+def main():
+    """Funcion principal del sistema"""
+    mostrar_bienvenida()
+
+    usuario_logueado = autenticar_usuario()
+
+    if usuario_logueado is None:
+        # Si la autenticacion falla, termina el programa
+        interfaz.mostrar_despedida()
+        return  # Sale de la funcion main
+
+    interfaz.mostrar_mensaje_exito(f"Inicio de sesion exitoso. ¡Bienvenido, {usuario_logueado}!")
+
+    poblador.poblar_datos_iniciales()
+
+    sistema_activo = True
+
+    while sistema_activo:
+        mostrar_menu_principal()
+        opcion = input_datos.pedir_opcion_menu(5)
+
+        if opcion == '1':
+            menu_clientes()
+        elif opcion == '2':
+            menu_departamentos()
+        elif opcion == '3':
+            menu_reservas()
+        elif opcion == '4':
+            gestionar_estadisticas()
+        elif opcion == '5':
+            if confirmar_salida():
+                sistema_activo = False
+
+        if sistema_activo:
+            interfaz.separador_operaciones()
+
+    interfaz.mostrar_despedida()
+
 
 if __name__ == "__main__":
-    menu_principal()
+    main()
+    
