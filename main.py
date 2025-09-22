@@ -26,12 +26,11 @@ def autenticar_usuario():
 
         # Iterar sobre la tupla de usuarios para validar las credenciales
         i = 0
-        while i < len(USUARIOS) and not autenticado: # <-- Condicion agregada aqui
+        while i < len(USUARIOS) and not autenticado:
             usuario_valido, contrasenia_valida = USUARIOS[i]
             if usuario == usuario_valido and contrasenia == contrasenia_valida:
                 autenticado = True
                 usuario_logueado = usuario
-                # Ya no se necesita el 'break'
             i = i + 1
 
         if not autenticado:
