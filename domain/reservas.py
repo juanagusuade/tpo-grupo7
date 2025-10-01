@@ -1,268 +1,224 @@
+# domain/reservas.py
+
 from common.constantes import *
 from common.generadores import generar_id_unico_lista
 from common.validaciones import validar_fecha, validar_campos, fecha_a_dias
+from common.manejo_errores import manejar_error_inesperado
+
+ENTIDAD_RESERVAS = "Reservas"
 
 # Estructura: [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, estado]
 reservas = []
 
 
 def comparar_fechas_string(fecha1_str, fecha2_str):
-    """
-    Compara dos fechas en formato dd/mm/yyyy
-    Retorna: -1 si fecha1 < fecha2, 0 si son iguales, 1 si fecha1 > fecha2
-    """
-    if not validar_fecha(fecha1_str) or not validar_fecha(fecha2_str):
+    """Compara dos fechas en formato dd/mm/yyyy. Retorna: -1, 0, o 1."""
+    try:
+        if not validar_fecha(fecha1_str) or not validar_fecha(fecha2_str):
+            return None
+
+        partes1 = fecha1_str.split('/')
+        partes2 = fecha2_str.split('/')
+
+        fecha1_num = int(partes1[2]) * 10000 + int(partes1[1]) * 100 + int(partes1[0])
+        fecha2_num = int(partes2[2]) * 10000 + int(partes2[1]) * 100 + int(partes2[0])
+
+        if fecha1_num < fecha2_num:
+            return -1
+        return 1 if fecha1_num > fecha2_num else 0
+    except (ValueError, IndexError):
+        mensaje = "Asegúrese de que las fechas tengan el formato 'dd/mm/aaaa' y sean válidas."
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "comparar fechas", mensaje)
         return None
-
-    # Convertir a formato comparable YYYYMMDD
-    partes1 = fecha1_str.split('/')
-    partes2 = fecha2_str.split('/')
-
-    fecha1_num = int(partes1[2]) * 10000 + int(partes1[1]) * 100 + int(partes1[0])
-    fecha2_num = int(partes2[2]) * 10000 + int(partes2[1]) * 100 + int(partes2[0])
-
-    if fecha1_num < fecha2_num:
-        return -1
-    elif fecha1_num > fecha2_num:
-        return 1
-    else:
-        return 0
 
 
 def agregar_reserva(id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str):
-    """Agrega una nueva reserva"""
+    """Agrega una nueva reserva, validando la disponibilidad y los datos."""
+    try:
+        if not validar_fecha(fecha_ingreso_str) or not validar_fecha(fecha_egreso_str):
+            return False
+        if comparar_fechas_string(fecha_ingreso_str, fecha_egreso_str) >= 0:
+            return False
+        if not validar_campos(id_cliente, id_departamento):
+            return False
+        if not verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fecha_egreso_str):
+            return False
 
-    if not validar_fecha(fecha_ingreso_str) or not validar_fecha(fecha_egreso_str):
+        id_reserva = generar_id_unico_lista(reservas)
+        nueva_reserva = [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, ESTADO_ACTIVO]
+        reservas.append(nueva_reserva)
+        return True
+    except Exception:
+        mensaje = "Verifique IDs de cliente/departamento y que las fechas sean correctas."
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "agregar reserva", mensaje)
         return False
-
-    if comparar_fechas_string(fecha_ingreso_str, fecha_egreso_str) >= 0:
-        return False
-
-    if not validar_campos(id_cliente, id_departamento):
-        return False
-
-    # Verificar disponibilidad del departamento
-    if not verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fecha_egreso_str):
-        return False
-
-    id_reserva = generar_id_unico_lista(reservas)
-    nueva_reserva = [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, ESTADO_ACTIVO]
-    reservas.append(nueva_reserva)
-    return True
 
 
 def verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fecha_egreso_str):
-    """Verifica si un departamento esta disponible en el rango de fechas"""
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ID_DEPARTAMENTO] == id_departamento and reserva[INDICE_ESTADO] == ESTADO_ACTIVO:
-            reserva_ingreso_str = reserva[INDICE_FECHA_INGRESO]
-            reserva_egreso_str = reserva[INDICE_FECHA_EGRESO]
-
-            # Verificar solapamiento
-            if not (comparar_fechas_string(fecha_egreso_str, reserva_ingreso_str) <= 0 or
-                    comparar_fechas_string(fecha_ingreso_str, reserva_egreso_str) >= 0):
-                return False
-        i = i + 1
-    return True
+    """
+    Verifica si un departamento está disponible usando una expresión generadora.
+    Retorna True si está disponible, False si hay solapamiento.
+    """
+    try:
+        hay_solapamiento = any(
+            not (comparar_fechas_string(fecha_egreso_str, r[INDICE_FECHA_INGRESO]) <= 0 or
+                 comparar_fechas_string(fecha_ingreso_str, r[INDICE_FECHA_EGRESO]) >= 0)
+            for r in reservas
+            if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO
+        )
+        return not hay_solapamiento
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "verificar disponibilidad")
+        return False
 
 
 def buscar_reserva_por_id(id_reserva):
-    """Busca una reserva por su ID"""
-    i = 0
-    while i < len(reservas):
-        if reservas[i][INDICE_ID_RESERVA] == id_reserva:
-            return reservas[i]
-        i = i + 1
-    return None
+    """Busca una reserva por su ID de forma eficiente."""
+    try:
+        return next((r for r in reservas if r[INDICE_ID_RESERVA] == id_reserva), None)
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "buscar reserva por ID")
+        return None
 
 
 def buscar_reservas_por_cliente(id_cliente):
-    """Busca todas las reservas de un cliente"""
-    reservas_cliente = []
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ID_CLIENTE] == id_cliente and reserva[INDICE_ESTADO] != ESTADO_ELIMINADO:
-            reservas_cliente.append(reserva)
-        i = i + 1
-    return reservas_cliente
+    """Busca todas las reservas de un cliente usando comprensión de listas."""
+    try:
+        return [r for r in reservas if r[INDICE_ID_CLIENTE] == id_cliente and r[INDICE_ESTADO] != ESTADO_ELIMINADO]
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "buscar reservas por cliente")
+        return []
 
 
 def buscar_reservas_por_departamento(id_departamento):
-    """Busca todas las reservas de un departamento"""
-    reservas_departamento = []
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ID_DEPARTAMENTO] == id_departamento and reserva[INDICE_ESTADO] != ESTADO_ELIMINADO:
-            reservas_departamento.append(reserva)
-        i = i + 1
-    return reservas_departamento
+    """Busca todas las reservas de un departamento usando comprensión de listas."""
+    try:
+        return [r for r in reservas if
+                r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] != ESTADO_ELIMINADO]
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "buscar reservas por departamento")
+        return []
+
+
+def modificar_estado_reserva(id_reserva, estado_nuevo, estado_requerido=None):
+    """
+    Función genérica y reutilizable para cambiar el estado de una reserva.
+    Retorna True si tuvo éxito, False en caso contrario.
+    """
+    try:
+        reserva = buscar_reserva_por_id(id_reserva)
+        if not reserva:
+            return False  # La reserva no existe
+
+        # Si se requiere un estado previo (ej: para cancelar, debe estar 'ACTIVO')
+        if estado_requerido and reserva[INDICE_ESTADO] != estado_requerido:
+            return False
+
+        reserva[INDICE_ESTADO] = estado_nuevo
+        return True
+    except Exception:
+        mensaje = f"No se pudo cambiar el estado a '{estado_nuevo}'."
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "modificar estado de reserva", mensaje)
+        return False
 
 
 def cancelar_reserva(id_reserva):
-    """Cancela una reserva activa"""
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ID_RESERVA] == id_reserva:
-            if reserva[INDICE_ESTADO] == ESTADO_ACTIVO:
-                reserva[INDICE_ESTADO] = ESTADO_CANCELADO
-                return True
-            else:
-                return False  # No esta activa
-        i = i + 1
-    return False  # No encontrada
+    """Cancela una reserva activa."""
+    return modificar_estado_reserva(id_reserva, ESTADO_CANCELADO, estado_requerido=ESTADO_ACTIVO)
 
 
 def eliminar_reserva(id_reserva):
-    """Baja logica de una reserva"""
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ID_RESERVA] == id_reserva:
-            reserva[INDICE_ESTADO] = ESTADO_ELIMINADO
-            return True
-        i = i + 1
-    return False
+    """Baja lógica de una reserva."""
+    return modificar_estado_reserva(id_reserva, ESTADO_ELIMINADO)
 
 
 def reactivar_reserva(id_reserva):
-    """Reactiva una reserva cancelada"""
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ID_RESERVA] == id_reserva:
-            if reserva[INDICE_ESTADO] == ESTADO_CANCELADO:
-                reserva[INDICE_ESTADO] = ESTADO_ACTIVO
-                return True
-            else:
-                return False  # No esta cancelada
-        i = i + 1
-    return False  # No encontrada
+    """Reactiva una reserva cancelada."""
+    return modificar_estado_reserva(id_reserva, ESTADO_ACTIVO, estado_requerido=ESTADO_CANCELADO)
 
 
 def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_ingreso_str=None,
                        fecha_egreso_str=None):
-    """Actualiza una reserva existente"""
-    reserva = buscar_reserva_por_id(id_reserva)
-    if not reserva or reserva[INDICE_ESTADO] != ESTADO_ACTIVO:
-        return False
-
-    if id_cliente is not None:
-        reserva[INDICE_ID_CLIENTE] = id_cliente
-
-    if id_departamento is not None:
-        reserva[INDICE_ID_DEPARTAMENTO] = id_departamento
-
-    if fecha_ingreso_str is not None:
-        if validar_fecha(fecha_ingreso_str):
-            reserva[INDICE_FECHA_INGRESO] = fecha_ingreso_str
-        else:
+    """Actualiza los datos de una reserva existente."""
+    try:
+        reserva = buscar_reserva_por_id(id_reserva)
+        if not reserva or reserva[INDICE_ESTADO] != ESTADO_ACTIVO:
             return False
 
-    if fecha_egreso_str is not None:
-        if validar_fecha(fecha_egreso_str):
-            reserva[INDICE_FECHA_EGRESO] = fecha_egreso_str
-        else:
+        # Creamos una copia de las fechas para validar sin modificar la original en caso de error
+        fecha_ingreso_actualizada = reserva[INDICE_FECHA_INGRESO]
+        fecha_egreso_actualizada = reserva[INDICE_FECHA_EGRESO]
+
+        if fecha_ingreso_str is not None:
+            if not validar_fecha(fecha_ingreso_str): return False
+            fecha_ingreso_actualizada = fecha_ingreso_str
+
+        if fecha_egreso_str is not None:
+            if not validar_fecha(fecha_egreso_str): return False
+            fecha_egreso_actualizada = fecha_egreso_str
+
+        # Se valida la coherencia de fechas antes de aplicar todos los cambios
+        if comparar_fechas_string(fecha_ingreso_actualizada, fecha_egreso_actualizada) >= 0:
             return False
 
-    if comparar_fechas_string(reserva[INDICE_FECHA_INGRESO], reserva[INDICE_FECHA_EGRESO]) >= 0:
-        return False
+        # Si todo es válido, aplicamos los cambios
+        if id_cliente is not None: reserva[INDICE_ID_CLIENTE] = id_cliente
+        if id_departamento is not None: reserva[INDICE_ID_DEPARTAMENTO] = id_departamento
+        reserva[INDICE_FECHA_INGRESO] = fecha_ingreso_actualizada
+        reserva[INDICE_FECHA_EGRESO] = fecha_egreso_actualizada
 
-    return True
+        return True
+    except Exception:
+        mensaje = "Revise el ID de la reserva y que los nuevos datos sean válidos."
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "actualizar reserva", mensaje)
+        return False
 
 
 def obtener_reservas_activas():
-    """Obtiene todas las reservas activas"""
-    return list(filter(lambda r: r[INDICE_ESTADO] == ESTADO_ACTIVO, reservas))
-
-
-def obtener_reservas_canceladas():
-    """Obtiene todas las reservas canceladas"""
-    return list(filter(lambda r: r[INDICE_ESTADO] == ESTADO_CANCELADO, reservas))
-
-
-def obtener_estadisticas_reservas():
-    """Obtiene estadisticas basicas de las reservas"""
-    total = len(reservas)
-    activas = 0
-    canceladas = 0
-    eliminadas = 0
-
-    i = 0
-    while i < len(reservas):
-        estado = reservas[i][INDICE_ESTADO]
-        if estado == ESTADO_ACTIVO:
-            activas = activas + 1
-        elif estado == ESTADO_CANCELADO:
-            canceladas = canceladas + 1
-        elif estado == ESTADO_ELIMINADO:
-            eliminadas = eliminadas + 1
-        i = i + 1
-
-    return {
-        "total": total,
-        "activas": activas,
-        "canceladas": canceladas,
-        "eliminadas": eliminadas
-    }
-
-
-def reserva_existe(id_reserva):
-    """Verifica si existe una reserva con el ID dado"""
-    return buscar_reserva_por_id(id_reserva) is not None
-
-
-def reserva_esta_activa(id_reserva):
-    """Verifica si una reserva esta activa"""
-    reserva = buscar_reserva_por_id(id_reserva)
-    return reserva is not None and reserva[INDICE_ESTADO] == ESTADO_ACTIVO
-
-
-def reserva_esta_cancelada(id_reserva):
-    """Verifica si una reserva esta cancelada"""
-    reserva = buscar_reserva_por_id(id_reserva)
-    return reserva is not None and reserva[INDICE_ESTADO] == ESTADO_CANCELADO
+    """Obtiene todas las reservas activas."""
+    try:
+        return [r for r in reservas if r[INDICE_ESTADO] == ESTADO_ACTIVO]
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "obtener reservas activas")
+        return []
 
 
 def obtener_todas_las_reservas():
-    """Obtiene todas las reservas (incluidas las eliminadas)"""
-    return reservas[:]
+    """Obtiene una copia de todas las reservas (incluidas las eliminadas)."""
+    try:
+        return reservas[:]
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "obtener todas las reservas")
+        return []
 
 
-# --- Funciones para Estadisticas ---
+# --- Funciones para Estadísticas ---
 
 def calcular_dias_ocupados_depto(id_departamento, periodo_dias):
-    """Calcula el total de dias que un depto estuvo ocupado en un periodo."""
-    total_dias = 0
-    i = 0
-    while i < len(reservas):
-        reserva = reservas[i]
-        if reserva[INDICE_ID_DEPARTAMENTO] == id_departamento and reserva[INDICE_ESTADO] == ESTADO_ACTIVO:
-            dias_ingreso = fecha_a_dias(reserva[INDICE_FECHA_INGRESO])
-            dias_egreso = fecha_a_dias(reserva[INDICE_FECHA_EGRESO])
-            total_dias = total_dias + (dias_egreso - dias_ingreso)
-        i = i + 1
-    return total_dias
+    """Calcula el total de días que un depto estuvo ocupado en un periodo."""
+    try:
+        return sum(
+            fecha_a_dias(r[INDICE_FECHA_EGRESO]) - fecha_a_dias(r[INDICE_FECHA_INGRESO])
+            for r in reservas
+            if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO
+        )
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "calcular días ocupados")
+        return 0
 
 
 def calcular_duracion_promedio_reservas():
-    """Calcula la duracion promedio en dias de todas las reservas activas."""
-    reservas_activas = obtener_reservas_activas()
-    if not reservas_activas:
-        return None
+    """Calcula la duración promedio en días de todas las reservas activas."""
+    try:
+        reservas_activas = obtener_reservas_activas()
+        if not reservas_activas:
+            return 0.0
 
-    total_dias = 0
-    i = 0
-    while i < len(reservas_activas):
-        reserva = reservas_activas[i]
-        dias_ingreso = fecha_a_dias(reserva[INDICE_FECHA_INGRESO])
-        dias_egreso = fecha_a_dias(reserva[INDICE_FECHA_EGRESO])
-        duracion = dias_egreso - dias_ingreso
-        total_dias = total_dias + duracion
-        i = i + 1
-
-    return float(total_dias) / len(reservas_activas)
+        total_dias = sum(
+            fecha_a_dias(r[INDICE_FECHA_EGRESO]) - fecha_a_dias(r[INDICE_FECHA_INGRESO])
+            for r in reservas_activas
+        )
+        return float(total_dias) / len(reservas_activas)
+    except Exception:
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "calcular duración promedio")
+        return 0.0
