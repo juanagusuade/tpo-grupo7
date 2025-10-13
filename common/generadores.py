@@ -1,20 +1,14 @@
 import random
 
-
 def generar_id_unico_lista(lista):
     """
     Genera un ID unico para lista de listas donde el ID esta en posicion 0.
-    Para usar con reservas
+    Para usar con reservas. Para saber si existe o no, usa un set
     """
+    ids_existentes = {elemento[0] for elemento in lista}
     while True:
         id_generado = random.randint(10000, 99999)
-        existe_id = False
-        i = 0
-        while i < len(lista) and not existe_id:
-            if lista[i][0] == id_generado:
-                existe_id = True
-            i = i + 1
-        if not existe_id:
+        if id_generado not in ids_existentes:
             return id_generado
 
 
@@ -25,13 +19,8 @@ def generar_id_unico_diccionario(lista, clave_id):
     lista: Lista de diccionarios
     clave_id: Nombre de la key que contiene el ID
     """
+    ids_existentes = {elemento[clave_id] for elemento in lista}
     while True:
         id_generado = random.randint(10000, 99999)
-        existe_id = False
-        i = 0
-        while i < len(lista) and not existe_id:
-            if lista[i][clave_id] == id_generado:
-                existe_id = True
-            i = i + 1
-        if not existe_id:
+        if id_generado not in ids_existentes:
             return id_generado
