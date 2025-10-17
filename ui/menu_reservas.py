@@ -103,7 +103,7 @@ def agregar_nueva_reserva():
                    f"Precio por noche: ${departamento[PRECIO_DEPARTAMENTO]:.2f}")
 
        if input_datos.confirmar_operacion("reserva", detalles):
-           if reservas.agregar_reserva(id_cliente, id_departamento, fecha_ingreso, fecha_egreso):
+           if reservas.agregar_reserva(cliente[ID_CLIENTE], id_departamento, fecha_ingreso, fecha_egreso):
                interfaz.mostrar_mensaje_exito("Reserva creada exitosamente")
            else:
                interfaz.mostrar_mensaje_error("Error al crear la reserva")
