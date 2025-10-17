@@ -40,7 +40,7 @@ def imprimir_lista(lista: list):
 
 def creacion_depto():
     mostrar_subtitulo("Crear departamento")
-    ubicacion = pedir_input_con_validacion("Ubicacion", lambda valor: validar_campos(valor), "No puede estar vacio")
+    ubicacion = pedir_input_con_validacion("Ubicacion", lambda valor: campos_son_validos(valor), "No puede estar vacio")
     ambientes = pedir_numero_entero("Ambientes (≥ 1)", minimo=1)
     capacidad = pedir_numero_entero("Capacidad (≥ 1)", minimo=1)
     estado = pedir_estado_departamento()
@@ -102,7 +102,7 @@ def actualizar_depto():
 
     nueva_ubi = pedir_input_con_validacion(
         f"Ubicación actual [{ubicacion}] (enter para mantener)",
-        lambda valor: validar_campos(valor),
+        lambda valor: campos_son_validos(valor),
         "No puede estar vacío",
         es_opcional=True
     )
@@ -175,7 +175,7 @@ def reemplzar_depto():
     imprimir_lista(departamentos)
     id_dep = pedir_numero_entero("ID a reemplazar", minimo=1)
 
-    ubicacion = pedir_input_con_validacion("Ubicación", lambda valor: validar_campos(valor), "No puede estar vacío")
+    ubicacion = pedir_input_con_validacion("Ubicación", lambda valor: campos_son_validos(valor), "No puede estar vacío")
     ambientes = pedir_numero_entero("Ambientes (≥ 1)", minimo=1)
     capacidad = pedir_numero_entero("Capacidad (≥ 1)", minimo=1)
     estado = pedir_estado_departamento()

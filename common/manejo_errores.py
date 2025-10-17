@@ -11,10 +11,8 @@ def manejar_error_inesperado(entidad, operacion, mensaje_personalizado=None):
         operacion (str): Describe la acción que se estaba realizando (ej: 'agregar reserva').
         mensaje_personalizado (str, opcional): Un string con detalles adicionales.
     """
-    print(f"\n{COLOR_ROJO}¡ERROR INESPERADO EN {entidad.upper()}!{COLOR_RESET}")
+    print(f"\n{COLOR_ROJO}¡ERROR EN {entidad.upper()}!{COLOR_RESET}")
     print(f"Ocurrió un problema durante la operación de '{operacion}'.")
 
     if mensaje_personalizado:
-        print(f"{COLOR_AMARILLO}Informacion adicional: {mensaje_personalizado}{COLOR_RESET}")
-
-    print("Por favor, verifica los datos ingresados.")
+        print(f"{COLOR_AMARILLO}{mensaje_personalizado}{COLOR_RESET}")

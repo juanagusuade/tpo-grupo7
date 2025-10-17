@@ -128,39 +128,18 @@ def pedir_texto_alfabetico(prompt):
 # ======================= SELECCION DE ELEMENTOS =======================
 
 def seleccionar_elemento_de_lista(elementos, campo_id, mensaje):
-    """Permite seleccionar un elemento de una lista por ID"""
+    """Permite seleccionar un elemento de una lista por ID usando pedir_input_con_validacion."""
     if not elementos:
         return None
 
-    ids_validos = []
-    if not elementos:
-        return None
+    ids_validos = {elemento[campo_id] for elemento in elementos}
 
-    if type(elementos[0]) == dict:
-        i = 0
-        while i < len(elementos):
-            ids_validos.append(elementos[i][campo_id])
-            i = i + 1
-    elif type(elementos[0]) == list:
-        i = 0
-        while i < len(elementos):
-            ids_validos.append(elementos[i][campo_id])
-            i = i + 1
-
-    while True:
-        entrada = input(f"\n{COLOR_CYAN}{mensaje}: {COLOR_RESET}").strip()
-
-        if entrada.isdigit():
-            id_seleccionado = int(entrada)
-
-            if id_seleccionado in ids_validos:
-                return id_seleccionado
-            else:
-                mostrar_mensaje_error("ID no valido. Seleccione un ID de la lista")
-        else:
-            mostrar_mensaje_error("Debe ingresar un numero entero")
-
-
+    id_seleccionado_str = pedir_input_con_validacion(
+        prompt=mensaje,
+        funcion_validacion=lambda valor: valor.isdigit() and int(valor) in ids_validos,
+        mensaje_error="ID no valido. Seleccione un ID de la lista"
+    )
+    return int(id_seleccionado_str)
 # ======================= CONFIRMACIONES =======================
 
 def confirmar_accion(mensaje="Esta seguro"):

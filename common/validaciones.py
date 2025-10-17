@@ -3,7 +3,7 @@ import re
 
 # --- Funciones de Validacion General ---
 
-def validar_campos(*campos):
+def campos_son_validos(*campos):
     """
     Verifica que los campos no sean None ni vacios.
     Devuelve True si todos los campos son validos.

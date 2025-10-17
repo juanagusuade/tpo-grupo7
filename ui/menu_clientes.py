@@ -29,7 +29,10 @@ def accion_agregar_cliente():
 
 def accion_listar_clientes():
     """Funcion que se llama desde el menu para listar clientes activos"""
-    interfaz.mostrar_lista_clientes(clientes.listar_clientes_activos())
+    clientes_activos = clientes.listar_clientes_activos()
+    if not clientes_activos:
+        interfaz.mostrar_mensaje_error("No hay clientes activos.")
+    interfaz.mostrar_lista_clientes_activos(clientes_activos)
 
 
 def accion_baja_cliente():
@@ -41,7 +44,7 @@ def accion_baja_cliente():
         interfaz.mostrar_mensaje_error("No hay clientes activos para dar de baja.")
         return
 
-    interfaz.mostrar_lista_clientes(activos)
+    interfaz.mostrar_lista_clientes_activos(activos)
     id_cliente = entrada_datos.seleccionar_elemento_de_lista(activos, ID_CLIENTE,
                                                              "Seleccione el ID del cliente a eliminar")
 
@@ -60,7 +63,7 @@ def accion_modificar_cliente():
         interfaz.mostrar_mensaje_error("No hay clientes activos para modificar.")
         return
 
-    interfaz.mostrar_lista_clientes(activos)
+    interfaz.mostrar_lista_clientes_activos(activos)
     id_modificado = entrada_datos.seleccionar_elemento_de_lista(activos, ID_CLIENTE,
                                                                 "Seleccione el ID del cliente a modificar")
 

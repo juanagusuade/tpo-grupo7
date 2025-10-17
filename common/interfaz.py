@@ -95,31 +95,20 @@ def mostrar_mensaje_info(mensaje):
 
 # ======================= LISTAS DE DATOS =======================
 
-def mostrar_lista_clientes(clientes_lista):
+def mostrar_lista_clientes_activos(clientes_lista):
     """Muestra lista de clientes con formato especifico"""
-    if not clientes_lista:
-        mostrar_mensaje_info("No hay clientes activos disponibles")
-        return None
-
     print(f"\n{COLOR_AMARILLO}--- CLIENTES ACTIVOS DISPONIBLES ---{COLOR_RESET}")
 
-    i = 0
-    while i < len(clientes_lista):
-        cliente = clientes_lista[i]
+    for cliente in clientes_lista:
         print(f"{COLOR_VERDE}ID {cliente[ID_CLIENTE]:5d}{COLOR_RESET} - "
               f"{cliente[NOMBRE_CLIENTE]} {cliente[APELLIDO_CLIENTE]} "
               f"(DNI: {cliente[DNI_CLIENTE]})")
-        i = i + 1
 
-    return clientes_lista
+    return True
 
 
 def mostrar_lista_departamentos(departamentos_lista, titulo):
     """Muestra lista de departamentos con formato especifico"""
-    if not departamentos_lista:
-        mostrar_mensaje_info("No hay departamentos disponibles")
-        return None
-
     print(f"\n{COLOR_AMARILLO}--- {titulo} ---{COLOR_RESET}")
 
     i = 0
