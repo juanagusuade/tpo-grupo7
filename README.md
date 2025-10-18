@@ -162,6 +162,11 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 - **Datos realistas**: Nombres, ubicaciones y fechas con sentido
 - **Prevención de conflictos**: Verificación de disponibilidad al generar reservas ejemplo
 
+### Programación Funcional
+- **Uso de `map`**: Implementado para la transformación de listas, como la extracción de IDs de clientes y departamentos para el poblador de datos.
+- **Uso de `filter`**: Implementado para el filtrado de listas, como en las funciones `listar_clientes_activos` y `listar_departamentos_activos`.
+- **Uso de `reduce`**: Importado de `functools` y utilizado para cálculos acumulativos, como en `calcular_duracion_promedio_reservas`.
+
 ## Convenciones de Programación
 
 ### Nomenclatura
@@ -174,7 +179,7 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 - **Funciones puras**: Las funciones de dominio no manejan interfaz
 - **Validación temprana**: Datos validados antes del procesamiento
 - **Consistencia**: Mismo patrón para todas las operaciones CRUD
-- **Manejo de errores**: Valores de retorno booleanos consistentes
+- **Manejo de errores**: Sistema robusto con `try-except` y un manejador de errores centralizado (`manejo_errores.py`).
 
 ### Estados del Sistema
 #### Estados de Reserva
@@ -225,7 +230,7 @@ Los valores mencionados pueden cambiarse en el archivo `poblador.py`.
 
 ### Robustez
 - **Validación exhaustiva**: Múltiples capas de validación de datos
-- **Manejo de errores**: Gestión elegante de situaciones imprevistas
+- **Manejo de errores**: Gestión centralizada de excepciones (`try-except`) para prevenir cierres inesperados (crashes), reportando errores de forma clara al usuario.
 - **Consistencia de datos**: El sistema mantiene siempre un estado válido
 - **Recuperación**: Capacidad de manejar entradas incorrectas sin crash
 
