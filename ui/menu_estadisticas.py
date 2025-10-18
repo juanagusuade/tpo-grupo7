@@ -40,9 +40,7 @@ def mostrar_porcentaje_ocupacion():
         return
 
     datos_tabla = []
-    i = 0
-    while i < len(lista_deptos):
-        depto = lista_deptos[i]
+    for depto in lista_deptos:
         id_depto = depto["id"]
         total_dias_ocupado = reservas.calcular_dias_ocupados_depto(id_depto, 365)
 
@@ -55,7 +53,6 @@ def mostrar_porcentaje_ocupacion():
             f"{porcentaje:.2f}%"
         ]
         datos_tabla.append(fila)
-        i = i + 1
 
     columnas = ["ID Depto", "Ubicacion", "Dias Ocupado (ultimo anio)", "Ocupacion"]
     anchos = [10, 30, 28, 15]

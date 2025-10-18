@@ -1,6 +1,5 @@
 import re
 
-
 # --- Funciones de Validacion General ---
 
 def campos_son_validos(*campos):
@@ -9,9 +8,7 @@ def campos_son_validos(*campos):
     Devuelve True si todos los campos son validos.
     Devuelve False si al menos uno es None o vacio.
     """
-    i = 0
-    while i < len(campos):
-        campo = campos[i]
+    for campo in campos:
         if campo is None:
             return False
 
@@ -22,8 +19,6 @@ def campos_son_validos(*campos):
         # Verificar si es lista vacia
         if type(campo) == list and len(campo) == 0:
             return False
-
-        i = i + 1
 
     return True
 
@@ -69,11 +64,9 @@ def validar_telefono(tel):
         return False
 
     # Verificar caracter por caracter
-    i = 0
-    while i < len(tel):
-        if tel[i] not in caracteres_validos:
+    for caracter in tel:
+        if caracter not in caracteres_validos:
             return False
-        i = i + 1
     return True
 
 
@@ -96,8 +89,8 @@ def validar_fecha(fecha_str):
     anio = int(partes[2])
 
     dias_por_mes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    es_bisiesto_flag = (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
-    if es_bisiesto_flag:
+    es_bisiesto = (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
+    if es_bisiesto:
         dias_por_mes[1] = 29
 
     return dia <= dias_por_mes[mes - 1]

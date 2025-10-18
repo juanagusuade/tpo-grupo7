@@ -1,11 +1,10 @@
-import re
-import common.interfaz as interfaz
 import common.entrada_datos as input_datos
-import domain.departamentos as departamentos
-from common.constantes import *
-import domain.reservas as reservas
+import common.interfaz as interfaz
 import domain.clientes as clientes
-from common.validaciones import validar_fecha
+import domain.departamentos as departamentos
+import domain.reservas as reservas
+from common.constantes import *
+from common.validaciones import validar_fecha_ingreso
 
 
 def mostrar_header_reservas():
@@ -32,39 +31,20 @@ def pedir_opcion_reservas():
     return input_datos.pedir_opcion_menu(7)
 
 
-def validar_fecha_ingreso(fecha):
-    """Valida formato de fecha usando regex"""
-    patron_fecha = r'^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$'
-    return re.match(patron_fecha, fecha) is not None and validar_fecha(fecha)
-
-
-def pedir_fecha_con_validacion(prompt):
-    """Pide una fecha con validacion"""
-    return input_datos.pedir_input_con_validacion(
-        f"{prompt} (dd/mm/yyyy)",
-        validar_fecha_ingreso,
-        "Fecha invalida. Use formato dd/mm/yyyy"
-    )
-
 def seleccionar_cliente_activo():
-    """Permite al usuario seleccionar un cliente activo"""
+    """Maneja la seleccion de un cliente activo."""
     clientes_activos = clientes.listar_clientes_activos()
-
     if not clientes_activos:
         return None
 
-    interfaz.mostrar_lista_clientes_activos(clientes_activos)
-
-    id_cliente = input_datos.seleccionar_elemento_de_lista(
-        clientes_activos,
-        ID_CLIENTE,
-        "Ingrese el ID del cliente"
-    )
+    id_cliente = interfaz.mostrar_y_seleccionar_cliente(clientes_activos)
 
     return clientes.buscar_cliente_por_id(id_cliente)
 
+
+# --- FUNCION MODIFICADA ---
 def seleccionar_departamento_disponible(fecha_ingreso, fecha_egreso):
-    """Permite seleccionar un departamento disponible"""
+    """Maneja la seleccion de un departamento disponible."""
     departamentos_disponibles = departamentos.listar_departamentos_disponibles(fecha_ingreso, fecha_egreso)
 
     if not departamentos_disponibles:
@@ -72,46 +52,48 @@ def seleccionar_departamento_disponible(fecha_ingreso, fecha_egreso):
         return None
 
     titulo = f"DEPARTAMENTOS DISPONIBLES ({fecha_ingreso} al {fecha_egreso})"
-    interfaz.mostrar_lista_departamentos(departamentos_disponibles, titulo)
+    id_departamento = interfaz.mostrar_y_seleccionar_departamento(departamentos_disponibles, titulo)
 
-    return input_datos.seleccionar_elemento_de_lista(
-        departamentos_disponibles,
-        ID_DEPARTAMENTO,
-        "Ingrese el ID del departamento"
-    )
+    return id_departamento
 
 
 def agregar_nueva_reserva():
     """Guia al usuario para crear una nueva reserva"""
     interfaz.mostrar_titulo_seccion("AGREGAR NUEVA RESERVA")
-    try:
-       fecha_ingreso = pedir_fecha_con_validacion("Fecha de ingreso")
-       fecha_egreso = pedir_fecha_con_validacion("Fecha de egreso")
 
-       if reservas.comparar_fechas_string(fecha_ingreso, fecha_egreso) >= 0:
-           interfaz.mostrar_mensaje_error("La fecha de egreso debe ser posterior a la de ingreso")
-           return
+    fecha_ingreso = input_datos.pedir_fecha_con_validacion("Fecha de ingreso")
+    fecha_egreso = input_datos.pedir_fecha_con_validacion("Fecha de egreso")
 
-       cliente = seleccionar_cliente_activo()
-       id_departamento = seleccionar_departamento_disponible(fecha_ingreso, fecha_egreso)
+    if reservas.comparar_fechas_string(fecha_ingreso, fecha_egreso) >= 0:
+        interfaz.mostrar_mensaje_error("La fecha de egreso debe ser posterior a la de ingreso")
+        return
 
-       departamento = departamentos.buscar_departamento_por_id(id_departamento)
+    # La logica de seleccion ahora esta mas limpia
+    cliente = seleccionar_cliente_activo()
+    if cliente is None:
+        interfaz.mostrar_mensaje_error("No hay clientes activos para seleccionar. Operacion cancelada.")
+        return
 
-       detalles = (f"Cliente: {cliente[NOMBRE_CLIENTE]} {cliente[APELLIDO_CLIENTE]}\n"
-                   f"Departamento: {departamento[UBICACION_DEPARTAMENTO]} ({departamento[AMBIENTES_DEPARTAMENTO]} amb.)\n"
-                   f"Periodo: {fecha_ingreso} al {fecha_egreso}\n"
-                   f"Precio por noche: ${departamento[PRECIO_DEPARTAMENTO]:.2f}")
+    # La logica de seleccion ahora esta mas limpia
+    id_departamento = seleccionar_departamento_disponible(fecha_ingreso, fecha_egreso)
+    if id_departamento is None:
+        interfaz.mostrar_mensaje_info("Operacion cancelada.")
+        return
 
-       if input_datos.confirmar_operacion("reserva", detalles):
-           if reservas.agregar_reserva(cliente[ID_CLIENTE], id_departamento, fecha_ingreso, fecha_egreso):
-               interfaz.mostrar_mensaje_exito("Reserva creada exitosamente")
-           else:
-               interfaz.mostrar_mensaje_error("Error al crear la reserva")
-       else:
-           interfaz.mostrar_mensaje_info("Operacion cancelada")
-    except:
-        print("lawea")
+    departamento = departamentos.buscar_departamento_por_id(id_departamento)
 
+    detalles = (f"Cliente: {cliente[NOMBRE_CLIENTE]} {cliente[APELLIDO_CLIENTE]}\n"
+                f"Departamento: {departamento[UBICACION_DEPARTAMENTO]} ({departamento[AMBIENTES_DEPARTAMENTO]} amb.)\n"
+                f"Periodo: {fecha_ingreso} al {fecha_egreso}\n"
+                f"Precio por noche: ${departamento[PRECIO_DEPARTAMENTO]:.2f}")
+
+    if input_datos.confirmar_operacion("reserva", detalles):
+        if reservas.agregar_reserva(cliente[ID_CLIENTE], id_departamento, fecha_ingreso, fecha_egreso):
+            interfaz.mostrar_mensaje_exito("Reserva creada exitosamente")
+        else:
+            interfaz.mostrar_mensaje_error("Error al crear la reserva")
+    else:
+        interfaz.mostrar_mensaje_info("Operacion cancelada")
 
 
 def mostrar_reservas_activas():
@@ -123,9 +105,7 @@ def mostrar_reservas_activas():
 
     print(f"\n{COLOR_AMARILLO}--- RESERVAS ACTIVAS ---{COLOR_RESET}")
 
-    i = 0
-    while i < len(reservas_activas):
-        reserva = reservas_activas[i]
+    for reserva in reservas_activas:
         cliente = clientes.buscar_cliente_por_id(reserva[INDICE_ID_CLIENTE])
         departamento = departamentos.buscar_departamento_por_id(reserva[INDICE_ID_DEPARTAMENTO])
 
@@ -134,7 +114,6 @@ def mostrar_reservas_activas():
                   f"{cliente[NOMBRE_CLIENTE]} {cliente[APELLIDO_CLIENTE]} | "
                   f"{departamento[UBICACION_DEPARTAMENTO]} | "
                   f"{reserva[INDICE_FECHA_INGRESO]} al {reserva[INDICE_FECHA_EGRESO]}")
-        i = i + 1
 
     return reservas_activas
 
@@ -280,12 +259,9 @@ def buscar_por_departamento():
         interfaz.mostrar_mensaje_error("No hay departamentos activos")
         return
 
-    interfaz.mostrar_lista_departamentos(departamentos_activos, "DEPARTAMENTOS DISPONIBLES")
-
-    id_departamento = input_datos.seleccionar_elemento_de_lista(
+    id_departamento = interfaz.mostrar_y_seleccionar_departamento(
         departamentos_activos,
-        ID_DEPARTAMENTO,
-        "Ingrese el ID del departamento"
+        "DEPARTAMENTOS DISPONIBLES"
     )
 
     if not id_departamento:
@@ -300,9 +276,7 @@ def buscar_por_departamento():
     departamento = departamentos.buscar_departamento_por_id(id_departamento)
     print(f"\n{COLOR_VERDE}--- RESERVAS DEL DEPARTAMENTO {departamento[UBICACION_DEPARTAMENTO]} ---{COLOR_RESET}")
 
-    i = 0
-    while i < len(reservas_departamento):
-        reserva = reservas_departamento[i]
+    for reserva in reservas_departamento:
         cliente = clientes.buscar_cliente_por_id(reserva[INDICE_ID_CLIENTE])
         estado_formateado = interfaz.formatear_estado(reserva[INDICE_ESTADO])
 
@@ -314,7 +288,6 @@ def buscar_por_departamento():
               f"{cliente[NOMBRE_CLIENTE]} {nombre_truncado:15s} | "
               f"{reserva[INDICE_FECHA_INGRESO]} al {reserva[INDICE_FECHA_EGRESO]} | "
               f"{estado_formateado}")
-        i = i + 1
 
 
 def listar_todas_las_reservas_activas():
@@ -326,9 +299,7 @@ def listar_todas_las_reservas_activas():
         return
 
     datos_tabla = []
-    i = 0
-    while i < len(reservas_activas):
-        reserva = reservas_activas[i]
+    for reserva in reservas_activas:
         cliente = clientes.buscar_cliente_por_id(reserva[INDICE_ID_CLIENTE])
         departamento = departamentos.buscar_departamento_por_id(reserva[INDICE_ID_DEPARTAMENTO])
 
@@ -352,7 +323,6 @@ def listar_todas_las_reservas_activas():
                 reserva[INDICE_ESTADO]
             ]
             datos_tabla.append(fila)
-        i = i + 1
 
     columnas = ["ID", "CLIENTE", "DEPARTAMENTO", "PERIODO", "ESTADO"]
     anchos = [6, 20, 25, 23, 10]
@@ -370,19 +340,17 @@ def consultar_disponibilidad_directa():
         interfaz.mostrar_mensaje_error("No hay departamentos activos para consultar.")
         return
 
-    interfaz.mostrar_lista_departamentos(deptos_activos, "DEPARTAMENTOS ACTIVOS")
-
-    id_depto = input_datos.seleccionar_elemento_de_lista(
+    id_depto = interfaz.mostrar_y_seleccionar_departamento(
         deptos_activos,
-        ID_DEPARTAMENTO,
-        "Ingrese el ID del departamento a consultar"
+        "DEPARTAMENTOS ACTIVOS"
     )
+
     if not id_depto:
         interfaz.mostrar_mensaje_info("Seleccion cancelada.")
         return
 
-    fecha_ingreso = pedir_fecha_con_validacion("Fecha de inicio de la consulta")
-    fecha_egreso = pedir_fecha_con_validacion("Fecha de fin de la consulta")
+    fecha_ingreso = input_datos.pedir_fecha_con_validacion("Fecha de inicio de la consulta")
+    fecha_egreso = input_datos.pedir_fecha_con_validacion("Fecha de fin de la consulta")
 
     if reservas.comparar_fechas_string(fecha_ingreso, fecha_egreso) >= 0:
         interfaz.mostrar_mensaje_error("La fecha de fin debe ser posterior a la de inicio.")
@@ -420,4 +388,5 @@ def menu_reservas():
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
             continuar_menu = False
 
-        input_datos.pausar()
+        if continuar_menu:
+            input_datos.pausar()

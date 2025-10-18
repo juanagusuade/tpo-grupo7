@@ -33,6 +33,26 @@ def pedir_input_con_validacion(prompt, funcion_validacion=None, mensaje_error="D
             return valor
 
 
+def validar_alfabetico(valor_str):
+    """
+    Valida que un string contenga solo letras y espacios,
+    y que no sea un string vacio o solo de espacios.
+    """
+    if type(valor_str) != str:
+        return False
+
+    # Verificar que no este vacio o solo espacios
+    if len(valor_str.strip()) == 0:
+        return False
+
+    # Verificar caracter por caracter
+    for caracter in valor_str:
+        if not (caracter.isalpha() or caracter.isspace()):
+            return False
+
+    return True
+
+
 # ======================= OPCIONES DE MENU =======================
 
 def pedir_opcion_menu(cantidad_opciones, mensaje=""):
@@ -121,7 +141,7 @@ def pedir_texto_alfabetico(prompt):
     """Pide un texto que solo contenga letras y espacios"""
     return pedir_input_con_validacion(
         prompt,
-        lambda valor: all(c.isalpha() or c.isspace() for c in valor) and len(valor.strip()) > 0,
+        validar_alfabetico,
         "Solo se permiten letras y espacios"
     )
 

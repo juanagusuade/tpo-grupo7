@@ -1,54 +1,35 @@
 from common.constantes import *
+import common.entrada_datos as input_datos
 
 
 # ======================= HEADERS Y TITULOS =======================
 
-def mostrar_header_principal(titulo):
-    """Muestra un header principal con formato destacado"""
+def mostrar_titulo_decorado(titulo, caracter='=', longitud_minima=50, color=COLOR_AZUL):
+    """Funcion base para mostrar titulos con decoracion"""
     longitud = len(titulo)
-    if longitud < 70:
-        longitud = 70
-    print(f"\n{COLOR_AZUL}{'=' * longitud}")
+    if longitud < longitud_minima:
+        longitud = longitud_minima
+
+    linea = caracter * longitud
+    print(f"\n{color}{linea}")
     print(f"{titulo:^{longitud}}")
-    print(f"{'=' * longitud}{COLOR_RESET}")
+    print(f"{linea}{COLOR_RESET}")
+
+
+def mostrar_header_principal(titulo):
+    mostrar_titulo_decorado(titulo, '=', 70, COLOR_AZUL)
 
 
 def mostrar_header_modulo(titulo):
-    """Muestra un header de modulo con formato especifico"""
-    longitud = 60
-    print(f"\n{COLOR_MAGENTA}{'*' * longitud}")
-    print(f"{titulo:^{longitud}}")
-    print(f"{'*' * longitud}{COLOR_RESET}")
+    mostrar_titulo_decorado(titulo, '*', 60, COLOR_MAGENTA)
 
 
 def mostrar_titulo_seccion(titulo):
-    """Muestra un titulo de seccion con formato"""
-    longitud = len(titulo)
-    if longitud < 50:
-        longitud = 50
-    print(f"\n{COLOR_AZUL}{'=' * longitud}")
-    print(f"{titulo:^{longitud}}")
-    print(f"{'=' * longitud}{COLOR_RESET}")
+    mostrar_titulo_decorado(titulo, '=', 50, COLOR_AZUL)
 
 
 def mostrar_subtitulo(subtitulo):
-    """Muestra un subtitulo con formato"""
-    longitud = len(subtitulo)
-    if longitud < 35:
-        longitud = 35
-    print(f"\n{COLOR_CYAN}{LINEA_FINA * longitud}")
-    print(f"{subtitulo:^{longitud}}")
-    print(f"{LINEA_FINA * longitud}{COLOR_RESET}")
-
-
-def mostrar_titulo(titulo):
-    """Muestra un titulo con formato (version legacy de utils)"""
-    longitud = len(titulo)
-    borde = LINEA_GRUESA * (longitud + 4)
-    print(f"\n{COLOR_AZUL}{borde}")
-    print(f"  {titulo}")
-    print(f"{borde}{COLOR_RESET}")
-
+    mostrar_titulo_decorado(subtitulo, LINEA_FINA, 35, COLOR_CYAN)
 
 # ======================= MENUS =======================
 
@@ -58,22 +39,10 @@ def mostrar_menu_opciones(opciones, titulo, ancho):
     print(f"{titulo:^{ancho}}")
     print(f"{LINEA_FINA * ancho}{COLOR_RESET}")
 
-    i = 0
-    while i < len(opciones):
-        print(f"{COLOR_VERDE}{i + 1}.{COLOR_RESET} {opciones[i]}")
-        i = i + 1
+    for i, opcion in enumerate(opciones):
+        print(f"{COLOR_VERDE}{i + 1}.{COLOR_RESET} {opcion}")
 
     print(f"{COLOR_CYAN}{LINEA_FINA * ancho}{COLOR_RESET}")
-
-
-def mostrar_opciones_menu(opciones, titulo="Menu"):
-    """Muestra opciones de menu de forma elegante (version legacy)"""
-    mostrar_subtitulo(titulo)
-    i = 0
-    while i < len(opciones):
-        print(f"{COLOR_CYAN}{i + 1:2d}. {COLOR_RESET}{opciones[i]}")
-        i = i + 1
-    mostrar_separador()
 
 
 # ======================= MENSAJES =======================
@@ -96,7 +65,7 @@ def mostrar_mensaje_info(mensaje):
 # ======================= LISTAS DE DATOS =======================
 
 def mostrar_lista_clientes_activos(clientes_lista):
-    """Muestra lista de clientes con formato especifico"""
+    """Muestra lista de clientes"""
     print(f"\n{COLOR_AMARILLO}--- CLIENTES ACTIVOS DISPONIBLES ---{COLOR_RESET}")
 
     for cliente in clientes_lista:
@@ -111,18 +80,68 @@ def mostrar_lista_departamentos(departamentos_lista, titulo):
     """Muestra lista de departamentos con formato especifico"""
     print(f"\n{COLOR_AMARILLO}--- {titulo} ---{COLOR_RESET}")
 
-    i = 0
-    while i < len(departamentos_lista):
-        depto = departamentos_lista[i]
+    for depto in departamentos_lista:
         print(f"{COLOR_VERDE}ID {depto[ID_DEPARTAMENTO]:5d}{COLOR_RESET} - "
               f"{depto[UBICACION_DEPARTAMENTO]} | "
               f"{depto[AMBIENTES_DEPARTAMENTO]} amb. | "
               f"Cap: {depto[CAPACIDAD_DEPARTAMENTO]} pers. | "
               f"${depto[PRECIO_DEPARTAMENTO]:.2f}/noche")
-        i = i + 1
 
     return departamentos_lista
 
+
+def mostrar_departamento_detallado(dep):
+    """Muestra el detalle de un departamento."""
+    idd = dep.get(ID_DEPARTAMENTO, "N/A")
+    ubicacion = dep.get(UBICACION_DEPARTAMENTO, "N/A")
+    ambientes = dep.get(AMBIENTES_DEPARTAMENTO, "N/A")
+    capacidad = dep.get(CAPACIDAD_DEPARTAMENTO, "N/A")
+    estado = dep.get(ESTADO_DEPARTAMENTO, "N/A")
+    precio = dep.get(PRECIO_DEPARTAMENTO, 0.0)
+    activo = dep.get(ACTIVO_DEPARTAMENTO, False)
+
+    etiqueta_activo = f"{COLOR_VERDE}ACTIVO{COLOR_RESET}" if activo else f"{COLOR_ROJO}INACTIVO{COLOR_RESET}"
+
+    # Truncar ubicacion si es muy larga
+    if len(ubicacion) > 24:
+        ubicacion = ubicacion[:24] + "…"
+
+    # ID (6) | Ubicacion (25) | Amb (5) | Cap (5) | Precio (10) | Estado (13) | Activo (8)
+    print(f"{COLOR_VERDE}ID {idd:<5d}{COLOR_RESET} | "
+          f"{ubicacion:<25s} | "
+          f"{str(ambientes):>3s} amb | "
+          f"{str(capacidad):>3s} cap | "
+          f"${precio:>8.2f} | "
+          f"{estado:<13s} | "
+          f"{etiqueta_activo}")
+
+
+def mostrar_lista_departamentos_detallada(lista: list, titulo="LISTA DE DEPARTAMENTOS"):
+    """Muestra una lista de departamentos con detalles ."""
+    if not lista:
+        mostrar_mensaje_info("No hay departamentos cargados.")
+        return
+
+    print(f"\n{COLOR_AMARILLO}--- {titulo} ---{COLOR_RESET}")
+
+    # encabezado de columnas
+    ancho_total = 88
+    header = (
+        f"{COLOR_MAGENTA}ID      | "
+        f"UBICACION                 | "
+        f"AMB   | "
+        f"CAP   | "
+        f"PRECIO      | "
+        f"ESTADO        | "
+        f"ACTIVO{COLOR_RESET}"
+    )
+    print(header)
+    print(f"{COLOR_CYAN}{LINEA_FINA * ancho_total}{COLOR_RESET}")
+
+    for depto in lista:
+        mostrar_departamento_detallado(depto)
+
+    print(f"{COLOR_CYAN}{LINEA_FINA * ancho_total}{COLOR_RESET}")
 
 # ======================= TABLAS FORMATEADAS =======================
 
@@ -137,10 +156,8 @@ def mostrar_tabla(titulo, datos, columnas, anchos):
     """
     # Calcular ancho total
     ancho_total = 0
-    i = 0
-    while i < len(anchos):
-        ancho_total = ancho_total + anchos[i]
-        i = i + 1
+    for ancho in anchos:
+        ancho_total = ancho_total + ancho
     ancho_total = ancho_total + len(anchos) - 1
 
     print(f"\n{COLOR_AZUL}{'=' * ancho_total}")
@@ -149,25 +166,19 @@ def mostrar_tabla(titulo, datos, columnas, anchos):
 
     # Header de columnas
     header = ""
-    i = 0
-    while i < len(columnas):
-        col = columnas[i]
+    for i, col in enumerate(columnas):
         ancho = anchos[i]
         header = header + f"{col:<{ancho}}"
         if i < len(columnas) - 1:
             header = header + " "
-        i = i + 1
     print(f"\n{COLOR_MAGENTA}{header}{COLOR_RESET}")
     print(f"{COLOR_CYAN}{'-' * ancho_total}{COLOR_RESET}")
 
     # Datos
-    i = 0
-    while i < len(datos):
-        fila = datos[i]
+    for fila in datos:
         linea = ""
-        j = 0
-        while j < len(fila):
-            valor = str(fila[j])
+        for j, valor_original in enumerate(fila):
+            valor = str(valor_original)
             ancho = anchos[j]
             # Truncar si es muy largo
             if len(valor) >= ancho:
@@ -175,9 +186,7 @@ def mostrar_tabla(titulo, datos, columnas, anchos):
             linea = linea + f"{valor:<{ancho}}"
             if j < len(fila) - 1:
                 linea = linea + " "
-            j = j + 1
         print(linea)
-        i = i + 1
 
     print(f"\n{COLOR_CYAN}Total de registros: {COLOR_VERDE}{len(datos)}{COLOR_RESET}")
 
@@ -222,3 +231,39 @@ def mostrar_despedida():
     print(f"{'GRACIAS POR USAR EL SISTEMA':^50}")
     print(f"{'Hasta la proxima!':^50}")
     print(f"{'=' * 50}{COLOR_RESET}\n")
+
+
+# ======================= SELECCION DE UI (NUEVO) =======================
+
+def mostrar_y_seleccionar_cliente(clientes_lista):
+    """
+    Muestra la lista de clientes y pide al usuario que elija uno.
+    Retorna el ID del cliente seleccionado.
+    """
+    if not clientes_lista:
+        return None
+
+    mostrar_lista_clientes_activos(clientes_lista)
+
+    return input_datos.seleccionar_elemento_de_lista(
+        clientes_lista,
+        ID_CLIENTE,
+        "Ingrese el ID del cliente"
+    )
+
+
+def mostrar_y_seleccionar_departamento(departamentos_lista, titulo):
+    """
+    Muestra la lista de departamentos y pide al usuario que elija uno.
+    Retorna el ID del depto seleccionado.
+    """
+    if not departamentos_lista:
+        return None
+
+    mostrar_lista_departamentos(departamentos_lista, titulo)
+
+    return input_datos.seleccionar_elemento_de_lista(
+        departamentos_lista,
+        ID_DEPARTAMENTO,
+        "Ingrese el ID del departamento"
+    )

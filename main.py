@@ -7,7 +7,6 @@ from ui.menu_estadisticas import gestionar_estadisticas
 import common.poblador as poblador
 from common.constantes import USUARIOS
 
-
 def autenticar_usuario():
     """
     Solicita usuario y contrasenia, y los valida contra la tupla de USUARIOS.

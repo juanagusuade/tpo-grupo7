@@ -2,6 +2,7 @@ from common.constantes import *
 from common.generadores import generar_id_unico_lista
 from common.validaciones import validar_fecha, campos_son_validos, fecha_a_dias
 from common.manejo_errores import manejar_error_inesperado
+from functools import reduce
 
 ENTIDAD_RESERVAS = "Reservas"
 
@@ -181,6 +182,7 @@ def calcular_dias_ocupados_depto(id_departamento, periodo_dias):
         return 0
 
 
+
 def calcular_duracion_promedio_reservas():
     """Calcula la duración promedio en días de todas las reservas activas."""
     try:
@@ -188,10 +190,13 @@ def calcular_duracion_promedio_reservas():
         if not reservas_activas:
             return 0.0
 
-        total_dias = sum(
-            fecha_a_dias(r[INDICE_FECHA_EGRESO]) - fecha_a_dias(r[INDICE_FECHA_INGRESO])
-            for r in reservas_activas
+        total_dias = reduce(
+            lambda acumulador, reserva: acumulador + (
+                        fecha_a_dias(reserva[INDICE_FECHA_EGRESO]) - fecha_a_dias(reserva[INDICE_FECHA_INGRESO])),
+            reservas_activas,
+            0  #valor inicial del acumulador
         )
+
         return float(total_dias) / len(reservas_activas)
     except (TypeError, ValueError, ZeroDivisionError):
         manejar_error_inesperado(ENTIDAD_RESERVAS, "calcular duración promedio")
