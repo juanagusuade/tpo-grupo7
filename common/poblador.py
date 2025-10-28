@@ -18,12 +18,15 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
     """
     Verifica si las listas de dominio estan vacias y, de ser asi,
     las puebla con datos aleatorios de ejemplo.
+    
+    Parametros:
+        num_clientes (int): Cantidad de clientes a generar
+        num_deptos (int): Cantidad de departamentos a generar
+        num_reservas (int): Cantidad de reservas a intentar generar
     """
-    # Se ejecuta solo si el sistema no tiene ningun cliente
     if not clientes.listar_clientes_activos():
         interfaz.mostrar_mensaje_info("Sistema vacio. Cargando datos de ejemplo...")
 
-        # --- 1. Crear Clientes ---
         for _ in range(num_clientes):
             nombre = random.choice(NOMBRES)
             apellido = random.choice(APELLIDOS)
@@ -31,7 +34,6 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
             telefono = "11" + str(random.randint(20000000, 69999999))
             clientes.agregar_cliente(nombre, apellido, dni, telefono)
 
-        # --- 2. Crear Departamentos ---
         for _ in range(num_deptos):
             ubicacion = random.choice(UBICACIONES)
             ambientes = random.randint(1, 4)
@@ -39,7 +41,6 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
             precio = round(random.uniform(50.0, 250.0), 2)
             departamentos.agregar_departamento(ubicacion, ambientes, capacidad, "Disponible", precio)
 
-        # --- 3. Crear Reservas ---
         clientes_existentes = clientes.listar_clientes_activos()
         deptos_existentes = departamentos.listar_departamentos_activos()
 
@@ -47,13 +48,12 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
         ids_deptos = list(map(lambda d: d[ID_DEPARTAMENTO], deptos_existentes))
 
         k = 0
-        intentos = 0  # Para evitar bucles infinitos si no hay disponibilidad
+        intentos = 0
 
         for _ in range(num_reservas):
             if intentos >= 50:
-                # Si se superan los 50 intentos (ej. no hay mas fechas),
-                # no se intentan crear mas reservas.
-                continue
+                # evitar bucles infinitos
+                continue # sale del for
 
             reserva_creada = False
             while not reserva_creada and intentos < 50:
@@ -61,16 +61,16 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
                 id_depto_sel = random.choice(ids_deptos)
 
                 anio = 2025
-                mes = random.randint(9, 12)
-                dia_ingreso = random.randint(1, 20)
+                mes = random.randint(10, 12)
+                dia_ingreso = random.randint(1, 29)
                 duracion = random.randint(3, 8)
                 dia_egreso = dia_ingreso + duracion
-
+                # TODO: Ver como usar las funciones que tenemos ahora para que los meses y dias sean dinamicos.
                 fecha_ingreso_str = f"{dia_ingreso:02d}/{mes:02d}/{anio}"
                 fecha_egreso_str = f"{dia_egreso:02d}/{mes:02d}/{anio}"
 
                 if reservas.agregar_reserva(id_cliente_sel, id_depto_sel, fecha_ingreso_str, fecha_egreso_str):
-                    k = k + 1  # Aumenta el contador de reservas exitosas
+                    k = k + 1
                     reserva_creada = True
 
                 intentos = intentos + 1

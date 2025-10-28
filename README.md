@@ -8,6 +8,25 @@ Las entidades principales son:
 - **Departamentos**: representan cada unidad disponible para alquiler con sus características (ubicación, número de ambientes, capacidad, estado, precio por noche).
 - **Reservas**: vinculan a un cliente con un departamento en un período determinado.
 
+## Técnicas Avanzadas Implementadas
+
+### Programación Estructurada
+El sistema utiliza técnicas de programación estructurada:
+- **`any()`**: Búsqueda eficiente de elementos (DNI duplicados)
+- **`map()`**: Transformación de listas para extracción de IDs
+- **`filter()`**: Filtrado de elementos activos en clientes y departamentos
+- **`reduce()`**: Cálculos acumulativos para estadísticas de reservas
+- **Comprensiones de lista**: Uso extensivo para operaciones de filtrado y transformación
+- **Expresiones lambda**: Funciones anónimas en filter y map
+- **Generadores**: Uso de `next()` con expresiones generadoras para búsquedas eficientes
+- **Ciclos for**: Validación de campos y caracteres
+
+### Persistencia de Datos (Módulo Repository)
+Implementación de persistencia con **dos estrategias diferentes**:
+- **JSON** para clientes y departamentos (formato estructurado, mantiene tipos)
+- **TXT delimitado** para reservas (append eficiente, archivo temporal para seguridad)
+- Manejo robusto de errores y estrategias de recuperación
+
 ## Funcionalidades principales
 
 ### Gestión de Clientes
@@ -28,18 +47,18 @@ Las entidades principales son:
 - Estados: Disponible, Ocupado, Mantenimiento
 
 ### Gestión de Reservas
-- **Crear reservas** con validación automática de disponibilidad
+- **Crear reservas** con validación de fechas
 - **Modificar reservas** activas (fechas de ingreso y egreso)
 - **Cancelar reservas** con confirmación del usuario
 - **Búsqueda de reservas** por cliente o por departamento
 - **Listar todas las reservas activas** con formato de tabla
 - **Consulta directa de disponibilidad** de departamentos para fechas específicas
-- Validación automática de solapamiento de fechas
 - Verificación de que fecha de egreso sea posterior a ingreso
 
 ### Reportes y Estadísticas
-- **Porcentaje de ocupación por departamento** en los últimos 365 días
-- **Duración promedio de reservas** activas en el sistema
+- **Porcentaje de ocupación por departamento**: Calcula el porcentaje de días ocupados sobre un período de 365 días
+- **Días ocupados por departamento**: Suma total de días que un departamento estuvo reservado
+- **Duración promedio de reservas**: Usa `reduce()` de programación funcional para calcular promedio de estadías
 - Formato de tablas profesionales para presentación de datos
 
 ### Sistema de Autenticación
@@ -140,9 +159,9 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 - **IDs únicos**: Generación automática de 5 dígitos con verificación de unicidad
 
 ### Validaciones de Negocio
-- **Reservas**: Fecha egreso posterior a ingreso, verificación de disponibilidad
-- **Solapamiento**: Algoritmo que verifica conflictos de fechas entre reservas
+- **Reservas**: Fecha egreso posterior a ingreso, verificación de fechas válidas
 - **Estados consistentes**: Validación de transiciones de estado válidas
+- **DNI único**: Verificación con `any()` que evita duplicados al agregar o modificar clientes
 
 ## Funcionalidades Avanzadas
 
@@ -160,12 +179,222 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 ### Poblado Automático de Datos
 - **Datos de ejemplo**: Generación automática de clientes, departamentos y reservas al inicio
 - **Datos realistas**: Nombres, ubicaciones y fechas con sentido
-- **Prevención de conflictos**: Verificación de disponibilidad al generar reservas ejemplo
+- **Fechas variadas**: Reservas con distintos rangos de fechas
 
 ### Programación Funcional
 - **Uso de `map`**: Implementado para la transformación de listas, como la extracción de IDs de clientes y departamentos para el poblador de datos.
 - **Uso de `filter`**: Implementado para el filtrado de listas, como en las funciones `listar_clientes_activos` y `listar_departamentos_activos`.
 - **Uso de `reduce`**: Importado de `functools` y utilizado para cálculos acumulativos, como en `calcular_duracion_promedio_reservas`.
+
+## Estructura del Proyecto
+
+### Módulo `domain/` - Lógica de Negocio
+# Búsqueda de DNI con any()
+def buscar_dni(lista_clientes, dni):
+    return any(cliente["dni"] == dni for cliente in lista_clientes)
+
+# Validación de teléfono con ciclo for
+def validar_telefono(tel):
+    if len(tel) < 7:
+        return False
+    caracteres_validos = "0123456789 -()+."
+    for caracter in tel:
+        if caracter not in caracteres_validos:
+            return False
+    return True
+```
+
+### Técnicas de Programación Utilizadas
+
+El sistema utiliza diversas técnicas de programación:
+
+**`any()` - Búsqueda eficiente:**
+```python
+# En clientes.py
+def buscar_dni(lista_clientes, dni):
+    return any(cliente[DNI_CLIENTE] == dni for cliente in lista_clientes)
+
+def buscar_dni_diferente_id(lista_clientes, dni, id_excluir):
+    return any(
+        cliente[DNI_CLIENTE] == dni and cliente[ID_CLIENTE] != id_excluir
+        for cliente in lista_clientes
+    )
+```
+
+**Ciclos `for` - Validación con control de flujo:**
+```python
+# En validaciones.py
+def campos_son_validos(*campos):
+    for campo in campos:
+        if campo is None:
+            return False
+        if type(campo) == str and len(campo.strip()) == 0:
+            return False
+        if type(campo) == list and len(campo) == 0:
+            return False
+    return True
+
+def validar_telefono(tel):
+    if len(tel) < 7:
+        return False
+    caracteres_validos = "0123456789 -()+."
+    for caracter in tel:
+        if caracter not in caracteres_validos:
+            return False
+    return True
+```
+
+**`filter()` - Filtrado declarativo:**
+```python
+# Listar solo clientes activos
+clientes_activos = list(filter(lambda c: c[ACTIVO_CLIENTE], clientes))
+```
+
+**`map()` y `reduce()` - Transformación y acumulación:**
+```python
+# Extraer IDs
+ids = list(map(lambda c: c[ID_CLIENTE], clientes))
+
+# Sumar días ocupados
+from functools import reduce
+total_dias = reduce(lambda acc, r: acc + calcular_dias(...), reservas, 0)
+```
+
+## Módulo de Persistencia (Repository)
+
+El sistema incluye un módulo para persistencia de datos con dos estrategias:
+
+### Archivos y Responsabilidades
+
+#### `persistence_json.py` - Persistencia en formato JSON
+**Responsable de:** Clientes y Departamentos
+
+**Formato:** Listas de diccionarios en JSON
+```json
+[{"id": 1, "nombre": "Juan", "activo": true}, ...]
+```
+
+**Funciones principales:**
+- `leer_clientes()`, `guardar_clientes(lista)`
+- `leer_departamentos()`, `guardar_departamentos(lista)`
+
+**Características:**
+- Formato legible por humanos
+- Mantiene tipos de datos automáticamente (bool, int, str)
+- Estructura jerárquica con indentación
+- Mejor para datos que requieren estructura compleja
+
+#### `persistence_txt.py` - Persistencia en formato TXT delimitado
+**Responsable de:** Reservas
+
+**Estructura TXT:**
+```
+12345;67890;54321;25/08/2025;30/08/2025;ACTIVO
+23456;78901;65432;01/09/2025;05/09/2025;ACTIVO
+```
+
+**Funciones principales:**
+- `leer_reservas()`: Lee todas las reservas línea por línea
+- `guardar_reservas_txt(lista)`: Guarda lista completa usando archivo temporal
+- `agregar_reserva_txt(reserva)`: Agrega una reserva al final (modo append)
+
+**Funciones auxiliares (traductores):**
+- `parsear_reserva_txt(linea)`: Convierte string → lista de reserva
+- `formatear_reserva_txt(reserva)`: Convierte lista de reserva → string
+
+**Características:**
+- Formato liviano y eficiente
+- Modo append para agregar rápidamente sin reescribir todo
+- Archivo temporal para seguridad en modificaciones
+- Todo se guarda como texto, requiere conversión manual de tipos
+
+### Estrategias de Escritura
+
+#### JSON: Sobrescritura Total
+1. Abrir archivo en modo 'w' (write)
+2. Usar `json.dump()` para escribir toda la estructura
+3. Cerrar archivo
+
+**Ventajas:** Simple, mantiene tipos automáticamente
+**Desventajas:** Reescribe todo el archivo en cada guardado
+
+#### TXT: Modo Append (para agregar)
+1. Abrir archivo en modo 'a' (append)
+2. Agregar nueva línea al final
+3. Cerrar archivo
+
+**Ventajas:** Muy rápido, no toca datos existentes
+**Desventajas:** No permite modificar líneas anteriores
+
+#### TXT: Archivo Temporal (para modificar/eliminar)
+1. Crear archivo `.tmp` temporal
+2. Escribir todos los datos en el temporal
+3. Si tiene éxito, reemplazar archivo original con `os.replace()`
+4. Si falla, el original queda intacto
+
+**Ventajas:** Seguridad, no corrompe datos si falla
+**Desventajas:** Más lento, requiere espacio temporal
+
+### Lectura de Archivos
+
+#### JSON: Lectura Completa
+```python
+archivo = open(ruta, 'r', encoding='UTF-8')
+datos = json.load(archivo)  # Carga TODO en memoria
+archivo.close()
+```
+
+#### TXT: Lectura Línea por Línea
+```python
+archivo = open(ruta, 'r', encoding='utf-8')
+linea = archivo.readline()  # Primera línea
+while linea:                # Mientras haya contenido
+    procesar(linea)
+    linea = archivo.readline()  # Siguiente línea
+archivo.close()
+```
+
+**Ventaja:** Usa menos memoria, procesa mientras lee
+
+### Manejo de Errores en Persistencia
+
+Ambos módulos implementan manejo robusto de errores:
+
+**Errores capturados:**
+- `FileNotFoundError`: Archivo no existe (normal en primera ejecución)
+- `json.JSONDecodeError`: JSON corrupto o mal formateado
+- `OSError` / `PermissionError`: Problemas de permisos o disco
+- `IOError`: Errores de entrada/salida
+
+**Estrategia:**
+- Todos los errores se registran con `manejar_error_inesperado()`
+- Las funciones retornan valores seguros (lista vacía o False)
+- Se usa bloque `finally` para asegurar cierre de archivos
+
+### Comparación: JSON vs TXT
+
+| Característica | JSON | TXT Delimitado |
+|----------------|------|----------------|
+| Legibilidad | ★★★★★ | ★★★☆☆ |
+| Tamaño archivo | Más grande | Más pequeño |
+| Mantiene tipos | Automático | Manual |
+| Append eficiente | No | Sí |
+| Estructura jerárquica | Sí | No |
+| Parsing | Automático | Manual |
+| Validación | Auto-verificable | Propenso a errores |
+
+### Por Qué Esta Separación
+
+**Clientes y Departamentos en JSON:**
+- Estructuras más complejas (diccionarios)
+- Se modifican con menos frecuencia
+- Beneficio de mantener tipos automáticamente
+
+**Reservas en TXT:**
+- Se agregan constantemente (beneficio de append)
+- Estructura simple (lista de valores)
+- Archivos más livianos
+- Demostración de manejo de archivos de texto plano
 
 ## Convenciones de Programación
 
@@ -195,10 +424,10 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 ## Credenciales de Acceso
 
 El sistema incluye 4 usuarios predefinidos:
-- **Usuario**: `evecent` | **Contraseña**: `evelamaspiola123`
-- **Usuario**: `baltaa` | **Contraseña**: `baltalocuradelcodigo`
-- **Usuario**: `valen` | **Contraseña**: `valentiburondelatlantico`
-- **Usuario**: `juanagus` | **Contraseña**: `password1234noolvidar`
+- **Usuario**: `evecent` | **Contraseña**: `evecent1234`
+- **Usuario**: `baltaa` | **Contraseña**: `baltaa1234`
+- **Usuario**: `valen` | **Contraseña**: `valen1234`
+- **Usuario**: `juanagus` | **Contraseña**: `juanagus1234`
 
 ## Instalación y Ejecución
 

@@ -1,5 +1,3 @@
-	# Constantes para claves de diccionarios y matrices
-
 # =============+- CLIENTES -+============= #
 
 ID_CLIENTE = "id"
@@ -60,10 +58,19 @@ MARCA_ERROR = "✗"
 
 # Tupla de tuplas para almacenar usuarios validos (usuario, contrasenia)
 USUARIOS = (
-    ("evecent", "evelamaspiola123"),
-    ("baltaa", "baltalocuradelcodigo"),
-    ("valen", "valentiburondelatlantico"),
-    ("juanagus", "password1234noolvidar"),
-    ("a", "a")
+    ("evecent", "evecent1234"),
+    ("baltaa", "baltaa1234"),
+    ("valen", "valen1234"),
+    ("juanagus", "juanagus1234")
 )
+
+# =============+- ARCHIVOS -+============= #
+
+DATA_FOLDER = 'data'
+
+RUTA_CLIENTES = f"{DATA_FOLDER}/clientes.json"
+RUTA_DEPARTAMENTOS = f"{DATA_FOLDER}/departamentos.json"
+RUTA_RESERVAS = f"{DATA_FOLDER}/reservas.txt"
+
+DELIMITADOR = ";"
 
