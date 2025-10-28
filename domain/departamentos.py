@@ -238,7 +238,8 @@ def listar_departamentos_disponibles(fecha_ingreso, fecha_egreso):
 
 def verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fecha_egreso_str):
     """
-    Verifica si un departamento esta disponible.
+    Verifica si un departamento esta disponible en un rango de fechas.
+    Permite que el ultimo dia de una reserva coincida con el primer dia de otra.
     
     Parametros:
         id_departamento (int): ID del departamento
@@ -246,6 +247,21 @@ def verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fe
         fecha_egreso_str (str): Fecha de egreso deseada
     
     Retorna:
-        bool: True (siempre disponible, se permiten solapamientos)
+        bool: True si esta disponible, False si hay solapamiento o error
     """
-    return True
+    try:
+        for r in reservas:
+            if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO:
+                comp_inicio_nueva_fin_reserva = comparar_fechas_string(fecha_ingreso_str, r[INDICE_FECHA_EGRESO])
+                comp_inicio_reserva_fin_nueva = comparar_fechas_string(r[INDICE_FECHA_INGRESO], fecha_egreso_str)
+
+                if comp_inicio_nueva_fin_reserva is None or comp_inicio_reserva_fin_nueva is None:
+                    return False
+
+                if comp_inicio_nueva_fin_reserva < 0 and comp_inicio_reserva_fin_nueva < 0:
+                    return False
+
+        return True
+    except (TypeError, IndexError):
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "verificar disponibilidad")
+        return False

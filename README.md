@@ -21,6 +21,10 @@ El sistema utiliza técnicas de programación estructurada:
 - **Generadores**: Uso de `next()` con expresiones generadoras para búsquedas eficientes
 - **Ciclos for**: Validación de campos y caracteres
 
+### Recursividad (Uso Didáctico)
+Se mantiene **1 función recursiva** como ejemplo didáctico:
+- `verificar_disponibilidad_recursivo()`: Valida disponibilidad de reservas verificando solapamiento de fechas recursivamente
+
 ### Persistencia de Datos (Módulo Repository)
 Implementación de persistencia con **dos estrategias diferentes**:
 - **JSON** para clientes y departamentos (formato estructurado, mantiene tipos)
@@ -47,12 +51,13 @@ Implementación de persistencia con **dos estrategias diferentes**:
 - Estados: Disponible, Ocupado, Mantenimiento
 
 ### Gestión de Reservas
-- **Crear reservas** con validación de fechas
+- **Crear reservas** con validación automática de disponibilidad
 - **Modificar reservas** activas (fechas de ingreso y egreso)
 - **Cancelar reservas** con confirmación del usuario
 - **Búsqueda de reservas** por cliente o por departamento
 - **Listar todas las reservas activas** con formato de tabla
 - **Consulta directa de disponibilidad** de departamentos para fechas específicas
+- Validación de solapamiento de fechas (permite check-in/check-out el mismo día)
 - Verificación de que fecha de egreso sea posterior a ingreso
 
 ### Reportes y Estadísticas
@@ -159,7 +164,8 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 - **IDs únicos**: Generación automática de 5 dígitos con verificación de unicidad
 
 ### Validaciones de Negocio
-- **Reservas**: Fecha egreso posterior a ingreso, verificación de fechas válidas
+- **Reservas**: Fecha egreso posterior a ingreso, verificación automática de disponibilidad del departamento
+- **Solapamiento de fechas**: Algoritmo recursivo que verifica conflictos, permitiendo check-in/check-out el mismo día
 - **Estados consistentes**: Validación de transiciones de estado válidas
 - **DNI único**: Verificación con `any()` que evita duplicados al agregar o modificar clientes
 
@@ -179,20 +185,40 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 ### Poblado Automático de Datos
 - **Datos de ejemplo**: Generación automática de clientes, departamentos y reservas al inicio
 - **Datos realistas**: Nombres, ubicaciones y fechas con sentido
-- **Fechas variadas**: Reservas con distintos rangos de fechas
+- **Prevención de conflictos**: Verificación de disponibilidad al generar reservas ejemplo
 
 ### Programación Funcional
 - **Uso de `map`**: Implementado para la transformación de listas, como la extracción de IDs de clientes y departamentos para el poblador de datos.
 - **Uso de `filter`**: Implementado para el filtrado de listas, como en las funciones `listar_clientes_activos` y `listar_departamentos_activos`.
 - **Uso de `reduce`**: Importado de `functools` y utilizado para cálculos acumulativos, como en `calcular_duracion_promedio_reservas`.
 
-## Estructura del Proyecto
+### Uso de Recursividad
 
-### Módulo `domain/` - Lógica de Negocio
-# Búsqueda de DNI con any()
-def buscar_dni(lista_clientes, dni):
-    return any(cliente["dni"] == dni for cliente in lista_clientes)
+El sistema implementa **recursividad de manera didáctica** con 1 función que demuestra esta técnica:
 
+#### Verificación de Disponibilidad de Reservas (`reservas.py`)
+**Función:** `verificar_disponibilidad_recursivo(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice=0)`
+
+**Propósito:** Verifica recursivamente si un departamento está disponible en un rango de fechas, chequeando que no haya solapamiento con reservas activas existentes.
+
+**Caso base:** Si el índice llega al final de la lista, no hay conflictos (retorna True).
+
+**Caso recursivo:** Para la reserva actual:
+- Verifica si es del mismo departamento y está activa
+- Verifica si hay solapamiento de fechas con `hay_solapamiento_fechas()`
+- Si hay conflicto retorna False, sino continúa con el siguiente índice
+
+**Uso:** Se utiliza en `agregar_reserva()` y `actualizar_reserva()` para evitar doble reserva.
+
+**Lógica de solapamiento:** Permite que el último día de una reserva coincida con el primer día de otra (check-out y check-in el mismo día). Usa comparaciones estrictas (`<`) en lugar de (`<=`) para permitir esta coincidencia.
+
+**Por qué recursividad:** Ejemplo complejo que combina múltiples validaciones en estructura recursiva, demostrando que la recursividad puede manejar lógica de negocio sofisticada. Se mantiene como ejemplo didáctico.
+
+#### Comparación con Programación Estructurada
+
+**Otras validaciones usan ciclos for tradicionales:**
+
+```python
 # Validación de teléfono con ciclo for
 def validar_telefono(tel):
     if len(tel) < 7:
@@ -203,6 +229,8 @@ def validar_telefono(tel):
             return False
     return True
 ```
+
+**La recursividad se mantiene solo en `verificar_disponibilidad_recursivo()` como ejemplo didáctico de la técnica.**
 
 ### Técnicas de Programación Utilizadas
 

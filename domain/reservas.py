@@ -42,9 +42,78 @@ def comparar_fechas_string(fecha1_str, fecha2_str):
         return None
 
 
+def hay_solapamiento_fechas(inicio1, fin1, inicio2, fin2):
+    """
+    Verifica si dos rangos de fechas se solapan.
+    Permite que el ultimo dia de una reserva coincida con el primer dia de otra.
+    
+    Parametros:
+        inicio1 (str): Fecha de inicio del primer rango
+        fin1 (str): Fecha de fin del primer rango
+        inicio2 (str): Fecha de inicio del segundo rango
+        fin2 (str): Fecha de fin del segundo rango
+    
+    Retorna:
+        bool: True si hay solapamiento, False si no hay solapamiento
+    
+    Logica: Dos rangos se solapan si:
+            - inicio1 < fin2 Y inicio2 < fin1 (no permite coincidencia de dias)
+            Usamos < en lugar de <= para permitir que fin1 == inicio2
+    """
+    comp_inicio1_fin2 = comparar_fechas_string(inicio1, fin2)
+    comp_inicio2_fin1 = comparar_fechas_string(inicio2, fin1)
+    
+    if comp_inicio1_fin2 is None or comp_inicio2_fin1 is None:
+        return True
+    
+    return comp_inicio1_fin2 < 0 and comp_inicio2_fin1 < 0
+
+
+def verificar_disponibilidad_recursivo(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice=0):
+    """
+    Verifica recursivamente si un departamento esta disponible en un rango de fechas.
+    
+    Parametros:
+        lista_reservas (list): Lista de todas las reservas
+        id_depto (int): ID del departamento a verificar
+        fecha_ing (str): Fecha de ingreso deseada
+        fecha_eg (str): Fecha de egreso deseada
+        id_reserva_excluir (int): ID de reserva a excluir (None si es nueva reserva)
+        indice (int): Indice actual en la recursion
+    
+    Retorna:
+        bool: True si esta disponible (no hay solapamiento), False si hay conflicto
+    
+    Caso base: Si llegamos al final de la lista, no hay conflictos
+    Caso recursivo: Si encontramos solapamiento con una reserva activa, retornar False
+    """
+    try:
+        if indice >= len(lista_reservas):
+            return True
+        
+        reserva_actual = lista_reservas[indice]
+        
+        es_mismo_depto = reserva_actual[INDICE_ID_DEPARTAMENTO] == id_depto
+        esta_activa = reserva_actual[INDICE_ESTADO] == ESTADO_ACTIVO
+        es_diferente_reserva = reserva_actual[INDICE_ID_RESERVA] != id_reserva_excluir if id_reserva_excluir else True
+        
+        if es_mismo_depto and esta_activa and es_diferente_reserva:
+            if hay_solapamiento_fechas(fecha_ing, fecha_eg, 
+                                      reserva_actual[INDICE_FECHA_INGRESO], 
+                                      reserva_actual[INDICE_FECHA_EGRESO]):
+                return False
+        
+        return verificar_disponibilidad_recursivo(lista_reservas, id_depto, fecha_ing, 
+                                                 fecha_eg, id_reserva_excluir, indice + 1)
+    except (IndexError, KeyError):
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "verificar disponibilidad", "Error en estructura de reservas.")
+        return False
+
+
 def agregar_reserva(id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str):
     """
-    Agrega una nueva reserva validando los datos.
+    Agrega una nueva reserva, validando la disponibilidad y los datos.
+    Verifica que el departamento este disponible en el rango de fechas.
     
     Parametros:
         id_cliente (int): ID del cliente que reserva
@@ -53,12 +122,16 @@ def agregar_reserva(id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso
         fecha_egreso_str (str): Fecha de egreso en formato "dd/mm/aaaa"
     
     Retorna:
-        bool: True si se creo la reserva, False si hay error
+        bool: True si se creo la reserva, False si hay error o no hay disponibilidad
     """
     try:
         comparacion = comparar_fechas_string(fecha_ingreso_str, fecha_egreso_str)
         if comparacion is None or not campos_son_validos(id_cliente, id_departamento) or comparacion >= 0:
             raise ValueError("Reserva con campos invalidos o fechas incorrectas.")
+        
+        if not verificar_disponibilidad_recursivo(reservas, id_departamento, 
+                                                 fecha_ingreso_str, fecha_egreso_str, None):
+            return False
 
         id_reserva = generar_id_unico_lista(reservas)
         nueva_reserva = [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, ESTADO_ACTIVO]
@@ -223,6 +296,11 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
 
         comparacion = comparar_fechas_string(fecha_ingreso_actualizada, fecha_egreso_actualizada)
         if comparacion is None or comparacion >= 0:
+            return False
+        
+        id_depto_a_verificar = id_departamento if id_departamento is not None else reserva[INDICE_ID_DEPARTAMENTO]
+        if not verificar_disponibilidad_recursivo(reservas, id_depto_a_verificar,
+                                                 fecha_ingreso_actualizada, fecha_egreso_actualizada, id_reserva):
             return False
 
         if id_cliente is not None: reserva[INDICE_ID_CLIENTE] = id_cliente
