@@ -265,3 +265,55 @@ def verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fe
     except (TypeError, IndexError):
         manejar_error_inesperado(ENTIDAD_RESERVAS, "verificar disponibilidad")
         return False
+
+
+# =============================================================================
+# FUNCIONES DE PERSISTENCIA - INTEGRACION CON JSON
+# =============================================================================
+
+def cargar_departamentos_desde_archivo():
+    """
+    Carga los departamentos desde archivo JSON al iniciar el sistema.
+    Esta función debe llamarse al inicio del programa.
+    
+    Retorna:
+        bool: True si se cargaron correctamente, False si hubo error
+    """
+    try:
+        from repository.persistence_json import inicializar_datos_departamentos
+        global departamentos
+        departamentos_cargados = inicializar_datos_departamentos()
+        
+        # Reemplazar la lista global con los datos cargados
+        departamentos.clear()
+        departamentos.extend(departamentos_cargados)
+        
+        return True
+    except ImportError:
+        manejar_error_inesperado(ENTIDAD_DEPARTAMENTOS, "cargar desde archivo", "Módulo de persistencia no disponible")
+        return False
+    except Exception as e:
+        manejar_error_inesperado(ENTIDAD_DEPARTAMENTOS, "cargar desde archivo", str(e))
+        return False
+
+
+def guardar_departamentos_a_archivo(operacion="operación"):
+    """
+    Guarda los departamentos actuales en archivo JSON.
+    Se puede llamar después de operaciones críticas.
+    
+    Parametros:
+        operacion (str): Descripción de la operación que desencadenó el guardado
+    
+    Retorna:
+        bool: True si se guardó correctamente, False si hubo error
+    """
+    try:
+        from repository.persistence_json import guardar_cambios_departamentos
+        return guardar_cambios_departamentos(departamentos, operacion)
+    except ImportError:
+        manejar_error_inesperado(ENTIDAD_DEPARTAMENTOS, "guardar a archivo", "Módulo de persistencia no disponible")
+        return False
+    except Exception as e:
+        manejar_error_inesperado(ENTIDAD_DEPARTAMENTOS, "guardar a archivo", str(e))
+        return False
