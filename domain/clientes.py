@@ -356,9 +356,7 @@ def guardar_clientes_a_archivo(operacion="se realiza operacion"):
         else:
             print("Error al guardar clientes en archivo JSON")
             return False
-    except Exception as e:
-        manejar_error_inesperado(ENTIDAD_CLIENTES, "guardar archivo", str(e))
-        return False
+
     except ImportError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "guardar archivo", "Error al importar funciones de persistencia.")
         return False
