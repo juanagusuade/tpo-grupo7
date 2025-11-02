@@ -73,4 +73,3 @@ RUTA_DEPARTAMENTOS = f"{DATA_FOLDER}/departamentos.json"
 RUTA_RESERVAS = f"{DATA_FOLDER}/reservas.txt"
 
 DELIMITADOR = ";"
-
