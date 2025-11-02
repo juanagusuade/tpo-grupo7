@@ -16,6 +16,7 @@ DESVENTAJAS: Sobrescribe todo el archivo, no eficiente para grandes volumenes
 """
 
 import json
+import os
 from common.constantes import RUTA_CLIENTES, RUTA_DEPARTAMENTOS
 from common.manejo_errores import manejar_error_inesperado
 
@@ -84,7 +85,6 @@ def guardar_datos_json_interno(ruta_archivo, lista_datos):
     """
     try:
         # Crear directorio si no existe
-        import os
         directorio = os.path.dirname(ruta_archivo)
         if directorio and not os.path.exists(directorio):
             os.makedirs(directorio)

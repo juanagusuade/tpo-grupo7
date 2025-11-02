@@ -328,20 +328,17 @@ def cargar_clientes_desde_archivo():
         bool: True si se cargaron correctamente, False si hubo error
     """
     try:
-        global clientes
         clientes_cargados = leer_clientes()
 
         clientes.clear()
         clientes.extend(clientes_cargados)
         print(f"Se cargaron {len(clientes_cargados)} clientes desde archivo JSON")
         return True
-    except Exception as e:                    
-        manejar_error_inesperado(ENTIDAD_CLIENTES, "cargar clientes desde archivo", str(e))
-        return False   
+
     except ImportError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "cargar clientes desde archivo", "Error al importar funciones de persistencia.")
-        return False     
-        
+        return False
+
 def guardar_clientes_a_archivo(operacion="se realiza operacion"):
     """
     Guarda la lista de clientes actual en el archivo JSON.
