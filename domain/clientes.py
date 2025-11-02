@@ -1,6 +1,7 @@
 from common.generadores import generar_id_unico_diccionario
 from common.constantes import *
 from common.manejo_errores import manejar_error_inesperado
+from repository.persistence_json import leer_clientes, guardar_clientes
 
 ENTIDAD_CLIENTES = "Clientes"
 
@@ -52,6 +53,7 @@ def agregar_cliente(nombre, apellido, dni, telefono):
             ACTIVO_CLIENTE: True
         }
         clientes.append(nuevo_cliente)
+        guardar_clientes_a_archivo("agregar cliente")
         return True
     except KeyError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "agregar cliente", "Datos de cliente corruptos.")
@@ -79,6 +81,7 @@ def eliminar_cliente(id_cliente):
 
         if cliente_a_eliminar:
             clientes.remove(cliente_a_eliminar)
+            guardar_clientes_a_archivo("eliminar cliente")
             return True
         return False
     except (KeyError, ValueError):
@@ -119,7 +122,10 @@ def baja_logica_cliente(id_cliente):
     Retorna:
         bool: True si se dio de baja correctamente, False si no se encontro
     """
-    return cambiar_estado_cliente(id_cliente, False)
+    resultado= cambiar_estado_cliente(id_cliente, False)
+    if resultado:
+        guardar_clientes_a_archivo("baja logica cliente")
+    return resultado    
 
 
 def alta_logica_cliente(id_cliente):
@@ -137,6 +143,7 @@ def alta_logica_cliente(id_cliente):
             if cliente[ID_CLIENTE] == id_cliente:
                 if cliente[ACTIVO_CLIENTE] == False:
                     cliente[ACTIVO_CLIENTE] = True
+                    guardar_clientes_a_archivo("alta logica de cliente")
                     return True
                 else:
                     return False
@@ -186,14 +193,18 @@ def actualizar_cliente(id_cliente, nombre, apellido, dni, telefono):
     try:
         if buscar_dni_diferente_id(clientes, dni, id_cliente):
             return False
-        
+        actualizado= False
         for cliente in clientes:
             if cliente[ID_CLIENTE] == id_cliente:
                 cliente[NOMBRE_CLIENTE] = nombre
                 cliente[APELLIDO_CLIENTE] = apellido
                 cliente[DNI_CLIENTE] = dni
                 cliente[TELEFONO_CLIENTE] = telefono
-                return True
+                actualizado= True
+                break
+        if actualizado:
+            guardar_clientes_a_archivo("actualizar cliente")
+            return True 
         return False
     except KeyError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "actualizar cliente", "Datos de cliente corruptos.")
@@ -304,3 +315,53 @@ def dni_repetido(dni, id_cliente, lista_clientes):
     except KeyError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "verificar DNI repetido", "Datos de cliente corruptos.")
         return True
+    
+
+    # Funciones de persistencia agregadas para guardar cambios en el archivo JSON
+
+def cargar_clientes_desde_archivo():
+    """
+        Carga la lista de clientes desde el archivo JSON al iniciar el sistema.
+        Actualiza la lista global 'clientes'.
+    
+        Retorna:
+        bool: True si se cargaron correctamente, False si hubo error
+    """
+    try:
+        global clientes
+        clientes_cargados = leer_clientes()
+
+        clientes.clear()
+        clientes.extend(clientes_cargados)
+        print(f"Se cargaron {len(clientes_cargados)} clientes desde archivo JSON")
+        return True
+    except Exception as e:                    
+        manejar_error_inesperado(ENTIDAD_CLIENTES, "cargar clientes desde archivo", str(e))
+        return False   
+    except ImportError:
+        manejar_error_inesperado(ENTIDAD_CLIENTES, "cargar clientes desde archivo", "Error al importar funciones de persistencia.")
+        return False     
+        
+def guardar_clientes_a_archivo(operacion="se realiza operacion"):
+    """
+    Guarda la lista de clientes actual en el archivo JSON.
+    
+    Parametros:
+        operacion (str): Descripcion de la operacion que genero el guardado (para logs)
+    
+    Retorna:
+        bool: True si se guardaron correctamente, False si hubo error
+    """
+    try:
+        if guardar_clientes(clientes):
+            print(f"Cambios guardados en archivo JSON tras {operacion}")
+            return True
+        else:
+            print("Error al guardar clientes en archivo JSON")
+            return False
+    except Exception as e:
+        manejar_error_inesperado(ENTIDAD_CLIENTES, "guardar archivo", str(e))
+        return False
+    except ImportError:
+        manejar_error_inesperado(ENTIDAD_CLIENTES, "guardar archivo", "Error al importar funciones de persistencia.")
+        return False

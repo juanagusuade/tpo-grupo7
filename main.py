@@ -6,6 +6,7 @@ from ui.menu_clientes import menu_clientes
 from ui.menu_estadisticas import gestionar_estadisticas
 import common.poblador as poblador
 from common.constantes import USUARIOS
+from domain.clientes import guardar_clientes_a_archivo, cargar_clientes_desde_archivo
 
 def autenticar_usuario():
     """
@@ -78,6 +79,13 @@ def main():
 
     interfaz.mostrar_mensaje_exito(f"Inicio de sesion exitoso. ¡Bienvenido, {usuario_logueado}!")
 
+    # Cargar datos iniciales desde archivos (para clientes)
+    print("Cargando datos de clientes...")
+    cargar_clientes_desde_archivo()
+
+
+    
+
     poblador.poblar_datos_iniciales()
 
     sistema_activo = True
@@ -100,6 +108,10 @@ def main():
 
         if sistema_activo:
             interfaz.separador_operaciones()
+
+    #Guardo los datos de clientes cuando salgo
+    print("Guardando datos de clientes...")
+    guardar_clientes_a_archivo("salir del sistema")        
 
     interfaz.mostrar_despedida()
 
