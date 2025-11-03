@@ -48,6 +48,8 @@ def validar_alfabetico(valor_str):
     return True
 
 
+
+
 # ======================= OPCIONES DE MENU =======================
 
 def pedir_opcion_menu(cantidad_opciones, mensaje=""):
