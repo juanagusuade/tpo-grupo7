@@ -8,19 +8,26 @@ ENTIDAD_CLIENTES = "Clientes"
 clientes = []
 
 
-def buscar_dni(lista_clientes, dni):
+def buscar_dni(lista_clientes, dni, indice=0):
     """
-    Busca un DNI en la lista de clientes usando programacion funcional.
+    Busca un DNI en la lista de clientes.
     
     Parametros:
         lista_clientes (list): Lista de diccionarios de clientes
         dni (str): DNI a buscar
+        indice (int): Indice actual en la recursion
     
     Retorna:
         bool: True si el DNI ya existe, False si no existe
     """
     try:
-        return any(cliente[DNI_CLIENTE] == dni for cliente in lista_clientes)
+        if indice >= len(lista_clientes):
+            return False
+        
+        if lista_clientes[indice][DNI_CLIENTE] == dni:
+            return True
+        
+        return buscar_dni(lista_clientes, dni, indice + 1)
     except (KeyError, IndexError):
         manejar_error_inesperado(ENTIDAD_CLIENTES, "buscar DNI", "Error en estructura de datos.")
         return True

@@ -61,7 +61,8 @@ USUARIOS = (
     ("evecent", "evecent1234"),
     ("baltaa", "baltaa1234"),
     ("valen", "valen1234"),
-    ("juanagus", "juanagus1234")
+    ("juanagus", "juanagus1234"),
+    ("a", "a")
 )
 
 # =============+- ARCHIVOS -+============= #

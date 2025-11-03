@@ -1,7 +1,7 @@
 from common.generadores import generar_id_unico_diccionario
 from common.constantes import *
 from common.manejo_errores import manejar_error_inesperado
-from domain.reservas import reservas, comparar_fechas_string, ENTIDAD_RESERVAS
+from domain.reservas import comparar_fechas_string, ENTIDAD_RESERVAS, obtener_todas_las_reservas
 
 ENTIDAD_DEPARTAMENTOS = "Departamentos"
 
@@ -178,21 +178,25 @@ def alta_logica_departamento(id_departamento):
     return cambiar_estado_departamento(id_departamento, True)
 
 
-def buscar_departamento_por_id(id_departamento):
+def buscar_departamento_por_id(id_departamento, indice=0):
     """
-    Busca un departamento por su ID.
+    Busca  un departamento por su ID.
     
     Parametros:
         id_departamento (int): ID del departamento a buscar
+        indice (int): Indice actual en la recursion
     
     Retorna:
         dict or None: Diccionario del departamento si se encuentra, None si no existe
     """
     try:
-        for departamento in departamentos:
-            if departamento[ID_DEPARTAMENTO] == id_departamento:
-                return departamento
-        return None
+        if indice >= len(departamentos):
+            return None
+        
+        if departamentos[indice][ID_DEPARTAMENTO] == id_departamento:
+            return departamentos[indice]
+        
+        return buscar_departamento_por_id(id_departamento, indice + 1)
     except KeyError:
         manejar_error_inesperado(ENTIDAD_DEPARTAMENTOS, "buscar por ID", "Datos de departamento corruptos.")
         return None
@@ -250,6 +254,7 @@ def verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fe
         bool: True si esta disponible, False si hay solapamiento o error
     """
     try:
+        reservas = obtener_todas_las_reservas()
         for r in reservas:
             if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO:
                 comp_inicio_nueva_fin_reserva = comparar_fechas_string(fecha_ingreso_str, r[INDICE_FECHA_EGRESO])

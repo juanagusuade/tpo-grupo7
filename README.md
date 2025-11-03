@@ -18,12 +18,7 @@ El sistema utiliza técnicas de programación estructurada:
 - **`reduce()`**: Cálculos acumulativos para estadísticas de reservas
 - **Comprensiones de lista**: Uso extensivo para operaciones de filtrado y transformación
 - **Expresiones lambda**: Funciones anónimas en filter y map
-- **Generadores**: Uso de `next()` con expresiones generadoras para búsquedas eficientes
 - **Ciclos for**: Validación de campos y caracteres
-
-### Recursividad (Uso Didáctico)
-Se mantiene **1 función recursiva** como ejemplo didáctico:
-- `verificar_disponibilidad_recursivo()`: Valida disponibilidad de reservas verificando solapamiento de fechas recursivamente
 
 ### Persistencia de Datos (Módulo Repository)
 Implementación de persistencia con **dos estrategias diferentes**:
@@ -165,7 +160,7 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 
 ### Validaciones de Negocio
 - **Reservas**: Fecha egreso posterior a ingreso, verificación automática de disponibilidad del departamento
-- **Solapamiento de fechas**: Algoritmo recursivo que verifica conflictos, permitiendo check-in/check-out el mismo día
+- **Solapamiento de fechas**: Algoritmo que verifica conflictos, permitiendo check-in/check-out el mismo día
 - **Estados consistentes**: Validación de transiciones de estado válidas
 - **DNI único**: Verificación con `any()` que evita duplicados al agregar o modificar clientes
 
@@ -192,28 +187,6 @@ reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
 - **Uso de `filter`**: Implementado para el filtrado de listas, como en las funciones `listar_clientes_activos` y `listar_departamentos_activos`.
 - **Uso de `reduce`**: Importado de `functools` y utilizado para cálculos acumulativos, como en `calcular_duracion_promedio_reservas`.
 
-### Uso de Recursividad
-
-El sistema implementa **recursividad de manera didáctica** con 1 función que demuestra esta técnica:
-
-#### Verificación de Disponibilidad de Reservas (`reservas.py`)
-**Función:** `verificar_disponibilidad_recursivo(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice=0)`
-
-**Propósito:** Verifica recursivamente si un departamento está disponible en un rango de fechas, chequeando que no haya solapamiento con reservas activas existentes.
-
-**Caso base:** Si el índice llega al final de la lista, no hay conflictos (retorna True).
-
-**Caso recursivo:** Para la reserva actual:
-- Verifica si es del mismo departamento y está activa
-- Verifica si hay solapamiento de fechas con `hay_solapamiento_fechas()`
-- Si hay conflicto retorna False, sino continúa con el siguiente índice
-
-**Uso:** Se utiliza en `agregar_reserva()` y `actualizar_reserva()` para evitar doble reserva.
-
-**Lógica de solapamiento:** Permite que el último día de una reserva coincida con el primer día de otra (check-out y check-in el mismo día). Usa comparaciones estrictas (`<`) en lugar de (`<=`) para permitir esta coincidencia.
-
-**Por qué recursividad:** Ejemplo complejo que combina múltiples validaciones en estructura recursiva, demostrando que la recursividad puede manejar lógica de negocio sofisticada. Se mantiene como ejemplo didáctico.
-
 #### Comparación con Programación Estructurada
 
 **Otras validaciones usan ciclos for tradicionales:**
@@ -229,8 +202,6 @@ def validar_telefono(tel):
             return False
     return True
 ```
-
-**La recursividad se mantiene solo en `verificar_disponibilidad_recursivo()` como ejemplo didáctico de la técnica.**
 
 ### Técnicas de Programación Utilizadas
 
@@ -499,5 +470,5 @@ Los valores mencionados pueden cambiarse en el archivo `poblador.py`.
 
 ## Autor
 **Grupo VII - Programación I**  
-**Fecha**: Septiembre 2025
+**Fecha**: Noviembre 2025
 

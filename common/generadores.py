@@ -3,7 +3,12 @@ import random
 def generar_id_unico_lista(lista):
     """
     Genera un ID unico para lista de listas donde el ID esta en posicion 0.
-    Para usar con reservas. Para saber si existe o no, usa un set
+    
+    Parametros:
+        lista (list): Lista de listas
+    
+    Retorna:
+        int: ID unico entre 10000 y 99999
     """
     ids_existentes = {elemento[0] for elemento in lista}
     while True:
@@ -15,9 +20,13 @@ def generar_id_unico_lista(lista):
 def generar_id_unico_diccionario(lista, clave_id):
     """
     Genera un ID unico para lista de diccionarios.
-    Para usar con clientes y departamentos
-    lista: Lista de diccionarios
-    clave_id: Nombre de la key que contiene el ID
+    
+    Parametros:
+        lista (list): Lista de diccionarios
+        clave_id (str): Nombre de la clave que contiene el ID
+    
+    Retorna:
+        int: ID unico entre 10000 y 99999
     """
     ids_existentes = {elemento[clave_id] for elemento in lista}
     while True:

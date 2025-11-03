@@ -1,16 +1,12 @@
 """
-=========================================================================================
-MODULO: persistence_json.py
-=========================================================================================
-
 Maneja la persistencia de clientes y departamentos en archivos JSON.
 
 FORMATO JSON:
     JSON almacena datos como lista de diccionarios:
     [{"id": 1, "nombre": "Juan", "activo": true}, {...}]
 
-VENTAJAS: Legible, soporte nativo en Python, mantiene tipos de datos
-DESVENTAJAS: Sobrescribe todo el archivo, no eficiente para grandes volumenes
+VENTAJAS: Legible, soporte nativo en Python, mantiene tipos de datos y es simple de implementar
+DESVENTAJA: Sobrescribe todo el archivo, no eficiente para grandes volumenes.
 
 =========================================================================================
 """
@@ -26,20 +22,7 @@ ENTIDAD_PERSISTENCIA_JSON = "Persistencia JSON"
 def leer_datos_json_interno(ruta_archivo):
     """
     Lee datos desde un archivo JSON.
-    
-    PSEUDOCODIGO:
-        intentar:
-            abrir archivo en modo lectura
-            datos = json.load(archivo)
-            cerrar archivo
-            retornar datos
-        
-        si archivo_no_existe:
-            retornar []  # Primera ejecucion
-        
-        si error_json:
-            retornar []  # Archivo corrupto
-    
+
     Parametros:
         ruta_archivo (str): Path al archivo JSON
     
@@ -65,17 +48,7 @@ def leer_datos_json_interno(ruta_archivo):
 def guardar_datos_json_interno(ruta_archivo, lista_datos):
     """
     Guarda datos en un archivo JSON (sobrescribe todo).
-    
-    PSEUDOCODIGO:
-        intentar:
-            abrir archivo en modo escritura
-            json.dump(lista_datos, archivo, indent=4, ensure_ascii=False)
-            cerrar archivo
-            retornar True
-        
-        si error:
-            retornar False
-    
+
     Parametros:
         ruta_archivo (str): Path al archivo JSON
         lista_datos (list): Datos a guardar
@@ -175,31 +148,3 @@ def guardar_cambios_departamentos(lista_deptos, operacion=""):
     except Exception as e:
         manejar_error_inesperado(ENTIDAD_PERSISTENCIA_JSON, "guardar cambios departamentos", str(e))
         return False
-
-
-"""
-INTEGRACION:
-
-1. Al iniciar (main.py):
-   clientes.clientes = persistence.leer_clientes()
-   departamentos.departamentos = persistence.inicializar_datos_departamentos()
-
-2. Al salir (main.py):
-   persistence.guardar_clientes(clientes.clientes)
-   persistence.guardar_departamentos(departamentos.departamentos)
-
-3. Guardado después de operaciones críticas (recomendado):
-   - Después de agregar: persistence.guardar_cambios_departamentos(departamentos.departamentos, "agregar departamento")
-   - Después de actualizar: persistence.guardar_cambios_departamentos(departamentos.departamentos, "actualizar departamento")
-   - Después de eliminar: persistence.guardar_cambios_departamentos(departamentos.departamentos, "eliminar departamento")
-
-4. Ejemplo de integración en domain/departamentos.py:
-   from repository.persistence_json import guardar_cambios_departamentos
-   
-   def agregar_departamento(...):
-       # lógica existente
-       resultado = # True/False
-       if resultado:
-           guardar_cambios_departamentos(departamentos, "agregar departamento")
-       return resultado
-"""

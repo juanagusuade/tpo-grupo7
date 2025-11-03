@@ -22,9 +22,7 @@ def pedir_input_con_validacion(prompt, funcion_validacion=None, mensaje_error="D
 
         if not valor and not es_opcional:
             mostrar_mensaje_error("Este campo es obligatorio")
-            continue
-
-        if funcion_validacion:
+        elif funcion_validacion:
             if funcion_validacion(valor):
                 return valor
             else:
@@ -32,20 +30,17 @@ def pedir_input_con_validacion(prompt, funcion_validacion=None, mensaje_error="D
         else:
             return valor
 
-
 def validar_alfabetico(valor_str):
     """
     Valida que un string contenga solo letras y espacios,
     y que no sea un string vacio o solo de espacios.
     """
-    if type(valor_str) != str:
+    if not isinstance(valor_str, str):
         return False
 
-    # Verificar que no este vacio o solo espacios
-    if len(valor_str.strip()) == 0:
+    if not valor_str.strip():
         return False
 
-    # Verificar caracter por caracter
     for caracter in valor_str:
         if not (caracter.isalpha() or caracter.isspace()):
             return False

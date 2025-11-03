@@ -52,8 +52,7 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
 
         for _ in range(num_reservas):
             if intentos >= 50:
-                # evitar bucles infinitos
-                continue # sale del for
+                continue
 
             reserva_creada = False
             while not reserva_creada and intentos < 50:
@@ -65,7 +64,6 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
                 dia_ingreso = random.randint(1, 29)
                 duracion = random.randint(3, 8)
                 dia_egreso = dia_ingreso + duracion
-                # TODO: Ver como usar las funciones que tenemos ahora para que los meses y dias sean dinamicos.
                 fecha_ingreso_str = f"{dia_ingreso:02d}/{mes:02d}/{anio}"
                 fecha_egreso_str = f"{dia_egreso:02d}/{mes:02d}/{anio}"
 

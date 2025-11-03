@@ -3,10 +3,9 @@ from common.generadores import generar_id_unico_lista
 from common.validaciones import validar_fecha, campos_son_validos, fecha_a_dias
 from common.manejo_errores import manejar_error_inesperado
 from functools import reduce
+from repository import persistence_txt
 
 ENTIDAD_RESERVAS = "Reservas"
-
-reservas = []
 
 
 def comparar_fechas_string(fecha1_str, fecha2_str):
@@ -55,10 +54,6 @@ def hay_solapamiento_fechas(inicio1, fin1, inicio2, fin2):
     
     Retorna:
         bool: True si hay solapamiento, False si no hay solapamiento
-    
-    Logica: Dos rangos se solapan si:
-            - inicio1 < fin2 Y inicio2 < fin1 (no permite coincidencia de dias)
-            Usamos < en lugar de <= para permitir que fin1 == inicio2
     """
     comp_inicio1_fin2 = comparar_fechas_string(inicio1, fin2)
     comp_inicio2_fin1 = comparar_fechas_string(inicio2, fin1)
@@ -69,9 +64,9 @@ def hay_solapamiento_fechas(inicio1, fin1, inicio2, fin2):
     return comp_inicio1_fin2 < 0 and comp_inicio2_fin1 < 0
 
 
-def verificar_disponibilidad_recursivo(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice=0):
+def verificar_disponibilidad(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice=0):
     """
-    Verifica recursivamente si un departamento esta disponible en un rango de fechas.
+    Verifica si un departamento esta disponible en un rango de fechas.
     
     Parametros:
         lista_reservas (list): Lista de todas las reservas
@@ -79,32 +74,24 @@ def verificar_disponibilidad_recursivo(lista_reservas, id_depto, fecha_ing, fech
         fecha_ing (str): Fecha de ingreso deseada
         fecha_eg (str): Fecha de egreso deseada
         id_reserva_excluir (int): ID de reserva a excluir (None si es nueva reserva)
-        indice (int): Indice actual en la recursion
+        indice (int): Parametro mantenido por compatibilidad (no utilizado)
     
     Retorna:
-        bool: True si esta disponible (no hay solapamiento), False si hay conflicto
-    
-    Caso base: Si llegamos al final de la lista, no hay conflictos
-    Caso recursivo: Si encontramos solapamiento con una reserva activa, retornar False
+        bool: True si esta disponible, False si hay conflicto
     """
     try:
-        if indice >= len(lista_reservas):
-            return True
+        for reserva_actual in lista_reservas:
+            es_mismo_depto = reserva_actual[INDICE_ID_DEPARTAMENTO] == id_depto
+            esta_activa = reserva_actual[INDICE_ESTADO] == ESTADO_ACTIVO
+            es_diferente_reserva = reserva_actual[INDICE_ID_RESERVA] != id_reserva_excluir if id_reserva_excluir else True
+            
+            if es_mismo_depto and esta_activa and es_diferente_reserva:
+                if hay_solapamiento_fechas(fecha_ing, fecha_eg, 
+                                          reserva_actual[INDICE_FECHA_INGRESO], 
+                                          reserva_actual[INDICE_FECHA_EGRESO]):
+                    return False
         
-        reserva_actual = lista_reservas[indice]
-        
-        es_mismo_depto = reserva_actual[INDICE_ID_DEPARTAMENTO] == id_depto
-        esta_activa = reserva_actual[INDICE_ESTADO] == ESTADO_ACTIVO
-        es_diferente_reserva = reserva_actual[INDICE_ID_RESERVA] != id_reserva_excluir if id_reserva_excluir else True
-        
-        if es_mismo_depto and esta_activa and es_diferente_reserva:
-            if hay_solapamiento_fechas(fecha_ing, fecha_eg, 
-                                      reserva_actual[INDICE_FECHA_INGRESO], 
-                                      reserva_actual[INDICE_FECHA_EGRESO]):
-                return False
-        
-        return verificar_disponibilidad_recursivo(lista_reservas, id_depto, fecha_ing, 
-                                                 fecha_eg, id_reserva_excluir, indice + 1)
+        return True
     except (IndexError, KeyError):
         manejar_error_inesperado(ENTIDAD_RESERVAS, "verificar disponibilidad", "Error en estructura de reservas.")
         return False
@@ -129,14 +116,16 @@ def agregar_reserva(id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso
         if comparacion is None or not campos_son_validos(id_cliente, id_departamento) or comparacion >= 0:
             raise ValueError("Reserva con campos invalidos o fechas incorrectas.")
         
-        if not verificar_disponibilidad_recursivo(reservas, id_departamento, 
+        reservas_actuales = persistence_txt.leer_reservas()
+        
+        if not verificar_disponibilidad(reservas_actuales, id_departamento, 
                                                  fecha_ingreso_str, fecha_egreso_str, None):
             return False
 
-        id_reserva = generar_id_unico_lista(reservas)
+        id_reserva = generar_id_unico_lista(reservas_actuales)
         nueva_reserva = [id_reserva, id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str, ESTADO_ACTIVO]
-        reservas.append(nueva_reserva)
-        return True
+        
+        return persistence_txt.agregar_reserva_txt(nueva_reserva)
     except (ValueError, TypeError):
         mensaje = "Verifique IDs de cliente/departamento, los campos a guardar y que las fechas sean correctas."
         manejar_error_inesperado(ENTIDAD_RESERVAS, "agregar_reserva", mensaje)
@@ -154,7 +143,9 @@ def buscar_reserva_por_id(id_reserva):
         list or None: Lista con los datos de la reserva si existe, None si no se encuentra
     """
     try:
-        return next((r for r in reservas if r[INDICE_ID_RESERVA] == id_reserva), None)
+        reservas = persistence_txt.leer_reservas()
+        resultado = [r for r in reservas if r[INDICE_ID_RESERVA] == id_reserva]
+        return resultado[0] if resultado else None
     except TypeError:
         manejar_error_inesperado(ENTIDAD_RESERVAS, "buscar reserva por ID", "El ID proporcionado no es válido.")
         return None
@@ -171,6 +162,7 @@ def buscar_reservas_por_cliente(id_cliente):
         list: Lista de reservas del cliente (excluye eliminadas)
     """
     try:
+        reservas = persistence_txt.leer_reservas()
         return [r for r in reservas if r[INDICE_ID_CLIENTE] == id_cliente and r[INDICE_ESTADO] != ESTADO_ELIMINADO]
     except TypeError:
         manejar_error_inesperado(ENTIDAD_RESERVAS, "buscar reservas por cliente", "El ID de cliente no es válido.")
@@ -188,6 +180,7 @@ def buscar_reservas_por_departamento(id_departamento):
         list: Lista de reservas del departamento (excluye eliminadas)
     """
     try:
+        reservas = persistence_txt.leer_reservas()
         return [r for r in reservas if
                 r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] != ESTADO_ELIMINADO]
     except TypeError:
@@ -208,7 +201,10 @@ def modificar_estado_reserva(id_reserva, estado_nuevo, estado_requerido=None):
         bool: True si tuvo exito, False si la reserva no existe o no cumple requisitos
     """
     try:
-        reserva = buscar_reserva_por_id(id_reserva)
+        reservas = persistence_txt.leer_reservas()
+        resultado = [r for r in reservas if r[INDICE_ID_RESERVA] == id_reserva]
+        reserva = resultado[0] if resultado else None
+        
         if not reserva:
             return False
 
@@ -216,7 +212,7 @@ def modificar_estado_reserva(id_reserva, estado_nuevo, estado_requerido=None):
             return False
 
         reserva[INDICE_ESTADO] = estado_nuevo
-        return True
+        return persistence_txt.guardar_reservas_txt(reservas)
     except (IndexError, TypeError):
         mensaje = f"No se pudo cambiar el estado a '{estado_nuevo}' por un error interno."
         manejar_error_inesperado(ENTIDAD_RESERVAS, "modificar estado de reserva", mensaje)
@@ -279,7 +275,10 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
         bool: True si se actualizo correctamente, False si hay error o conflicto
     """
     try:
-        reserva = buscar_reserva_por_id(id_reserva)
+        reservas = persistence_txt.leer_reservas()
+        resultado = [r for r in reservas if r[INDICE_ID_RESERVA] == id_reserva]
+        reserva = resultado[0] if resultado else None
+        
         if not reserva or reserva[INDICE_ESTADO] != ESTADO_ACTIVO:
             return False
 
@@ -299,7 +298,7 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
             return False
         
         id_depto_a_verificar = id_departamento if id_departamento is not None else reserva[INDICE_ID_DEPARTAMENTO]
-        if not verificar_disponibilidad_recursivo(reservas, id_depto_a_verificar,
+        if not verificar_disponibilidad(reservas, id_depto_a_verificar,
                                                  fecha_ingreso_actualizada, fecha_egreso_actualizada, id_reserva):
             return False
 
@@ -308,7 +307,7 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
         reserva[INDICE_FECHA_INGRESO] = fecha_ingreso_actualizada
         reserva[INDICE_FECHA_EGRESO] = fecha_egreso_actualizada
 
-        return True
+        return persistence_txt.guardar_reservas_txt(reservas)
     except (IndexError, TypeError, ValueError):
         mensaje = "Revise el ID de la reserva y que los nuevos datos sean válidos."
         manejar_error_inesperado(ENTIDAD_RESERVAS, "actualizar reserva", mensaje)
@@ -323,6 +322,7 @@ def obtener_reservas_activas():
         list: Lista de reservas con estado ACTIVO
     """
     try:
+        reservas = persistence_txt.leer_reservas()
         return [r for r in reservas if r[INDICE_ESTADO] == ESTADO_ACTIVO]
     except (IndexError, TypeError):
         manejar_error_inesperado(ENTIDAD_RESERVAS, "obtener reservas activas")
@@ -337,7 +337,7 @@ def obtener_todas_las_reservas():
         list: Copia de todas las reservas
     """
     try:
-        return reservas[:]
+        return persistence_txt.leer_reservas()
     except Exception:
         manejar_error_inesperado(ENTIDAD_RESERVAS, "obtener todas las reservas")
         return []
@@ -357,6 +357,7 @@ def calcular_porcentaje_ocupacion_depto(id_departamento, periodo_dias=365):
         float: Porcentaje de ocupacion (0.0 a 100.0)
     """
     try:
+        reservas = persistence_txt.leer_reservas()
         total_dias_ocupados = sum(
             fecha_a_dias(r[INDICE_FECHA_EGRESO]) - fecha_a_dias(r[INDICE_FECHA_INGRESO])
             for r in reservas
@@ -371,30 +372,6 @@ def calcular_porcentaje_ocupacion_depto(id_departamento, periodo_dias=365):
     except (TypeError, ValueError, ZeroDivisionError):
         manejar_error_inesperado(ENTIDAD_RESERVAS, "calcular porcentaje ocupacion")
         return 0.0
-
-
-def calcular_dias_ocupados_depto(id_departamento, periodo_dias):
-    """
-    Calcula el total de dias que un depto estuvo ocupado en un periodo.
-    NOTA: Esta funcion se mantiene por compatibilidad, usar calcular_porcentaje_ocupacion_depto.
-    
-    Parametros:
-        id_departamento (int): ID del departamento
-        periodo_dias (int): Periodo en dias (no utilizado, se mantiene por compatibilidad)
-    
-    Retorna:
-        int: Total de dias ocupados
-    """
-    try:
-        return sum(
-            fecha_a_dias(r[INDICE_FECHA_EGRESO]) - fecha_a_dias(r[INDICE_FECHA_INGRESO])
-            for r in reservas
-            if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO
-        )
-    except (TypeError, ValueError):
-        manejar_error_inesperado(ENTIDAD_RESERVAS, "calcular días ocupados")
-        return 0
-
 
 
 def calcular_duracion_promedio_reservas():
