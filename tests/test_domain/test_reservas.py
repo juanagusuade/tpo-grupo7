@@ -1,32 +1,31 @@
 from domain.reservas import comparar_fechas_string, hay_solapamiento_fechas
 
-
 def test_comparar_fechas():
-    """Test simple: comparar dos fechas diferentes"""
-    fechaChica = "01/01/2024"
-    fechaGrande = "15/01/2024"
+    """Comparar dos fechas diferentes"""
+    fechaMenor = "01/01/2024"
+    fechaMayor = "15/01/2024"
+    fechaErronea = "15/15/1515"
+
     resultadoEsperadoNegativo = -1
     resultadoEsperadoPositivo = 1
+    resultadoEsperadoIgual = 0
+    resultadoEsperadoErroneo = None
 
-    resultadoNegativo = comparar_fechas_string(fechaChica, fechaGrande)
-    resultadoPositivo = comparar_fechas_string(fechaGrande, fechaChica)
+    resultadoNegativo = comparar_fechas_string(fechaMenor, fechaMayor)
+    resultadoPositivo = comparar_fechas_string(fechaMayor, fechaMenor)
+    resultadoIgual = comparar_fechas_string(fechaMenor, fechaMenor)
+    resultadoErroneo = comparar_fechas_string(fechaErronea, fechaErronea)
 
     assert resultadoNegativo == resultadoEsperadoNegativo
     assert resultadoPositivo == resultadoEsperadoPositivo
+    assert resultadoIgual == resultadoEsperadoIgual
+    assert resultadoErroneo == resultadoEsperadoErroneo
 
 
 def test_solapamiento_mismo_dia():
-    """Test simple: verificar que checkout/checkin el mismo dia NO solapa"""
+    """Verificar que checkout/checkin el mismo dia NO solapa"""
     no_solapados = hay_solapamiento_fechas("01/01/2025", "05/01/2025", "05/01/2025", "10/01/2025")
     solapados = hay_solapamiento_fechas("01/01/2025", "05/01/2025", "04/01/2025", "10/01/2025")
 
     assert no_solapados == False
     assert solapados == True
-
-
-# quiero probar listar_clientes_activos:
-#     primero hago una lista de clientes con distintos estados
-#     hago otra lista con los clientes ya filtrados
-#     llamo a la funcion de listar_clientes_activos con la lista grande
-#     asserteo que el resultado de la funcion es igual a la de los clientes filtrados
-
