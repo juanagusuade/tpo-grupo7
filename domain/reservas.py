@@ -66,7 +66,8 @@ def hay_solapamiento_fechas(inicio1, fin1, inicio2, fin2):
 
 def verificar_disponibilidad(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice=0):
     """
-    Verifica si un departamento esta disponible en un rango de fechas.
+    RECURSIVA
+    Verifica recursivamente si un departamento esta disponible en un rango de fechas.
     
     Parametros:
         lista_reservas (list): Lista de todas las reservas
@@ -74,24 +75,31 @@ def verificar_disponibilidad(lista_reservas, id_depto, fecha_ing, fecha_eg, id_r
         fecha_ing (str): Fecha de ingreso deseada
         fecha_eg (str): Fecha de egreso deseada
         id_reserva_excluir (int): ID de reserva a excluir (None si es nueva reserva)
-        indice (int): Parametro mantenido por compatibilidad (no utilizado)
+        indice (int): Indice actual en la recursion
     
     Retorna:
         bool: True si esta disponible, False si hay conflicto
     """
     try:
-        for reserva_actual in lista_reservas:
-            es_mismo_depto = reserva_actual[INDICE_ID_DEPARTAMENTO] == id_depto
-            esta_activa = reserva_actual[INDICE_ESTADO] == ESTADO_ACTIVO
-            es_diferente_reserva = reserva_actual[INDICE_ID_RESERVA] != id_reserva_excluir if id_reserva_excluir else True
-            
-            if es_mismo_depto and esta_activa and es_diferente_reserva:
-                if hay_solapamiento_fechas(fecha_ing, fecha_eg, 
-                                          reserva_actual[INDICE_FECHA_INGRESO], 
-                                          reserva_actual[INDICE_FECHA_EGRESO]):
-                    return False
+        # Caso base: se recorrieron todas las reservas sin conflictos
+        if indice >= len(lista_reservas):
+            return True
         
-        return True
+        reserva_actual = lista_reservas[indice]
+        
+        es_mismo_depto = reserva_actual[INDICE_ID_DEPARTAMENTO] == id_depto
+        esta_activa = reserva_actual[INDICE_ESTADO] == ESTADO_ACTIVO
+        es_diferente_reserva = reserva_actual[INDICE_ID_RESERVA] != id_reserva_excluir if id_reserva_excluir else True
+        
+        # Si hay conflicto con esta reserva, retornar False
+        if es_mismo_depto and esta_activa and es_diferente_reserva:
+            if hay_solapamiento_fechas(fecha_ing, fecha_eg, 
+                                      reserva_actual[INDICE_FECHA_INGRESO], 
+                                      reserva_actual[INDICE_FECHA_EGRESO]):
+                return False
+        
+        # Llamada recursiva para verificar el resto de las reservas
+        return verificar_disponibilidad(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice + 1)
     except (IndexError, KeyError):
         manejar_error_inesperado(ENTIDAD_RESERVAS, "verificar disponibilidad", "Error en estructura de reservas.")
         return False

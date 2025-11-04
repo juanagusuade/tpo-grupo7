@@ -10,6 +10,7 @@ clientes = []
 
 def buscar_dni(lista_clientes, dni, indice=0):
     """
+    RECURSIVA
     Busca un DNI en la lista de clientes.
     
     Parametros:
@@ -288,15 +289,33 @@ def lista_clientes_copia():
     return clientes[:]
 
 
-def listar_clientes_activos():
+def listar_clientes_activos(indice=0, resultado=None):
     """
-    Lista todos los clientes activos usando programacion funcional.
+    RECURSIVA
+    Lista recursivamente todos los clientes activos.
+    
+    Parametros:
+        indice (int): Indice actual en la recursion
+        resultado (list): Lista acumuladora de clientes activos
     
     Retorna:
         list: Lista de diccionarios con clientes activos
     """
     try:
-        return list(filter(lambda cliente: cliente[ACTIVO_CLIENTE], clientes))
+        # Inicializar la lista resultado en la primera llamada
+        if resultado is None:
+            resultado = []
+        
+        # Caso base: se recorrieron todos los clientes
+        if indice >= len(clientes):
+            return resultado
+        
+        # Si el cliente actual esta activo, agregarlo a la lista
+        if clientes[indice].get(ACTIVO_CLIENTE, False):
+            resultado.append(clientes[indice])
+        
+        # Llamada recursiva para el siguiente cliente
+        return listar_clientes_activos(indice + 1, resultado)
     except KeyError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "listar activos", "Datos de cliente corruptos.")
         return []

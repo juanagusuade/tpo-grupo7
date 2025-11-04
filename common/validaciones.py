@@ -69,8 +69,15 @@ def validar_opcion_numerica(opcion, cantidad_opciones):
     Retorna:
         bool: True si la opcion es valida
     """
-    patron = f'^[1-{cantidad_opciones}]$'
-    return re.match(patron, opcion.strip()) is not None
+    opcion_limpia = opcion.strip()
+    
+    # Verificar que sea un numero
+    if not opcion_limpia.isdigit():
+        return False
+    
+    # Convertir a entero y verificar el rango
+    numero = int(opcion_limpia)
+    return 1 <= numero <= cantidad_opciones
 
 
 def validar_dni(dni):

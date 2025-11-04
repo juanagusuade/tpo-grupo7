@@ -1,5 +1,4 @@
 import common.interfaz as interfaz
-import common.entrada_datos as input_datos
 from ui.menu_reservas import menu_reservas
 from ui.menu_depto import *
 from ui.menu_clientes import menu_clientes

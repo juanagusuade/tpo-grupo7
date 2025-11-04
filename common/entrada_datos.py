@@ -1,6 +1,5 @@
 from common.constantes import *
 from common.validaciones import *
-from common.interfaz import mostrar_mensaje_error
 
 
 # ======================= INPUT BASICO CON VALIDACION =======================
@@ -14,6 +13,8 @@ def pedir_input_con_validacion(prompt, funcion_validacion=None, mensaje_error="D
     mensaje_error: Mensaje a mostrar si la validacion falla
     es_opcional: Si True, permite valores vacios
     """
+    from common.interfaz import mostrar_mensaje_error
+    
     while True:
         valor = input(f"{COLOR_CYAN}{FLECHA} {prompt}: {COLOR_RESET}").strip()
 
@@ -54,6 +55,8 @@ def validar_alfabetico(valor_str):
 
 def pedir_opcion_menu(cantidad_opciones, mensaje=""):
     """Solicita y valida una opcion de menu"""
+    from common.interfaz import mostrar_mensaje_error
+    
     if not mensaje:
         mensaje = f"Seleccione una opcion (1-{cantidad_opciones})"
 
@@ -161,6 +164,8 @@ def seleccionar_elemento_de_lista(elementos, campo_id, mensaje):
 
 def confirmar_accion(mensaje="Esta seguro"):
     """Pide confirmacion al usuario"""
+    from common.interfaz import mostrar_mensaje_error
+    
     while True:
         respuesta = input(f"{COLOR_AMARILLO}{mensaje}? (s/n): {COLOR_RESET}").lower().strip()
         if respuesta in ['s', 'si']:

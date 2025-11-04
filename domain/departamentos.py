@@ -34,6 +34,7 @@ def agregar_departamento(ubicacion, ambientes, capacidad, estado, precio_noche):
             ACTIVO_DEPARTAMENTO: True
         }
         departamentos.append(nuevo_departamento)
+        guardar_departamentos_a_archivo("agregar departamento")
         return True
     except Exception as e:
         manejar_error_inesperado(ENTIDAD_DEPARTAMENTOS, "agregar departamento", str(e))
@@ -58,6 +59,7 @@ def eliminar_departamento(id_departamento):
 
         if depto_a_eliminar:
             departamentos.remove(depto_a_eliminar)
+            guardar_departamentos_a_archivo("eliminar departamento")
             return True
         return False
     except (KeyError, ValueError):
@@ -89,6 +91,7 @@ def actualizar_departamento(id_departamento, ubicacion, ambientes, capacidad, es
                 depto[CAPACIDAD_DEPARTAMENTO] = capacidad
                 depto[ESTADO_DEPARTAMENTO] = estado
                 depto[PRECIO_DEPARTAMENTO] = precio_noche
+                guardar_departamentos_a_archivo("actualizar departamento")
                 return True
         return False
     except KeyError:
@@ -123,6 +126,7 @@ def reemplazar_departamento(id_departamento, ubicacion, ambientes, capacidad, es
                     PRECIO_DEPARTAMENTO: precio_noche,
                     ACTIVO_DEPARTAMENTO: True
                 }
+                guardar_departamentos_a_archivo("reemplazar departamento")
                 return True
         return False
     except KeyError:
@@ -145,6 +149,7 @@ def cambiar_estado_departamento(id_departamento, nuevo_estado):
         for depto in departamentos:
             if depto[ID_DEPARTAMENTO] == id_departamento:
                 depto[ACTIVO_DEPARTAMENTO] = nuevo_estado
+                guardar_departamentos_a_archivo("cambiar estado departamento")
                 return True
         return False
     except KeyError:

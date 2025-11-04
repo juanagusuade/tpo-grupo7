@@ -1,5 +1,3 @@
-# common/manejo_errores.py
-
 from .constantes import COLOR_ROJO, COLOR_AMARILLO, COLOR_RESET
 
 def manejar_error_inesperado(entidad, operacion, mensaje_personalizado=None):

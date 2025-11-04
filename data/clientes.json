@@ -1,0 +1,42 @@
+[
+    {
+        "id": 88725,
+        "nombre": "Juan",
+        "apellido": "Rodriguez",
+        "dni": "44618448",
+        "telefono": "1148917191",
+        "activo": true
+    },
+    {
+        "id": 56155,
+        "nombre": "Juan",
+        "apellido": "Lopez",
+        "dni": "37127382",
+        "telefono": "1136084593",
+        "activo": true
+    },
+    {
+        "id": 48200,
+        "nombre": "Elena",
+        "apellido": "Sanchez",
+        "dni": "25499116",
+        "telefono": "1145736146",
+        "activo": true
+    },
+    {
+        "id": 72650,
+        "nombre": "Miguel",
+        "apellido": "Perez",
+        "dni": "23893282",
+        "telefono": "1125420832",
+        "activo": true
+    },
+    {
+        "id": 85025,
+        "nombre": "Sofia",
+        "apellido": "Garcia",
+        "dni": "43361230",
+        "telefono": "1148821714",
+        "activo": true
+    }
+]

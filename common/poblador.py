@@ -61,9 +61,16 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
 
                 anio = 2025
                 mes = random.randint(10, 12)
-                dia_ingreso = random.randint(1, 29)
+                # Limitar el dia de ingreso para que no se pase del mes
+                dia_ingreso = random.randint(1, 20)
                 duracion = random.randint(3, 8)
                 dia_egreso = dia_ingreso + duracion
+                
+                # Asegurar que el dia de egreso no exceda el mes
+                dias_maximos = 31 if mes in [10, 12] else 30
+                if dia_egreso > dias_maximos:
+                    continue
+                
                 fecha_ingreso_str = f"{dia_ingreso:02d}/{mes:02d}/{anio}"
                 fecha_egreso_str = f"{dia_egreso:02d}/{mes:02d}/{anio}"
 

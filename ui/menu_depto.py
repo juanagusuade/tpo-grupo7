@@ -2,7 +2,6 @@ from common.entrada_datos import *
 from common.interfaz import *
 from domain.departamentos import *
 
-
 def creacion_depto():
     mostrar_subtitulo("Crear departamento")
     ubicacion = pedir_input_con_validacion("Ubicacion", lambda valor: campos_son_validos(valor), "No puede estar vacio")
@@ -225,7 +224,7 @@ def menu_departamentos():
     while continuar_menu:
         mostrar_menu_opciones(opciones, "MENÚ DE DEPARTAMENTOS", 45)
 
-        elec = pedir_opcion_menu(len(opciones))
+        elec = int(pedir_opcion_menu(len(opciones), ""))
 
         elec = int(elec)
 
@@ -253,7 +252,3 @@ def menu_departamentos():
 
         if continuar_menu:
             pausar()
-
-
-if __name__ == "__main__":
-    menu_departamentos()
