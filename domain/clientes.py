@@ -61,7 +61,10 @@ def agregar_cliente(nombre, apellido, dni, telefono):
             ACTIVO_CLIENTE: True
         }
         clientes.append(nuevo_cliente)
-        guardar_clientes_a_archivo("agregar cliente")
+        if not guardar_clientes_a_archivo("agregar cliente"):
+            # Si falla el guardado, revertir cambios
+            clientes.remove(nuevo_cliente)
+            return False
         return True
     except KeyError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "agregar cliente", "Datos de cliente corruptos.")
@@ -130,9 +133,19 @@ def baja_logica_cliente(id_cliente):
     Retorna:
         bool: True si se dio de baja correctamente, False si no se encontro
     """
-    resultado= cambiar_estado_cliente(id_cliente, False)
+    # Guardar estado anterior para poder revertir
+    cliente = buscar_cliente_por_id(id_cliente)
+    if not cliente:
+        return False
+    
+    estado_anterior = cliente.get(ACTIVO_CLIENTE, True)
+    resultado = cambiar_estado_cliente(id_cliente, False)
+    
     if resultado:
-        guardar_clientes_a_archivo("baja logica cliente")
+        if not guardar_clientes_a_archivo("baja logica cliente"):
+            # Revertir cambios si falla el guardado
+            cambiar_estado_cliente(id_cliente, estado_anterior)
+            return False
     return resultado    
 
 
@@ -201,17 +214,33 @@ def actualizar_cliente(id_cliente, nombre, apellido, dni, telefono):
     try:
         if buscar_dni_diferente_id(clientes, dni, id_cliente):
             return False
-        actualizado= False
+        
+        # Guardar datos anteriores para poder revertir
+        datos_anteriores = None
+        cliente_encontrado = None
+        
         for cliente in clientes:
-            if cliente[ID_CLIENTE] == id_cliente:
+            if cliente[ID_CLIENTE] == id_cliente and cliente_encontrado is None:
+                cliente_encontrado = cliente
+                datos_anteriores = {
+                    NOMBRE_CLIENTE: cliente[NOMBRE_CLIENTE],
+                    APELLIDO_CLIENTE: cliente[APELLIDO_CLIENTE],
+                    DNI_CLIENTE: cliente[DNI_CLIENTE],
+                    TELEFONO_CLIENTE: cliente[TELEFONO_CLIENTE]
+                }
                 cliente[NOMBRE_CLIENTE] = nombre
                 cliente[APELLIDO_CLIENTE] = apellido
                 cliente[DNI_CLIENTE] = dni
                 cliente[TELEFONO_CLIENTE] = telefono
-                actualizado= True
-                break
-        if actualizado:
-            guardar_clientes_a_archivo("actualizar cliente")
+        
+        if cliente_encontrado:
+            if not guardar_clientes_a_archivo("actualizar cliente"):
+                # Revertir cambios si falla el guardado
+                cliente_encontrado[NOMBRE_CLIENTE] = datos_anteriores[NOMBRE_CLIENTE]
+                cliente_encontrado[APELLIDO_CLIENTE] = datos_anteriores[APELLIDO_CLIENTE]
+                cliente_encontrado[DNI_CLIENTE] = datos_anteriores[DNI_CLIENTE]
+                cliente_encontrado[TELEFONO_CLIENTE] = datos_anteriores[TELEFONO_CLIENTE]
+                return False
             return True 
         return False
     except KeyError:
@@ -259,7 +288,7 @@ def buscar_cliente_por_id(id_cliente):
         return None
 
 
-def cliente_activo(id_cliente):
+def verificar_cliente_activo(id_cliente):
     """
     Verifica si un cliente esta activo.
     
@@ -279,7 +308,7 @@ def cliente_activo(id_cliente):
         return False
 
 
-def lista_clientes_copia():
+def obtener_copia_clientes():
     """
     Retorna una copia de la lista de todos los clientes.
     
@@ -302,26 +331,22 @@ def listar_clientes_activos(indice=0, resultado=None):
         list: Lista de diccionarios con clientes activos
     """
     try:
-        # Inicializar la lista resultado en la primera llamada
         if resultado is None:
             resultado = []
         
-        # Caso base: se recorrieron todos los clientes
         if indice >= len(clientes):
             return resultado
         
-        # Si el cliente actual esta activo, agregarlo a la lista
         if clientes[indice].get(ACTIVO_CLIENTE, False):
             resultado.append(clientes[indice])
         
-        # Llamada recursiva para el siguiente cliente
         return listar_clientes_activos(indice + 1, resultado)
     except KeyError:
         manejar_error_inesperado(ENTIDAD_CLIENTES, "listar activos", "Datos de cliente corruptos.")
         return []
 
 
-def dni_repetido(dni, id_cliente, lista_clientes):
+def verificar_dni_repetido(dni, id_cliente, lista_clientes):
     """
     Verifica si un DNI ya existe en la lista para un cliente distinto.
     

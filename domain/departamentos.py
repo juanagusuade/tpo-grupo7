@@ -185,6 +185,7 @@ def alta_logica_departamento(id_departamento):
 
 def buscar_departamento_por_id(id_departamento, indice=0):
     """
+    RECURSIVA
     Busca  un departamento por su ID.
     
     Parametros:

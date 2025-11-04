@@ -51,34 +51,40 @@ def poblar_datos_iniciales(num_clientes=5, num_deptos=5, num_reservas=7):
         intentos = 0
 
         for _ in range(num_reservas):
-            if intentos >= 50:
-                continue
+            if intentos < 50:
+                reserva_creada = False
+                while not reserva_creada and intentos < 50:
+                    id_cliente_sel = random.choice(ids_clientes)
+                    id_depto_sel = random.choice(ids_deptos)
 
-            reserva_creada = False
-            while not reserva_creada and intentos < 50:
-                id_cliente_sel = random.choice(ids_clientes)
-                id_depto_sel = random.choice(ids_deptos)
+                    anio = 2025
+                    mes = random.randint(10, 12)
+                    
+                    # Determinar días máximos del mes
+                    if mes == 2:
+                        # Verificar año bisiesto
+                        es_bisiesto = (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
+                        dias_maximos = 29 if es_bisiesto else 28
+                    elif mes in [4, 6, 9, 11]:
+                        dias_maximos = 30
+                    else:
+                        dias_maximos = 31
+                    
+                    # Limitar el dia de ingreso para que no se pase del mes
+                    dia_ingreso = random.randint(1, min(20, dias_maximos - 8))
+                    duracion = random.randint(3, 8)
+                    dia_egreso = dia_ingreso + duracion
+                    
+                    # Asegurar que el dia de egreso no exceda el mes
+                    if dia_egreso <= dias_maximos:
+                        fecha_ingreso_str = f"{dia_ingreso:02d}/{mes:02d}/{anio}"
+                        fecha_egreso_str = f"{dia_egreso:02d}/{mes:02d}/{anio}"
 
-                anio = 2025
-                mes = random.randint(10, 12)
-                # Limitar el dia de ingreso para que no se pase del mes
-                dia_ingreso = random.randint(1, 20)
-                duracion = random.randint(3, 8)
-                dia_egreso = dia_ingreso + duracion
-                
-                # Asegurar que el dia de egreso no exceda el mes
-                dias_maximos = 31 if mes in [10, 12] else 30
-                if dia_egreso > dias_maximos:
-                    continue
-                
-                fecha_ingreso_str = f"{dia_ingreso:02d}/{mes:02d}/{anio}"
-                fecha_egreso_str = f"{dia_egreso:02d}/{mes:02d}/{anio}"
+                        if reservas.agregar_reserva(id_cliente_sel, id_depto_sel, fecha_ingreso_str, fecha_egreso_str):
+                            k = k + 1
+                            reserva_creada = True
 
-                if reservas.agregar_reserva(id_cliente_sel, id_depto_sel, fecha_ingreso_str, fecha_egreso_str):
-                    k = k + 1
-                    reserva_creada = True
-
-                intentos = intentos + 1
+                    intentos = intentos + 1
 
         interfaz.mostrar_mensaje_exito(
             f"Se cargaron {num_clientes} clientes, {num_deptos} departamentos y {k} reservas.")

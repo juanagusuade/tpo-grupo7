@@ -1,47 +1,11 @@
 [
     {
-        "id": 46238,
-        "ubicacion": "Capital Federal, Palermo",
+        "id": 62005,
+        "ubicacion": "Test Ubicación",
         "ambientes": 2,
         "capacidad": 4,
         "estado": "Disponible",
-        "precio_noche": 120.01,
-        "activo": true
-    },
-    {
-        "id": 20222,
-        "ubicacion": "Mendoza, Ciudad",
-        "ambientes": 1,
-        "capacidad": 2,
-        "estado": "Disponible",
-        "precio_noche": 78.95,
-        "activo": true
-    },
-    {
-        "id": 92508,
-        "ubicacion": "Salta, Casco Historico",
-        "ambientes": 1,
-        "capacidad": 2,
-        "estado": "Disponible",
-        "precio_noche": 167.23,
-        "activo": true
-    },
-    {
-        "id": 62731,
-        "ubicacion": "Bariloche, Circuito Chico",
-        "ambientes": 2,
-        "capacidad": 4,
-        "estado": "Disponible",
-        "precio_noche": 112.16,
-        "activo": true
-    },
-    {
-        "id": 65287,
-        "ubicacion": "Rosario, Pichincha",
-        "ambientes": 2,
-        "capacidad": 4,
-        "estado": "Disponible",
-        "precio_noche": 218.49,
+        "precio_noche": 100.0,
         "activo": true
     }
 ]

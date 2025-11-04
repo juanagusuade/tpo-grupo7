@@ -4,8 +4,10 @@ from ui.menu_depto import *
 from ui.menu_clientes import menu_clientes
 from ui.menu_estadisticas import gestionar_estadisticas
 import common.poblador as poblador
+import common.entrada_datos as input_datos
 from common.constantes import USUARIOS
 from domain.clientes import guardar_clientes_a_archivo, cargar_clientes_desde_archivo
+from domain.departamentos import cargar_departamentos_desde_archivo
 
 def autenticar_usuario():
     """
@@ -80,6 +82,9 @@ def main():
 
     print("Cargando datos de clientes...")
     cargar_clientes_desde_archivo()
+    
+    print("Cargando datos de departamentos...")
+    cargar_departamentos_desde_archivo()
 
     poblador.poblar_datos_iniciales()
 

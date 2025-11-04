@@ -353,6 +353,29 @@ def obtener_todas_las_reservas():
 
 # --- Funciones para Estadisticas ---
 
+def calcular_dias_ocupados_depto(id_departamento):
+    """
+    Calcula el total de dias ocupados de un departamento.
+    
+    Parametros:
+        id_departamento (int): ID del departamento
+    
+    Retorna:
+        int: Total de dias ocupados
+    """
+    try:
+        reservas = persistence_txt.leer_reservas()
+        total_dias_ocupados = sum(
+            fecha_a_dias(r[INDICE_FECHA_EGRESO]) - fecha_a_dias(r[INDICE_FECHA_INGRESO])
+            for r in reservas
+            if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO
+        )
+        return total_dias_ocupados
+    except (TypeError, ValueError):
+        manejar_error_inesperado(ENTIDAD_RESERVAS, "calcular dias ocupados")
+        return 0
+
+
 def calcular_porcentaje_ocupacion_depto(id_departamento, periodo_dias=365):
     """
     Calcula el porcentaje de ocupacion de un departamento en un periodo.
@@ -365,12 +388,7 @@ def calcular_porcentaje_ocupacion_depto(id_departamento, periodo_dias=365):
         float: Porcentaje de ocupacion (0.0 a 100.0)
     """
     try:
-        reservas = persistence_txt.leer_reservas()
-        total_dias_ocupados = sum(
-            fecha_a_dias(r[INDICE_FECHA_EGRESO]) - fecha_a_dias(r[INDICE_FECHA_INGRESO])
-            for r in reservas
-            if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO
-        )
+        total_dias_ocupados = calcular_dias_ocupados_depto(id_departamento)
         
         if periodo_dias <= 0:
             return 0.0

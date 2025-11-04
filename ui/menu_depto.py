@@ -2,7 +2,7 @@ from common.entrada_datos import *
 from common.interfaz import *
 from domain.departamentos import *
 
-def creacion_depto():
+def agregar_departamento_ui():
     mostrar_subtitulo("Crear departamento")
     ubicacion = pedir_input_con_validacion("Ubicacion", lambda valor: campos_son_validos(valor), "No puede estar vacio")
     ambientes = pedir_numero_entero("Ambientes (≥ 1)", minimo=1)
@@ -17,7 +17,7 @@ def creacion_depto():
         mostrar_mensaje_error("No se pudo crear el departamento.")
 
 
-def eliminar_depto_fisico():
+def eliminar_departamento_fisico_ui():
     mostrar_subtitulo("Eliminar departamento (FÍSICO)")
     if not departamentos:
         mostrar_mensaje_info("No hay departamentos para eliminar.")
@@ -37,7 +37,7 @@ def eliminar_depto_fisico():
         mostrar_mensaje_error("ID no encontrado.")
 
 
-def pedir_datos_actualizacion(dep):
+def pedir_datos_actualizacion_departamento(dep):
     """
     Pedir al usuario los nuevos datos para un depto.
     Retorna una tupla con todos los datos listos para enviar al dominio.
@@ -100,7 +100,7 @@ def pedir_datos_actualizacion(dep):
     return (nueva_ubi, nuevo_amb, nueva_cap, nuevo_est, nuevo_pre)
 
 
-def actualizar_depto():
+def actualizar_departamento_ui():
     """Maneja el flujo de 'actualizar depto'"""
     mostrar_subtitulo("Actualizar (parcial)")
     if not departamentos:
@@ -114,7 +114,7 @@ def actualizar_depto():
         mostrar_mensaje_error("ID no encontrado.")
         return
 
-    (ubi, amb, cap, est, pre) = pedir_datos_actualizacion(dep)
+    (ubi, amb, cap, est, pre) = pedir_datos_actualizacion_departamento(dep)
 
     ok = actualizar_departamento(id_dep, ubi, amb, cap, est, pre)
     if ok:
@@ -123,7 +123,7 @@ def actualizar_depto():
         mostrar_mensaje_error("No se pudo actualizar.")
 
 
-def reemplazar_depto():
+def reemplazar_departamento_ui():
     mostrar_subtitulo("Reemplazar COMPLETO")
     if not departamentos:
         mostrar_mensaje_info("No hay departamentos para reemplazar.")
@@ -145,7 +145,7 @@ def reemplazar_depto():
         mostrar_mensaje_error("ID no encontrado.")
 
 
-def depto_baja_logica():
+def baja_logica_departamento_ui():
     mostrar_subtitulo("Baja lógica")
     if not departamentos:
         mostrar_mensaje_info("No hay departamentos para dar de baja.")
@@ -161,7 +161,7 @@ def depto_baja_logica():
         mostrar_mensaje_error("ID no encontrado.")
 
 
-def depto_alta_logica():
+def alta_logica_departamento_ui():
     mostrar_subtitulo("Alta lógica")
     if not departamentos:
         mostrar_mensaje_info("No hay departamentos para dar de alta.")
@@ -177,7 +177,7 @@ def depto_alta_logica():
         mostrar_mensaje_error("ID no encontrado.")
 
 
-def buscar_depto_por_id():
+def buscar_departamento_por_id_ui():
     mostrar_subtitulo("Buscar por ID")
     if not departamentos:
         mostrar_mensaje_info("No hay departamentos cargados.")
@@ -191,15 +191,15 @@ def buscar_depto_por_id():
         mostrar_mensaje_error("ID no encontrado.")
 
 
-# Funion que lista deptos activos
-def listar_deptos_activos():
+# Funcion que lista departamentos activos
+def listar_departamentos_activos_ui():
     mostrar_subtitulo("Listar ACTIVOS")
     activos = listar_departamentos_activos()
     mostrar_lista_departamentos_detallada(activos, "DEPARTAMENTOS ACTIVOS")
 
 
-# Funcion que lista deptos
-def listar_deptos():
+# Funcion que lista todos los departamentos
+def listar_todos_departamentos_ui():
     mostrar_subtitulo("Listar TODOS")
     mostrar_lista_departamentos_detallada(departamentos, "TODOS LOS DEPARTAMENTOS")
 
@@ -226,26 +226,24 @@ def menu_departamentos():
 
         elec = int(pedir_opcion_menu(len(opciones), ""))
 
-        elec = int(elec)
-
         if elec == 1:
-            creacion_depto()
+            agregar_departamento_ui()
         elif elec == 2:
-            actualizar_depto()
+            actualizar_departamento_ui()
         elif elec == 3:
-            reemplazar_depto()
+            reemplazar_departamento_ui()
         elif elec == 4:
-            eliminar_depto_fisico()
+            eliminar_departamento_fisico_ui()
         elif elec == 5:
-            depto_baja_logica()
+            baja_logica_departamento_ui()
         elif elec == 6:
-            depto_alta_logica()
+            alta_logica_departamento_ui()
         elif elec == 7:
-            buscar_depto_por_id()
+            buscar_departamento_por_id_ui()
         elif elec == 8:
-            listar_deptos_activos()
+            listar_departamentos_activos_ui()
         elif elec == 9:
-            listar_deptos()
+            listar_todos_departamentos_ui()
         elif elec == 10:
             mostrar_mensaje_info("Volviendo al Menú Principal...")
             continuar_menu = False

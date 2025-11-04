@@ -17,6 +17,10 @@ def campos_son_validos(*campos):
             return False
         if type(campo) == list and len(campo) == 0:
             return False
+        if type(campo) == dict and len(campo) == 0:
+            return False
+        if type(campo) in [int, float] and campo < 0:
+            return False
     return True
 
 
@@ -55,6 +59,30 @@ def validar_entero_rango(valor, minimo=1, maximo=None):
         return False
     if maximo and num > maximo:
         return False
+    return True
+
+
+def validar_alfabetico(valor_str):
+    """
+    Valida que un string contenga solo letras y espacios,
+    y que no sea un string vacio o solo de espacios.
+    
+    Parametros:
+        valor_str (str): String a validar
+    
+    Retorna:
+        bool: True si es valido, False en caso contrario
+    """
+    if not isinstance(valor_str, str):
+        return False
+
+    if not valor_str.strip():
+        return False
+
+    for caracter in valor_str:
+        if not (caracter.isalpha() or caracter.isspace()):
+            return False
+
     return True
 
 

@@ -31,25 +31,6 @@ def pedir_input_con_validacion(prompt, funcion_validacion=None, mensaje_error="D
         else:
             return valor
 
-def validar_alfabetico(valor_str):
-    """
-    Valida que un string contenga solo letras y espacios,
-    y que no sea un string vacio o solo de espacios.
-    """
-    if not isinstance(valor_str, str):
-        return False
-
-    if not valor_str.strip():
-        return False
-
-    for caracter in valor_str:
-        if not (caracter.isalpha() or caracter.isspace()):
-            return False
-
-    return True
-
-
-
 
 # ======================= OPCIONES DE MENU =======================
 

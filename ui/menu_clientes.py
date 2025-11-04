@@ -11,7 +11,7 @@ OPCIONES_MENU_CLIENTES = [
     "Volver al menu principal"]
 
 
-def accion_agregar_cliente():
+def agregar_cliente_ui():
     """Agregar un cliente"""
     interfaz.mostrar_subtitulo("AGREGAR NUEVO CLIENTE")
     nombre = entrada_datos.pedir_texto_alfabetico("Nombre")
@@ -25,7 +25,7 @@ def accion_agregar_cliente():
         interfaz.mostrar_mensaje_error("Error: Ya existe un cliente con ese DNI.")
 
 
-def accion_listar_clientes():
+def listar_clientes_ui():
     """Listar clientes activos"""
     interfaz.mostrar_subtitulo("LISTA DE CLIENTES ACTIVOS")
     clientes_activos = clientes.listar_clientes_activos()
@@ -35,7 +35,7 @@ def accion_listar_clientes():
     interfaz.mostrar_lista_clientes_activos(clientes_activos)
 
 
-def accion_baja_cliente():
+def baja_logica_cliente_ui():
     """Dar de baja un cliente"""
     interfaz.mostrar_subtitulo("DAR DE BAJA UN CLIENTE")
 
@@ -110,7 +110,7 @@ def pedir_datos_actualizacion_cliente(cliente_actual):
     return (nuevo_nombre, nuevo_apellido, nuevo_dni, nuevo_telefono)
 
 
-def accion_modificar_cliente():
+def actualizar_cliente_ui():
     """Maneja el flujo de modificar un cliente"""
     interfaz.mostrar_subtitulo("MODIFICAR CLIENTE")
 
@@ -130,7 +130,7 @@ def accion_modificar_cliente():
 
     (nombre, apellido, dni, telefono) = pedir_datos_actualizacion_cliente(cliente_actual)
 
-    if clientes.dni_repetido(dni, id_modificado, clientes.lista_clientes_copia()):
+    if clientes.verificar_dni_repetido(dni, id_modificado, clientes.obtener_copia_clientes()):
         interfaz.mostrar_mensaje_error("Error: Ya existe otro cliente con ese DNI.")
         return
 
@@ -150,13 +150,13 @@ def menu_clientes():
         opcion = entrada_datos.pedir_opcion_menu(len(OPCIONES_MENU_CLIENTES))
 
         if opcion == "1":
-            accion_agregar_cliente()
+            agregar_cliente_ui()
         elif opcion == "2":
-            accion_listar_clientes()
+            listar_clientes_ui()
         elif opcion == "3":
-            accion_baja_cliente()
+            baja_logica_cliente_ui()
         elif opcion == "4":
-            accion_modificar_cliente()
+            actualizar_cliente_ui()
         elif opcion == "5":
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
             menuActivo = False

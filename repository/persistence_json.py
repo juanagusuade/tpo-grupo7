@@ -65,8 +65,14 @@ def guardar_datos_json_interno(ruta_archivo, lista_datos):
         with open(ruta_archivo, 'w', encoding='utf-8') as archivo:
             json.dump(lista_datos, archivo, indent=4, ensure_ascii=False)
             return True
+    except (IOError, OSError) as e:
+        manejar_error_inesperado(ENTIDAD_PERSISTENCIA_JSON, "guardar datos JSON", f"Error de I/O al escribir archivo: {str(e)}")
+        return False
+    except (TypeError, ValueError) as e:
+        manejar_error_inesperado(ENTIDAD_PERSISTENCIA_JSON, "guardar datos JSON", f"Error al serializar datos: {str(e)}")
+        return False
     except Exception as e:
-        manejar_error_inesperado(ENTIDAD_PERSISTENCIA_JSON, "guardar datos JSON", f"Error al escribir archivo: {str(e)}")
+        manejar_error_inesperado(ENTIDAD_PERSISTENCIA_JSON, "guardar datos JSON", f"Error inesperado: {str(e)}")
         return False
 
 

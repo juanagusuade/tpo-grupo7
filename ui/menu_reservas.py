@@ -26,7 +26,7 @@ def mostrar_menu_reservas():
     interfaz.mostrar_menu_opciones(opciones, "MENU DE RESERVAS", 45)
 
 
-def pedir_opcion_reservas():
+def pedir_opcion_menu_reservas():
     """Solicita y valida la opcion del menu de reservas"""
     return input_datos.pedir_opcion_menu(7)
 
@@ -57,7 +57,7 @@ def seleccionar_departamento_disponible(fecha_ingreso, fecha_egreso):
     return id_departamento
 
 
-def agregar_nueva_reserva():
+def agregar_reserva_ui():
     """Guia al usuario para crear una nueva reserva"""
     interfaz.mostrar_titulo_seccion("AGREGAR NUEVA RESERVA")
 
@@ -133,7 +133,7 @@ def seleccionar_reserva_activa():
     )
 
 
-def modificar_reserva_existente():
+def actualizar_reserva_ui():
     """Permite modificar una reserva activa"""
     interfaz.mostrar_titulo_seccion("MODIFICAR RESERVA")
 
@@ -174,7 +174,7 @@ def modificar_reserva_existente():
         interfaz.mostrar_mensaje_error("Error al modificar la reserva")
 
 
-def cancelar_reserva_activa():
+def cancelar_reserva_ui():
     """Permite cancelar una reserva activa"""
     interfaz.mostrar_titulo_seccion("CANCELAR RESERVA")
 
@@ -280,17 +280,17 @@ def buscar_por_departamento():
         cliente = clientes.buscar_cliente_por_id(reserva[INDICE_ID_CLIENTE])
         estado_formateado = interfaz.formatear_estado(reserva[INDICE_ESTADO])
 
-        nombre_truncado = cliente[APELLIDO_CLIENTE]
-        if len(cliente[APELLIDO_CLIENTE]) > 15:
-            nombre_truncado = cliente[APELLIDO_CLIENTE][:15]
+        apellido_truncado = cliente[APELLIDO_CLIENTE]
+        if len(apellido_truncado) > 15:
+            apellido_truncado = apellido_truncado[:15]
 
         print(f"ID {reserva[INDICE_ID_RESERVA]:5d} | "
-              f"{cliente[NOMBRE_CLIENTE]} {nombre_truncado:15s} | "
+              f"{cliente[NOMBRE_CLIENTE]} {apellido_truncado:15s} | "
               f"{reserva[INDICE_FECHA_INGRESO]} al {reserva[INDICE_FECHA_EGRESO]} | "
               f"{estado_formateado}")
 
 
-def listar_todas_las_reservas_activas():
+def listar_reservas_activas_ui():
     """Lista todas las reservas activas con formato detallado"""
     reservas_activas = reservas.obtener_reservas_activas()
 
@@ -330,7 +330,7 @@ def listar_todas_las_reservas_activas():
     interfaz.mostrar_tabla("LISTADO COMPLETO DE RESERVAS ACTIVAS", datos_tabla, columnas, anchos)
 
 
-def consultar_disponibilidad_directa():
+def consultar_disponibilidad_ui():
     """Permite al usuario consultar si un depto esta libre en un rango de fechas."""
     interfaz.mostrar_titulo_seccion("CONSULTAR DISPONIBILIDAD")
 
@@ -370,20 +370,20 @@ def menu_reservas():
 
     while continuar_menu:
         mostrar_menu_reservas()
-        opcion = pedir_opcion_reservas()
+        opcion = pedir_opcion_menu_reservas()
 
         if opcion == '1':
-            agregar_nueva_reserva()
+            agregar_reserva_ui()
         elif opcion == '2':
-            modificar_reserva_existente()
+            actualizar_reserva_ui()
         elif opcion == '3':
-            cancelar_reserva_activa()
+            cancelar_reserva_ui()
         elif opcion == '4':
             buscar_reservas_submenu()
         elif opcion == '5':
-            listar_todas_las_reservas_activas()
+            listar_reservas_activas_ui()
         elif opcion == '6':
-            consultar_disponibilidad_directa()
+            consultar_disponibilidad_ui()
         elif opcion == '7':
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
             continuar_menu = False

@@ -17,15 +17,13 @@ def test_buscar_dni():
     # Test 2: El DNI NO se repite y retorna False 
     resultado_false = buscar_dni(CLIENTES_DE_PRUEBA, "99999999")
     
-    # Test 3: Verifica que se maneje la excepcion con estructura invalida
     lista_invalida = [{"nombre": "Juan"}, {"nombre": "Pedro"}]
-    
-    # La funcion buscar_dni maneja KeyError internamente y retorna True
+
     resultado_excepcion = buscar_dni(lista_invalida, "12345678")
 
     assert resultado_true == True
     assert resultado_false == False
-    assert resultado_excepcion == True  # Retorna True cuando hay error (por seguridad)
+    assert resultado_excepcion == True
 
 
 def test_buscar_dni_con_excepcion():
