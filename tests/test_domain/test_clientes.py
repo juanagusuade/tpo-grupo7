@@ -21,7 +21,6 @@ def test_buscar_dni():
     lista_invalida = [{"nombre": "Juan"}, {"nombre": "Pedro"}]
     
     # La funcion buscar_dni maneja KeyError internamente y retorna True
-    # No lanza excepción, pero podemos verificar que no falla
     resultado_excepcion = buscar_dni(lista_invalida, "12345678")
 
     assert resultado_true == True
@@ -32,9 +31,8 @@ def test_buscar_dni():
 def test_buscar_dni_con_excepcion():
     """Test para verificar que se lance excepcion con datos completamente invalidos"""
     
-    # Probar con un tipo de dato que definitivamente cause error
     with pytest.raises((KeyError, IndexError, TypeError)):
-        buscar_dni(None, "12345678")  # None causará TypeError
+        buscar_dni(None, "12345678")  # None causa TypeError
 
 
 
