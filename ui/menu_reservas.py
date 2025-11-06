@@ -6,30 +6,16 @@ import domain.reservas as reservas
 from common.constantes import *
 from common.validaciones import validar_fecha_ingreso
 
-
-def mostrar_header_reservas():
-    """Muestra el encabezado del modulo de reservas"""
-    interfaz.mostrar_header_modulo("GESTION DE RESERVAS")
-
-
-def mostrar_menu_reservas():
-    """Muestra las opciones del menu de reservas"""
-    opciones = [
-        "Agregar Reserva",
-        "Modificar Reserva",
-        "Cancelar Reserva",
-        "Buscar Reservas",
-        "Listar Todas las Reservas Activas",
-        "Consultar Disponibilidad de Departamento",
-        "Volver al Menu Principal"
-    ]
-    interfaz.mostrar_menu_opciones(opciones, "MENU DE RESERVAS", 45)
-
-
-def pedir_opcion_menu_reservas():
-    """Solicita y valida la opcion del menu de reservas"""
-    return input_datos.pedir_opcion_menu(7)
-
+opciones = [
+    "Agregar Reserva",
+    "Modificar Reserva",
+    "Cancelar Reserva",
+    "Buscar Reservas",
+    "Listar Todas las Reservas Activas",
+    "Listar Todas las Reservas",
+    "Consultar Disponibilidad de Departamento",
+    "Volver al Menu Principal"
+]
 
 def seleccionar_cliente_activo():
     """Maneja la seleccion de un cliente activo."""
@@ -201,12 +187,12 @@ def cancelar_reserva_ui():
 
 def mostrar_menu_busqueda():
     """Muestra opciones para buscar reservas"""
-    opciones = [
+    opciones_busqueda = [
         "Buscar por Cliente",
         "Buscar por Departamento",
         "Volver"
     ]
-    interfaz.mostrar_menu_opciones(opciones, "BUSCAR RESERVAS", 35)
+    interfaz.mostrar_menu_opciones(opciones_busqueda, "BUSCAR RESERVAS", 35)
 
 
 def buscar_reservas_submenu():
@@ -330,6 +316,46 @@ def listar_reservas_activas_ui():
     interfaz.mostrar_tabla("LISTADO COMPLETO DE RESERVAS ACTIVAS", datos_tabla, columnas, anchos)
 
 
+def listar_todas_las_reservas_ui():
+    """Lista TODAS las reservas del sistema (activas, canceladas y eliminadas)"""
+    todas_las_reservas = reservas.obtener_todas_las_reservas()
+
+    if not todas_las_reservas:
+        interfaz.mostrar_mensaje_info("No hay reservas en el sistema")
+        return
+
+    datos_tabla = []
+    for reserva in todas_las_reservas:
+        cliente = clientes.buscar_cliente_por_id(reserva[INDICE_ID_CLIENTE])
+        departamento = departamentos.buscar_departamento_por_id(reserva[INDICE_ID_DEPARTAMENTO])
+
+        if cliente and departamento:
+            nombre_completo = f"{cliente[NOMBRE_CLIENTE]} {cliente[APELLIDO_CLIENTE]}"
+            periodo = f"{reserva[INDICE_FECHA_INGRESO]} al {reserva[INDICE_FECHA_EGRESO]}"
+
+            nombre_truncado = nombre_completo
+            if len(nombre_completo) > 19:
+                nombre_truncado = nombre_completo[:19]
+
+            ubicacion_truncada = departamento[UBICACION_DEPARTAMENTO]
+            if len(departamento[UBICACION_DEPARTAMENTO]) > 24:
+                ubicacion_truncada = departamento[UBICACION_DEPARTAMENTO][:24]
+
+            fila = [
+                reserva[INDICE_ID_RESERVA],
+                nombre_truncado,
+                ubicacion_truncada,
+                periodo,
+                reserva[INDICE_ESTADO]
+            ]
+            datos_tabla.append(fila)
+
+    columnas = ["ID", "CLIENTE", "DEPARTAMENTO", "PERIODO", "ESTADO"]
+    anchos = [6, 20, 25, 25, 10]
+
+    interfaz.mostrar_tabla("LISTADO COMPLETO DE TODAS LAS RESERVAS", datos_tabla, columnas, anchos)
+
+
 def consultar_disponibilidad_ui():
     """Permite al usuario consultar si un depto esta libre en un rango de fechas."""
     interfaz.mostrar_titulo_seccion("CONSULTAR DISPONIBILIDAD")
@@ -365,12 +391,12 @@ def consultar_disponibilidad_ui():
 
 def menu_reservas():
     """Menu principal de gestion de reservas"""
-    mostrar_header_reservas()
+    interfaz.mostrar_header_modulo("GESTION DE RESERVAS")
     continuar_menu = True
 
     while continuar_menu:
-        mostrar_menu_reservas()
-        opcion = pedir_opcion_menu_reservas()
+        interfaz.mostrar_menu_opciones(opciones, "MENU DE RESERVAS", 45)
+        opcion = input_datos.pedir_opcion_menu(len(opciones))
 
         if opcion == '1':
             agregar_reserva_ui()
@@ -383,8 +409,10 @@ def menu_reservas():
         elif opcion == '5':
             listar_reservas_activas_ui()
         elif opcion == '6':
-            consultar_disponibilidad_ui()
+            listar_todas_las_reservas_ui()
         elif opcion == '7':
+            consultar_disponibilidad_ui()
+        elif opcion == '8':
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
             continuar_menu = False
 

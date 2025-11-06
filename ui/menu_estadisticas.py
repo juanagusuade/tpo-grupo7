@@ -3,6 +3,11 @@ import common.entrada_datos as input_datos
 import domain.reservas as reservas
 import domain.departamentos as departamentos
 
+opciones = [
+    "Porcentaje de Ocupacion por Departamento",
+    "Duracion Promedio de Reservas",
+    "Volver al Menu Principal"
+]
 
 def gestionar_estadisticas():
     """Menu principal de gestion de estadisticas"""
@@ -10,11 +15,7 @@ def gestionar_estadisticas():
 
     continuar_menu = True
     while continuar_menu:
-        opciones = [
-            "Porcentaje de Ocupacion por Departamento",
-            "Duracion Promedio de Reservas",
-            "Volver al Menu Principal"
-        ]
+
         interfaz.mostrar_menu_opciones(opciones, "MENU DE ESTADISTICAS", 50)
 
         opcion = input_datos.pedir_opcion_menu(len(opciones))
