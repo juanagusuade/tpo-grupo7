@@ -281,7 +281,7 @@ def mostrar_despedida():
     """Muestra el mensaje de despedida cuando el usuario sale"""
     print(f"\n{COLOR_VERDE}╔══════════════════════════════════════════════════════════════════╗{COLOR_RESET}")
     print(f"{COLOR_VERDE}║                                                                  ║{COLOR_RESET}")
-    print(f"{COLOR_VERDE}║    Gracias por usar el Sistema de Gestion de Rentas             ║{COLOR_RESET}")
+    print(f"{COLOR_VERDE}║ Gracias por usar el Sistema de Gestion de Alquileres Temporarios ║{COLOR_RESET}")
     print(f"{COLOR_VERDE}║                                                                  ║{COLOR_RESET}")
     print(f"{COLOR_VERDE}╚══════════════════════════════════════════════════════════════════╝{COLOR_RESET}\n")
 
