@@ -49,7 +49,7 @@ def baja_logica_cliente_ui():
                                                              "Seleccione el ID del cliente a eliminar")
 
     if clientes.baja_logica_cliente(id_cliente):
-        interfaz.mostrar_mensaje_exito("Cliente dado de baja correctamente.")
+        interfaz.mostrar_mensaje_exito("Cliente dado de baja correctamente. Sus reservas activas fueron canceladas.")
     else:
         interfaz.mostrar_mensaje_error("Cliente no encontrado o ya inactivo.")
 

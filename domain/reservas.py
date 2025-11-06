@@ -1,44 +1,12 @@
 from common.constantes import *
 from common.generadores import generar_id_unico_lista
-from common.validaciones import validar_fecha, campos_son_validos, fecha_a_dias
+from common.validaciones import validar_fecha, campos_son_validos, fecha_a_dias, comparar_fechas_string
 from common.manejo_errores import manejar_error_inesperado
 from functools import reduce
 from repository import persistence_txt
+from domain import clientes, departamentos
 
 ENTIDAD_RESERVAS = "Reservas"
-
-
-def comparar_fechas_string(fecha1_str, fecha2_str):
-    """
-    Compara dos fechas en formato dd/mm/yyyy.
-    
-    Parametros:
-        fecha1_str (str): Primera fecha en formato "dd/mm/aaaa"
-        fecha2_str (str): Segunda fecha en formato "dd/mm/aaaa"
-    
-    Retorna: int:
-        - -1 si fecha1 < fecha2
-        - 0 si son iguales
-        - 1 si fecha1 > fecha2
-        - None si hay error en las fechas
-    """
-    try:
-        if not validar_fecha(fecha1_str) or not validar_fecha(fecha2_str):
-            raise ValueError("Fecha invalida o mal formateada")
-
-        partes1 = fecha1_str.split('/')
-        partes2 = fecha2_str.split('/')
-
-        fecha1_num = int(partes1[2]) * 10000 + int(partes1[1]) * 100 + int(partes1[0])
-        fecha2_num = int(partes2[2]) * 10000 + int(partes2[1]) * 100 + int(partes2[0])
-
-        if fecha1_num < fecha2_num:
-            return -1
-        return 1 if fecha1_num > fecha2_num else 0
-    except (ValueError, IndexError):
-        mensaje = "Asegurese de que las fechas tengan el formato 'dd/mm/aaaa' y sean validas."
-        manejar_error_inesperado(ENTIDAD_RESERVAS, "comparar_fechas_string", mensaje)
-        return None
 
 
 def hay_solapamiento_fechas(inicio1, fin1, inicio2, fin2):
@@ -108,7 +76,8 @@ def verificar_disponibilidad(lista_reservas, id_depto, fecha_ing, fecha_eg, id_r
 def agregar_reserva(id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso_str):
     """
     Agrega una nueva reserva, validando la disponibilidad y los datos.
-    Verifica que el departamento este disponible en el rango de fechas.
+    Verifica que el departamento este disponible en el rango de fechas y que
+    tanto el cliente como el departamento esten activos.
     
     Parametros:
         id_cliente (int): ID del cliente que reserva
@@ -123,6 +92,14 @@ def agregar_reserva(id_cliente, id_departamento, fecha_ingreso_str, fecha_egreso
         comparacion = comparar_fechas_string(fecha_ingreso_str, fecha_egreso_str)
         if comparacion is None or not campos_son_validos(id_cliente, id_departamento) or comparacion >= 0:
             raise ValueError("Reserva con campos invalidos o fechas incorrectas.")
+        
+        cliente = clientes.buscar_cliente_por_id(id_cliente)
+        if not cliente or not cliente.get(ACTIVO_CLIENTE, False):
+            return False
+        
+        departamento = departamentos.buscar_departamento_por_id(id_departamento)
+        if not departamento or not departamento.get(ACTIVO_DEPARTAMENTO, False):
+            return False
         
         reservas_actuales = persistence_txt.leer_reservas()
         
@@ -270,7 +247,8 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
                        fecha_egreso_str=None):
     """
     Actualiza los datos de una reserva existente.
-    Valida que las nuevas fechas no tengan conflictos con otras reservas.
+    Valida que las nuevas fechas no tengan conflictos con otras reservas y que
+    los nuevos cliente y departamento (si se cambian) esten activos.
     
     Parametros:
         id_reserva (int): ID de la reserva a actualizar
@@ -283,12 +261,23 @@ def actualizar_reserva(id_reserva, id_cliente=None, id_departamento=None, fecha_
         bool: True si se actualizo correctamente, False si hay error o conflicto
     """
     try:
+        
         reservas = persistence_txt.leer_reservas()
         resultado = [r for r in reservas if r[INDICE_ID_RESERVA] == id_reserva]
         reserva = resultado[0] if resultado else None
         
         if not reserva or reserva[INDICE_ESTADO] != ESTADO_ACTIVO:
             return False
+        
+        if id_cliente is not None:
+            cliente = clientes.buscar_cliente_por_id(id_cliente)
+            if not cliente or not cliente.get(ACTIVO_CLIENTE, False):
+                return False
+        
+        if id_departamento is not None:
+            departamento = departamentos.buscar_departamento_por_id(id_departamento)
+            if not departamento or not departamento.get(ACTIVO_DEPARTAMENTO, False):
+                return False
 
         fecha_ingreso_actualizada = reserva[INDICE_FECHA_INGRESO]
         fecha_egreso_actualizada = reserva[INDICE_FECHA_EGRESO]

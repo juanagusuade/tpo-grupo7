@@ -91,7 +91,7 @@ def agregar_reserva_ui():
         if reservas.agregar_reserva(cliente[ID_CLIENTE], id_departamento, fecha_ingreso, fecha_egreso):
             interfaz.mostrar_mensaje_exito("Reserva creada exitosamente")
         else:
-            interfaz.mostrar_mensaje_error("Error al crear la reserva")
+            interfaz.mostrar_mensaje_error("Error al crear la reserva. Verifique que el cliente y departamento esten activos.")
     else:
         interfaz.mostrar_mensaje_info("Operacion cancelada")
 
@@ -171,7 +171,7 @@ def actualizar_reserva_ui():
                                    fecha_egreso_str=nueva_fecha_egreso):
         interfaz.mostrar_mensaje_exito("Reserva modificada exitosamente")
     else:
-        interfaz.mostrar_mensaje_error("Error al modificar la reserva")
+        interfaz.mostrar_mensaje_error("Error al modificar la reserva. Verifique las fechas y disponibilidad.")
 
 
 def cancelar_reserva_ui():

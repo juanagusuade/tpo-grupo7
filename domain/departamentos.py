@@ -1,7 +1,11 @@
 from common.generadores import generar_id_unico_diccionario
 from common.constantes import *
 from common.manejo_errores import manejar_error_inesperado
-from domain.reservas import comparar_fechas_string, ENTIDAD_RESERVAS, obtener_todas_las_reservas
+from domain.funciones_compartidas import (
+    verificar_reservas_activas_de_departamento,
+    cancelar_reservas_activas_de_departamento,
+    verificar_disponibilidad_departamento_en_fechas
+)
 
 ENTIDAD_DEPARTAMENTOS = "Departamentos"
 
@@ -44,14 +48,19 @@ def agregar_departamento(ubicacion, ambientes, capacidad, estado, precio_noche):
 def eliminar_departamento(id_departamento):
     """
     Elimina fisicamente un departamento de la lista.
+    Verifica que no existan reservas activas asociadas antes de eliminar
     
     Parametros:
         id_departamento (int): ID del departamento a eliminar
     
     Retorna:
-        bool: True si se elimino correctamente, False si no se encontro
+        bool: True si se elimino correctamente, False si no se encontro o tiene reservas activas
     """
     try:
+        # Verificar si tiene reservas activas
+        if verificar_reservas_activas_de_departamento(id_departamento):
+            return False
+        
         depto_a_eliminar = None
         for depto in departamentos:
             if depto[ID_DEPARTAMENTO] == id_departamento:
@@ -160,6 +169,8 @@ def cambiar_estado_departamento(id_departamento, nuevo_estado):
 def baja_logica_departamento(id_departamento):
     """
     Realiza baja logica de un departamento.
+    Antes de dar de baja, cancela todas las reservas activas asociadas al
+    departamento para mantener la integridad referencial del sistema.
     
     Parametros:
         id_departamento (int): ID del departamento a dar de baja
@@ -167,6 +178,9 @@ def baja_logica_departamento(id_departamento):
     Retorna:
         bool: True si se dio de baja correctamente, False si no se encontro
     """
+    # Cancelar todas las reservas activas del departamento
+    cancelar_reservas_activas_de_departamento(id_departamento)
+    
     return cambiar_estado_departamento(id_departamento, False)
 
 
@@ -225,6 +239,8 @@ def listar_departamentos_activos():
 def listar_departamentos_disponibles(fecha_ingreso, fecha_egreso):
     """
     Lista los departamentos disponibles para un rango de fechas.
+    La disponibilidad se calcula dinamicamente verificando las reservas,
+    no depende del campo ESTADO_DEPARTAMENTO.
     
     Parametros:
         fecha_ingreso (str): Fecha de ingreso en formato "dd/mm/aaaa"
@@ -238,8 +254,7 @@ def listar_departamentos_disponibles(fecha_ingreso, fecha_egreso):
 
         return [
             depto for depto in departamentos_activos
-            if depto[ESTADO_DEPARTAMENTO] == ESTADO_DISPONIBLE and
-               verificar_disponibilidad_departamento(depto[ID_DEPARTAMENTO], fecha_ingreso, fecha_egreso)
+            if verificar_disponibilidad_departamento(depto[ID_DEPARTAMENTO], fecha_ingreso, fecha_egreso)
         ]
     except KeyError:
         manejar_error_inesperado(ENTIDAD_DEPARTAMENTOS, "listar disponibles", "Datos de departamento corruptos.")
@@ -259,23 +274,7 @@ def verificar_disponibilidad_departamento(id_departamento, fecha_ingreso_str, fe
     Retorna:
         bool: True si esta disponible, False si hay solapamiento o error
     """
-    try:
-        reservas = obtener_todas_las_reservas()
-        for r in reservas:
-            if r[INDICE_ID_DEPARTAMENTO] == id_departamento and r[INDICE_ESTADO] == ESTADO_ACTIVO:
-                comp_inicio_nueva_fin_reserva = comparar_fechas_string(fecha_ingreso_str, r[INDICE_FECHA_EGRESO])
-                comp_inicio_reserva_fin_nueva = comparar_fechas_string(r[INDICE_FECHA_INGRESO], fecha_egreso_str)
-
-                if comp_inicio_nueva_fin_reserva is None or comp_inicio_reserva_fin_nueva is None:
-                    return False
-
-                if comp_inicio_nueva_fin_reserva < 0 and comp_inicio_reserva_fin_nueva < 0:
-                    return False
-
-        return True
-    except (TypeError, IndexError):
-        manejar_error_inesperado(ENTIDAD_RESERVAS, "verificar disponibilidad")
-        return False
+    return verificar_disponibilidad_departamento_en_fechas(id_departamento, fecha_ingreso_str, fecha_egreso_str)
 
 
 # =============================================================================

@@ -1,474 +1,621 @@
 # Sistema de Gestión de Alquileres Temporarios
 
-## Definición de la temática del proyecto
-Este sistema permite administrar eficientemente el alquiler temporal de distintos departamentos, facilitando el control de las unidades disponibles, la gestión de clientes y la organización de reservas. Está orientado a propietarios o administradores que deseen automatizar el proceso de registro, asignación y seguimiento de estadías.
+## Informe Final del Proyecto - Programación I
 
-Las entidades principales son:
-- **Clientes**: contienen los datos personales de los inquilinos.
-- **Departamentos**: representan cada unidad disponible para alquiler con sus características (ubicación, número de ambientes, capacidad, estado, precio por noche).
-- **Reservas**: vinculan a un cliente con un departamento en un período determinado.
+**Grupo VII**
+**Fecha**: Noviembre 2025
 
-## Técnicas Avanzadas Implementadas
+---
 
-### Programación Estructurada
-El sistema utiliza técnicas de programación estructurada:
-- **`any()`**: Búsqueda eficiente de elementos (DNI duplicados)
-- **`map()`**: Transformación de listas para extracción de IDs
-- **`filter()`**: Filtrado de elementos activos en clientes y departamentos
-- **`reduce()`**: Cálculos acumulativos para estadísticas de reservas
-- **Comprensiones de lista**: Uso extensivo para operaciones de filtrado y transformación
-- **Expresiones lambda**: Funciones anónimas en filter y map
-- **Ciclos for**: Validación de campos y caracteres
+## 1. Definición del Proyecto
 
-### Persistencia de Datos (Módulo Repository)
-Implementación de persistencia con **dos estrategias diferentes**:
-- **JSON** para clientes y departamentos (formato estructurado, mantiene tipos)
-- **TXT delimitado** para reservas (append eficiente, archivo temporal para seguridad)
-- Manejo robusto de errores y estrategias de recuperación
+El Sistema de Gestión de Alquileres Temporarios es una aplicación de consola desarrollada en Python que permite administrar eficientemente el alquiler temporal de departamentos. El sistema facilita el control de unidades disponibles, la gestión integral de clientes y la organización de reservas con validaciones exhaustivas.
 
-## Funcionalidades principales
+### Objetivos Principales
+- Automatizar el proceso de registro, asignación y seguimiento de estadías
+- Garantizar la integridad de datos mediante validaciones múltiples
+- Proporcionar persistencia robusta de información
+- Implementar arquitectura modular y mantenible
+- Demostrar técnicas avanzadas de programación funcional
 
-### Gestión de Clientes
-- Agregar nuevos clientes con validación de DNI único
-- Listar clientes activos
-- Modificar información de clientes existentes
-- Dar de baja lógica a clientes (eliminación no destructiva)
-- Validación completa de datos (nombres alfabéticos, DNI 7-8 dígitos, teléfono)
+### Alcance del Sistema
+- **Entidades**: Clientes, Departamentos, Reservas
+- **Operaciones**: CRUD completo para todas las entidades
+- **Persistencia**: Archivos JSON y TXT delimitado
+- **Interfaz**: Consola con colores ANSI
+- **Validaciones**: Sintácticas, semánticas y de negocio
 
-### Gestión de Departamentos
-- Crear departamentos con todos sus atributos
-- Actualización parcial de departamentos (mantener valores actuales opcionales)
-- Reemplazo completo de departamentos
-- Eliminación física de departamentos
-- Baja y alta lógica de departamentos
-- Búsqueda por ID individual
-- Listado de departamentos activos y todos los departamentos
-- Estados: Disponible, Ocupado, Mantenimiento
+---
 
-### Gestión de Reservas
-- **Crear reservas** con validación automática de disponibilidad
-- **Modificar reservas** activas (fechas de ingreso y egreso)
-- **Cancelar reservas** con confirmación del usuario
-- **Búsqueda de reservas** por cliente o por departamento
-- **Listar todas las reservas activas** con formato de tabla
-- **Consulta directa de disponibilidad** de departamentos para fechas específicas
-- Validación de solapamiento de fechas (permite check-in/check-out el mismo día)
-- Verificación de que fecha de egreso sea posterior a ingreso
-
-### Reportes y Estadísticas
-- **Porcentaje de ocupación por departamento**: Calcula el porcentaje de días ocupados sobre un período de 365 días
-- **Días ocupados por departamento**: Suma total de días que un departamento estuvo reservado
-- **Duración promedio de reservas**: Usa `reduce()` de programación funcional para calcular promedio de estadías
-- Formato de tablas profesionales para presentación de datos
-
-### Sistema de Autenticación
-- Sistema de login con múltiples usuarios válidos
-- Máximo 3 intentos de autenticación
-- Credenciales predefinidas para 4 usuarios diferentes
-- Bloqueo del sistema tras superar intentos
-
-### Interfaz y Experiencia de Usuario
-- Interfaz colorizada con códigos ANSI para mejor visualización
-- Menús numerados intuitivos con validación de opciones
-- Confirmaciones explícitas para operaciones críticas
-- Mensajes de éxito, error e información diferenciados
-- Separadores visuales y formato de tablas profesional
-- Sistema de pausa entre operaciones
-
-## Arquitectura del Sistema
+## 2. Arquitectura del Sistema
 
 ### Estructura de Directorios
 ```
-Sistema-Alquileres/
-├── main.py                          # Punto de entrada y autenticación
-├── README.md                        # Documentación del proyecto
-
-├── ui/                              # Módulos de interfaz de usuario
-│   ├── menu_clientes.py            # Interfaz para gestión de clientes
-│   ├── menu_depto.py               # Interfaz para gestión de departamentos
-│   ├── menu_reservas.py            # Interfaz para gestión de reservas
-│   └── menu_estadisticas.py        # Interfaz para reportes y estadísticas
-
-├── domain/                          # Lógica de negocio
-│   ├── clientes.py                 # CRUD de clientes
-│   ├── departamentos.py            # CRUD de departamentos
-│   └── reservas.py                 # CRUD de reservas y validaciones
-
-└── common/                          # Funcionalidades comunes
-    ├── constantes.py               # Constantes del sistema
-    ├── interfaz.py                 # Funciones de presentación UI
-    ├── entrada_datos.py            # Validaciones y entrada de datos
-    ├── validaciones.py             # Validaciones específicas y fechas
-    ├── generadores.py              # Generadores de IDs únicos
-    └── poblador.py                 # Datos de ejemplo inicial
+sistema-alquileres/
+├── main.py                    # Punto de entrada y autenticación
+├── README.md                  # Documentación del proyecto
+├── data/                      # Archivos de persistencia
+│   ├── clientes.json          # Clientes en formato JSON
+│   ├── departamentos.json     # Departamentos en formato JSON
+│   └── reservas.txt           # Reservas en TXT delimitado
+├── domain/                    # Lógica de negocio (capa dominio)
+│   ├── clientes.py            # Operaciones CRUD de clientes
+│   ├── departamentos.py       # Operaciones CRUD de departamentos
+│   ├── reservas.py            # Operaciones CRUD de reservas
+│   └── servicios.py           # Coordinación entre entidades (evita imports circulares)
+├── ui/                        # Interfaz de usuario (capa presentación)
+│   ├── menu_clientes.py       # Menús de gestión de clientes
+│   ├── menu_depto.py          # Menús de gestión de departamentos
+│   ├── menu_reservas.py       # Menús de gestión de reservas
+│   └── menu_estadisticas.py   # Menús de estadísticas y reportes
+├── common/                    # Utilidades compartidas
+│   ├── constantes.py          # Constantes y configuraciones
+│   ├── interfaz.py            # Funciones de presentación UI
+│   ├── entrada_datos.py       # Validación y entrada de datos
+│   ├── validaciones.py        # Validaciones específicas
+│   ├── generadores.py         # Generadores de IDs únicos
+│   ├── poblador.py            # Datos de ejemplo iniciales
+│   └── manejo_errores.py      # Gestión centralizada de errores
+├── repository/                # Capa de persistencia
+│   ├── persistence_json.py    # Lectura/escritura JSON
+│   └── persistence_txt.py     # Lectura/escritura TXT con append
+└── tests/                     # Pruebas unitarias
+    ├── conftest.py            # Configuración de pruebas
+    ├── test_common/           # Pruebas de utilidades
+    │   └── test_validacion.py # Pruebas de validaciones
+    └── test_domain/           # Pruebas de dominio
+        ├── test_clientes.py   # Pruebas CRUD clientes
+        └── test_reservas.py   # Pruebas CRUD reservas
 ```
 
-## Estructuras de Datos Implementadas
+### Principios Arquitectónicos
+- **Separación de responsabilidades**: Cada capa tiene un propósito definido
+- **Inversión de dependencias**: Las capas superiores no dependen de las inferiores
+- **Modularidad**: Funciones cohesivas y acopladas de manera flexible
+- **Abstracción**: Interfaces claras entre capas
+- **Resolución de imports circulares**: Módulo `servicios.py` centraliza operaciones que cruzan múltiples entidades
 
-### Clientes (Lista de Diccionarios)
-```python
-cliente = {
-    "id": 12345,                    # ID único de 5 dígitos
-    "nombre": "Juan",               # Solo caracteres alfabéticos
-    "apellido": "Pérez",            # Solo caracteres alfabéticos
-    "dni": "12345678",              # 7-8 dígitos numéricos
-    "telefono": "1122334455",       # Formato validado
-    "activo": True                  # Estado lógico
-}
-```
+### 2.3 Módulo de Servicios (Coordinación entre Entidades)
 
-### Departamentos (Lista de Diccionarios)
-```python
-departamento = {
-    "id": 12345,                    # ID único de 5 dígitos
-    "ubicacion": "Buenos Aires, Centro",  # Texto descriptivo
-    "ambientes": 3,                 # Número entero ≥ 1
-    "capacidad": 4,                 # Número entero ≥ 1
-    "estado": "Disponible",         # Disponible/Ocupado/Mantenimiento
-    "precio_noche": 100.50,         # Decimal ≥ 0.01
-    "activo": True                  # Estado lógico
-}
-```
+El módulo `domain/servicios.py` fue diseñado para resolver imports circulares y centralizar operaciones que cruzan múltiples entidades del dominio. Actúa como una capa de coordinación que orquesta interacciones complejas.
 
-### Reservas (Lista de Listas)
-```python
-# Índices definidos por constantes para mejor legibilidad
-INDICE_ID_RESERVA = 0          # ID único de la reserva
-INDICE_ID_CLIENTE = 1          # ID del cliente
-INDICE_ID_DEPARTAMENTO = 2     # ID del departamento
-INDICE_FECHA_INGRESO = 3       # Fecha formato "dd/mm/yyyy"
-INDICE_FECHA_EGRESO = 4        # Fecha formato "dd/mm/yyyy"
-INDICE_ESTADO = 5              # ACTIVO/CANCELADO/ELIMINADO
+#### Funciones Principales:
 
-reserva = [12345, 67890, 54321, "25/08/2025", "30/08/2025", "ACTIVO"]
-```
+**Gestión de Reservas Activas:**
+- `cancelar_reservas_activas_de_cliente(id_cliente) -> int`
+  - Cancela todas las reservas activas de un cliente antes de su baja lógica
+  - Retorna el número de reservas canceladas
+  - Usado por: `domain.clientes.baja_logica_cliente()`
 
-## Validaciones Implementadas
+- `cancelar_reservas_activas_de_departamento(id_departamento) -> int`
+  - Cancela todas las reservas activas de un departamento antes de su baja lógica
+  - Retorna el número de reservas canceladas
+  - Usado por: `domain.departamentos.baja_logica_departamento()`
 
-### Validaciones de Datos Generales
-- **Campos obligatorios**: Verificación de valores no nulos ni vacíos
-- **Texto alfabético**: Solo letras y espacios para nombres
-- **Números enteros**: Validación de rango con mínimos configurables
-- **Números decimales**: Formato y valor mínimo validados
-- **Opciones de menú**: Validación numérica dentro de rangos válidos
+**Verificación de Estado:**
+- `verificar_reservas_activas_de_departamento(id_departamento) -> bool`
+  - Verifica si un departamento tiene reservas activas (bloquea eliminación física)
+  - Retorna `True` si hay reservas activas, `False` en caso contrario
+  - Usado por: `domain.departamentos.eliminar_departamento()`
 
-### Validaciones Específicas
-- **DNI**: 7-8 dígitos numéricos, verificación de unicidad
-- **Teléfono**: Mínimo 7 caracteres, permite números, espacios, guiones, paréntesis
-- **Fechas**: Formato dd/mm/yyyy obligatorio, validación de fechas reales incluyendo años bisiestos
-- **IDs únicos**: Generación automática de 5 dígitos con verificación de unicidad
+**Control de Disponibilidad:**
+- `verificar_disponibilidad_departamento_en_fechas(id_depto, fecha_ini, fecha_fin) -> bool`
+  - Verifica si un departamento está disponible en un rango de fechas
+  - Detecta solapamiento con reservas activas existentes
+  - Retorna `True` si está disponible, `False` si hay conflicto
+  - Usado por: `domain.departamentos.verificar_disponibilidad_departamento()`
 
-### Validaciones de Negocio
-- **Reservas**: Fecha egreso posterior a ingreso, verificación automática de disponibilidad del departamento
-- **Solapamiento de fechas**: Algoritmo que verifica conflictos, permitiendo check-in/check-out el mismo día
-- **Estados consistentes**: Validación de transiciones de estado válidas
-- **DNI único**: Verificación con `any()` que evita duplicados al agregar o modificar clientes
 
-## Funcionalidades Avanzadas
+---
 
-### Sistema de Fechas
-- **Conversión a días**: Algoritmo que convierte fechas a número total de días desde año 0
-- **Comparación de fechas**: Función especializada para comparar fechas en formato string
-- **Validación de años bisiestos**: Cálculo correcto de días por mes
-- **Cálculos de estadísticas**: Duración de reservas en días
+## 3. Estructuras de Datos
 
-### Generación de IDs
-- **IDs únicos**: Rango 10000-99999 con verificación automática de unicidad
-- **Dos estrategias**: Función específica para listas vs diccionarios
-- **Prevención de duplicados**: Verificación exhaustiva antes de asignación
-
-### Poblado Automático de Datos
-- **Datos de ejemplo**: Generación automática de clientes, departamentos y reservas al inicio
-- **Datos realistas**: Nombres, ubicaciones y fechas con sentido
-- **Prevención de conflictos**: Verificación de disponibilidad al generar reservas ejemplo
-
-### Programación Funcional
-- **Uso de `map`**: Implementado para la transformación de listas, como la extracción de IDs de clientes y departamentos para el poblador de datos.
-- **Uso de `filter`**: Implementado para el filtrado de listas, como en las funciones `listar_clientes_activos` y `listar_departamentos_activos`.
-- **Uso de `reduce`**: Importado de `functools` y utilizado para cálculos acumulativos, como en `calcular_duracion_promedio_reservas`.
-
-#### Comparación con Programación Estructurada
-
-**Otras validaciones usan ciclos for tradicionales:**
+### 3.1 Clientes (Lista de Diccionarios)
+Los clientes se almacenan como una lista de diccionarios JSON con la siguiente estructura:
 
 ```python
-# Validación de teléfono con ciclo for
-def validar_telefono(tel):
-    if len(tel) < 7:
-        return False
-    caracteres_validos = "0123456789 -()+."
-    for caracter in tel:
-        if caracter not in caracteres_validos:
-            return False
-    return True
+[
+    {
+        "id": 81519,           # ID único (5 dígitos)
+        "nombre": "Jhon",      # Solo caracteres alfabéticos
+        "apellido": "Rororo",  # Solo caracteres alfabéticos
+        "dni": "12345678",     # 7-8 dígitos numéricos
+        "telefono": "45325432", # 10 dígitos numéricos
+        "activo": true         # Estado lógico (boolean)
+    }
+]
 ```
 
-### Técnicas de Programación Utilizadas
+### 3.2 Departamentos (Lista de Diccionarios)
+Los departamentos se almacenan como una lista de diccionarios JSON:
 
-El sistema utiliza diversas técnicas de programación:
-
-**`any()` - Búsqueda eficiente:**
 ```python
-# En clientes.py
-def buscar_dni(lista_clientes, dni):
-    return any(cliente[DNI_CLIENTE] == dni for cliente in lista_clientes)
-
-def buscar_dni_diferente_id(lista_clientes, dni, id_excluir):
-    return any(
-        cliente[DNI_CLIENTE] == dni and cliente[ID_CLIENTE] != id_excluir
-        for cliente in lista_clientes
-    )
+[
+    {
+        "id": 50505,              # ID único (5 dígitos)
+        "codigo": "DPTO-0001",    # Código único con formato específico
+        "ubicacion": "Recoleta",  # Ubicación geográfica
+        "precio": 15000.0,        # Precio por noche (float)
+        "capacidad": 4,           # Capacidad máxima (int)
+        "num_habitaciones": 2,    # Número de habitaciones (int)
+        "descripcion": "Moderno", # Descripción textual
+        "activo": true,           # Estado lógico (boolean)
+        "estado": "Disponible"    # Estado operativo
+    }
+]
 ```
 
-**Ciclos `for` - Validación con control de flujo:**
+### 3.3 Reservas (Lista de Listas)
+Las reservas se almacenan como lista de listas en archivo TXT delimitado:
+
 ```python
-# En validaciones.py
-def campos_son_validos(*campos):
-    for campo in campos:
-        if campo is None:
-            return False
-        if type(campo) == str and len(campo.strip()) == 0:
-            return False
-        if type(campo) == list and len(campo) == 0:
-            return False
-    return True
-
-def validar_telefono(tel):
-    if len(tel) < 7:
-        return False
-    caracteres_validos = "0123456789 -()+."
-    for caracter in tel:
-        if caracter not in caracteres_validos:
-            return False
-    return True
+[
+    [44910, 11325, 50505, "14/11/2025", "18/11/2025", "ACTIVO"],  # ID, Cliente, Depto, Inicio, Fin, Estado
+    [96565, 50220, 92646, "19/11/2025", "24/11/2025", "ACTIVO"],
+    [16780, 39253, 38076, "17/10/2025", "22/10/2025", "ACTIVO"]
+]
 ```
 
-**`filter()` - Filtrado declarativo:**
+**Índices de acceso:**
+- `INDICE_ID_RESERVA = 0`        # ID único de la reserva
+- `INDICE_ID_CLIENTE = 1`        # ID del cliente
+- `INDICE_ID_DEPARTAMENTO = 2`   # ID del departamento
+- `INDICE_FECHA_INGRESO = 3`     # Fecha de ingreso (DD/MM/YYYY)
+- `INDICE_FECHA_EGRESO = 4`      # Fecha de egreso (DD/MM/YYYY)
+- `INDICE_ESTADO = 5`            # Estado de la reserva
+
+---
+
+## 4. Funcionalidades Principales
+
+### 4.1 Gestión de Clientes
+- **Alta**: Registro con validación completa de datos personales
+- **Consulta**: Búsqueda por DNI con visualización detallada
+- **Modificación**: Actualización de datos con preservación de ID
+- **Baja lógica**: Desactivación con cancelación automática de reservas activas
+- **Baja física**: Eliminación permanente con validación de integridad referencial
+- **Listado**: Visualización filtrada por estado (activos/inactivos/todos)
+
+### 4.2 Gestión de Departamentos
+- **Alta**: Registro con código único y características completas
+- **Consulta**: Búsqueda por código con historial de reservas
+- **Modificación**: Actualización controlada de datos
+- **Baja lógica**: Desactivación con cancelación de reservas activas
+- **Baja física**: Eliminación con verificación de integridad
+- **Listado**: Visualización por estado y disponibilidad dinámica
+- **Disponibilidad**: Cálculo en tiempo real basado en reservas activas
+
+### 4.3 Gestión de Reservas
+- **Alta**: Creación con validaciones múltiples:
+  - Cliente y departamento activos
+  - Formato de fechas válido
+  - No solapamiento con reservas existentes
+  - Fechas coherentes (ingreso < egreso)
+- **Consulta**: Búsqueda por ID con detalles completos
+- **Modificación**: Actualización con revalidación completa
+- **Cancelación**: Cambio de estado a CANCELADO
+- **Eliminación**: Baja física permanente
+- **Listado**: Visualización por cliente, departamento, estado o rango de fechas
+
+### 4.4 Estadísticas y Reportes
+- **Estadísticas de clientes**:
+  - Totales por estado
+  - Promedio de reservas por cliente
+  - Cliente con más reservas activas
+- **Estadísticas de departamentos**:
+  - Totales por estado y disponibilidad
+  - Promedio de reservas por departamento
+  - Departamento más reservado
+- **Estadísticas de reservas**:
+  - Totales por estado
+  - Promedio de días por reserva
+  - Reserva más larga
+  - Distribución temporal
+
+---
+
+## 5. Técnicas Avanzadas Implementadas
+
+### 5.1 Programación Funcional
+- **Comprensiones de listas**: `[c for c in clientes if c['activo']]`
+- **Funciones de orden superior**:
+  - `map()`: `list(map(lambda c: c['id'], clientes))`
+  - `filter()`: `list(filter(lambda r: r[INDICE_ESTADO] == 'ACTIVO', reservas))`
+  - `reduce()`: Acumuladores para estadísticas y conteos
+- **Expresiones lambda**: Transformaciones inline y criterios de filtrado
+- **Funciones puras**: Separación de efectos secundarios
+
+### 5.2 Estructuras de Datos Avanzadas
+- **Listas de listas**: Representación matricial de reservas
+- **Diccionarios**: Mapeos para configuración y contadores
+- **Tuplas**: Retornos múltiples e inmutabilidad
+- **Sets**: Validación de unicidad y operaciones de conjuntos
+
+### 5.3 Expresiones Regulares
 ```python
-# Listar solo clientes activos
-clientes_activos = list(filter(lambda c: c[ACTIVO_CLIENTE], clientes))
+DNI_PATTERN = r'^\d{7,8}$'                    # 7-8 dígitos
+TELEFONO_PATTERN = r'^\d{10}$'                # 10 dígitos exactos
+CODIGO_DEPTO_PATTERN = r'^DPTO-\d{4}$'        # Formato específico
+FECHA_PATTERN = r'^\d{2}/\d{2}/\d{4}$'       # DD/MM/YYYY
 ```
 
-**`map()` y `reduce()` - Transformación y acumulación:**
-```python
-# Extraer IDs
-ids = list(map(lambda c: c[ID_CLIENTE], clientes))
+### 5.4 Operaciones con Strings
+- **Concatenación**: `f"{cliente['nombre']} {cliente['apellido']}"`
+- **Slicing**: `fecha.split('/')`, `linea.strip()`
+- **Métodos**: `.upper()`, `.lower()`, `.replace()`, `.startswith()`
+- **Formateo**: f-strings para presentación tabular
 
-# Sumar días ocupados
-from functools import reduce
-total_dias = reduce(lambda acc, r: acc + calcular_dias(...), reservas, 0)
-```
+### 5.5 Búsquedas Relacionales
+- **Departamentos disponibles**: Filtra departamentos sin reservas solapadas
+- **Clientes con reservas**: Encuentra clientes con reservas en período
+- **Reservas por cliente/departamento**: Búsquedas cruzadas eficientes
+- **Validaciones FK**: Verificación de integridad referencial
 
-## Módulo de Persistencia (Repository)
+---
 
-El sistema incluye un módulo para persistencia de datos con dos estrategias:
+## 6. Módulo de Persistencia
 
-### Archivos y Responsabilidades
+### 6.1 Estrategias de Almacenamiento
 
-#### `persistence_json.py` - Persistencia en formato JSON
-**Responsable de:** Clientes y Departamentos
+#### JSON (Clientes y Departamentos)
+- **Formato**: Lista de diccionarios serializados
+- **Ventajas**: Mantiene tipos de datos automáticamente, legible
+- **Operaciones**: Sobrescritura completa en cada guardado
+- **Archivos**: `clientes.json`, `departamentos.json`
 
-**Formato:** Listas de diccionarios en JSON
-```json
-[{"id": 1, "nombre": "Juan", "activo": true}, ...]
-```
+#### TXT Delimitado (Reservas)
+- **Formato**: Valores separados por punto y coma
+- **Estructura**: `id;id_cliente;id_depto;fecha_ini;fecha_fin;estado`
+- **Ventajas**: Ligero, eficiente para append
+- **Archivo**: `reservas.txt`
 
-**Funciones principales:**
-- `leer_clientes()`, `guardar_clientes(lista)`
-- `leer_departamentos()`, `guardar_departamentos(lista)`
-
-**Características:**
-- Formato legible por humanos
-- Mantiene tipos de datos automáticamente (bool, int, str)
-- Estructura jerárquica con indentación
-- Mejor para datos que requieren estructura compleja
-
-#### `persistence_txt.py` - Persistencia en formato TXT delimitado
-**Responsable de:** Reservas
-
-**Estructura TXT:**
-```
-12345;67890;54321;25/08/2025;30/08/2025;ACTIVO
-23456;78901;65432;01/09/2025;05/09/2025;ACTIVO
-```
-
-**Funciones principales:**
-- `leer_reservas()`: Lee todas las reservas línea por línea
-- `guardar_reservas_txt(lista)`: Guarda lista completa usando archivo temporal
-- `agregar_reserva_txt(reserva)`: Agrega una reserva al final (modo append)
-
-**Funciones auxiliares (traductores):**
-- `parsear_reserva_txt(linea)`: Convierte string → lista de reserva
-- `formatear_reserva_txt(reserva)`: Convierte lista de reserva → string
-
-**Características:**
-- Formato liviano y eficiente
-- Modo append para agregar rápidamente sin reescribir todo
-- Archivo temporal para seguridad en modificaciones
-- Todo se guarda como texto, requiere conversión manual de tipos
-
-### Estrategias de Escritura
+### 6.2 Operaciones de Escritura
 
 #### JSON: Sobrescritura Total
-1. Abrir archivo en modo 'w' (write)
-2. Usar `json.dump()` para escribir toda la estructura
-3. Cerrar archivo
-
-**Ventajas:** Simple, mantiene tipos automáticamente
-**Desventajas:** Reescribe todo el archivo en cada guardado
-
-#### TXT: Modo Append (para agregar)
-1. Abrir archivo en modo 'a' (append)
-2. Agregar nueva línea al final
-3. Cerrar archivo
-
-**Ventajas:** Muy rápido, no toca datos existentes
-**Desventajas:** No permite modificar líneas anteriores
-
-#### TXT: Archivo Temporal (para modificar/eliminar)
-1. Crear archivo `.tmp` temporal
-2. Escribir todos los datos en el temporal
-3. Si tiene éxito, reemplazar archivo original con `os.replace()`
-4. Si falla, el original queda intacto
-
-**Ventajas:** Seguridad, no corrompe datos si falla
-**Desventajas:** Más lento, requiere espacio temporal
-
-### Lectura de Archivos
-
-#### JSON: Lectura Completa
 ```python
-archivo = open(ruta, 'r', encoding='UTF-8')
-datos = json.load(archivo)  # Carga TODO en memoria
-archivo.close()
+with open(ruta, 'w', encoding='utf-8') as archivo:
+    json.dump(datos, archivo, indent=4, ensure_ascii=False)
+```
+
+#### TXT: Append para Agregar
+```python
+with open(ruta, 'a', encoding='utf-8') as archivo:
+    archivo.write(f"{nueva_linea}\n")
+```
+
+#### TXT: Archivo Temporal para Modificar
+```python
+# Crear archivo temporal
+with open(temp_ruta, 'w', encoding='utf-8') as temp:
+    for linea in lineas_filtradas:
+        temp.write(f"{linea}\n")
+
+# Reemplazar archivo original
+os.replace(temp_ruta, ruta_original)
+```
+
+### 6.3 Lectura de Datos
+
+#### JSON: Carga Completa
+```python
+with open(ruta, 'r', encoding='utf-8') as archivo:
+    datos = json.load(archivo)
 ```
 
 #### TXT: Lectura Línea por Línea
 ```python
-archivo = open(ruta, 'r', encoding='utf-8')
-linea = archivo.readline()  # Primera línea
-while linea:                # Mientras haya contenido
-    procesar(linea)
-    linea = archivo.readline()  # Siguiente línea
-archivo.close()
+reservas = []
+with open(ruta, 'r', encoding='utf-8') as archivo:
+    for linea in archivo:
+        if linea.strip():  # Ignorar líneas vacías
+            reserva = parsear_reserva_txt(linea.strip())
+            reservas.append(reserva)
 ```
 
-**Ventaja:** Usa menos memoria, procesa mientras lee
+### 6.4 Manejo de Errores
+- **FileNotFoundError**: Archivos inexistentes (normal en primera ejecución)
+- **json.JSONDecodeError**: JSON corrupto o mal formateado
+- **OSError/PermissionError**: Problemas de permisos de archivo
+- **UnicodeDecodeError**: Problemas de codificación
+- **Bloque finally**: Asegura cierre de archivos siempre
 
-### Manejo de Errores en Persistencia
+---
 
-Ambos módulos implementan manejo robusto de errores:
+## 7. Validaciones Implementadas
 
-**Errores capturados:**
-- `FileNotFoundError`: Archivo no existe (normal en primera ejecución)
-- `json.JSONDecodeError`: JSON corrupto o mal formateado
-- `OSError` / `PermissionError`: Problemas de permisos o disco
-- `IOError`: Errores de entrada/salida
+### 7.1 Validaciones Sintácticas (Formato)
+- **DNI**: Patrón regex `^\d{7,8}$`
+- **Teléfono**: Patrón regex `^\d{10}$`
+- **Código departamento**: Patrón regex `^DPTO-\d{4}$`
+- **Fechas**: Patrón regex `^\d{2}/\d{2}/\d{4}$` + validación de calendario
 
-**Estrategia:**
-- Todos los errores se registran con `manejar_error_inesperado()`
-- Las funciones retornan valores seguros (lista vacía o False)
-- Se usa bloque `finally` para asegurar cierre de archivos
+### 7.2 Validaciones Semánticas (Lógica)
+- **Unicidad**: DNI y códigos de departamento únicos en el sistema
+- **Rangos**: Valores positivos para precios y capacidades
+- **Coherencia**: Fecha de ingreso < fecha de egreso
+- **Existencia**: Verificación de IDs válidos
 
-### Comparación: JSON vs TXT
+### 7.3 Validaciones de Negocio
+- **Estados activos**: Cliente y departamento deben estar activos para reservas
+- **No solapamiento**: Reservas no pueden superponerse en mismo departamento
+- **Integridad referencial**: No eliminar entidades con dependencias activas
+- **Cascada**: Cancelación automática de reservas al desactivar entidades
 
-| Característica | JSON | TXT Delimitado |
-|----------------|------|----------------|
-| Legibilidad | ★★★★★ | ★★★☆☆ |
-| Tamaño archivo | Más grande | Más pequeño |
-| Mantiene tipos | Automático | Manual |
-| Append eficiente | No | Sí |
-| Estructura jerárquica | Sí | No |
-| Parsing | Automático | Manual |
-| Validación | Auto-verificable | Propenso a errores |
+### 7.4 Validaciones de Fecha
+- **Formato válido**: DD/MM/YYYY con días y meses correctos
+- **Fechas futuras**: No permitir reservas en fechas pasadas
+- **Períodos válidos**: Duración mínima de 1 día
+- **No solapamiento**: Algoritmo de comparación de rangos de fechas
 
-### Por Qué Esta Separación
+---
 
-**Clientes y Departamentos en JSON:**
-- Estructuras más complejas (diccionarios)
-- Se modifican con menos frecuencia
-- Beneficio de mantener tipos automáticamente
+## 8. Interfaz de Usuario
 
-**Reservas en TXT:**
-- Se agregan constantemente (beneficio de append)
-- Estructura simple (lista de valores)
-- Archivos más livianos
-- Demostración de manejo de archivos de texto plano
+### 8.1 Características Generales
+- **Consola ANSI**: Colores para mejorar experiencia visual
+- **Menús numerados**: Navegación intuitiva con validación de entrada
+- **Tablas formateadas**: Presentación prolija de datos
+- **Confirmaciones**: Diálogos para operaciones críticas
+- **Mensajes contextuales**: Feedback claro para cada operación
 
-## Convenciones de Programación
+### 8.2 Sistema de Colores
+```python
+COLOR_RESET = "\033[0m"
+COLOR_AZUL = "\033[94m"      # Títulos y encabezados
+COLOR_VERDE = "\033[92m"     # Éxitos y confirmaciones
+COLOR_AMARILLO = "\033[93m"  # Advertencias
+COLOR_ROJO = "\033[91m"      # Errores
+COLOR_MAGENTA = "\033[95m"   # Información destacada
+COLOR_CYAN = "\033[96m"      # Entrada de usuario
+```
 
-### Nomenclatura
-- **Variables y funciones**: snake_case (ej: `agregar_cliente`, `lista_clientes`)
-- **Constantes**: UPPER_CASE (ej: `ESTADO_ACTIVO`, `INDICE_ID_RESERVA`)
-- **Archivos**: snake_case con extensión .py
+### 8.3 Estructura de Menús
+- **Menú principal**: 5 opciones principales
+- **Submenús**: Operaciones CRUD específicas por entidad
+- **Navegación**: Retorno automático al menú anterior
+- **Validación**: Entrada numérica con rangos definidos
 
-### Principios de Diseño
-- **Separación de responsabilidades**: UI separada de lógica de negocio
-- **Funciones puras**: Las funciones de dominio no manejan interfaz
-- **Validación temprana**: Datos validados antes del procesamiento
-- **Consistencia**: Mismo patrón para todas las operaciones CRUD
-- **Manejo de errores**: Sistema robusto con `try-except` y un manejador de errores centralizado (`manejo_errores.py`).
+---
 
-### Estados del Sistema
-#### Estados de Reserva
-- `ACTIVO`: Reserva vigente y válida
-- `CANCELADO`: Reserva cancelada (puede reactivarse)
-- `ELIMINADO`: Reserva eliminada (baja fisica)
+## 9. Autenticación y Seguridad
 
-#### Estados de Departamento
-- `"Disponible"`: Listo para nuevas reservas
-- `"Ocupado"`: Con reserva activa actual
-- `"Mantenimiento"`: Temporalmente no disponible
+### 9.1 Sistema de Login
+- **Usuarios predefinidos**: Tupla de credenciales válidas
+- **Máximo 3 intentos**: Bloqueo después de fallos consecutivos
+- **Validación case-sensitive**: Usuario y contraseña exactos
+- **Mensaje de bienvenida**: Confirmación de sesión iniciada
 
-## Credenciales de Acceso
+### 9.2 Credenciales del Sistema
+```python
+USUARIOS = (
+    ("evecent", "evecent1234"),
+    ("baltaa", "baltaa1234"),
+    ("valen", "valen1234"),
+    ("juanagus", "juanagus1234"),
+    ("a", "a") # Solo utilizar para pruebas inmediatas o presentaciones
+)
+```
 
-El sistema incluye 4 usuarios predefinidos:
-- **Usuario**: `evecent` | **Contraseña**: `evecent1234`
-- **Usuario**: `baltaa` | **Contraseña**: `baltaa1234`
-- **Usuario**: `valen` | **Contraseña**: `valen1234`
-- **Usuario**: `juanagus` | **Contraseña**: `juanagus1234`
+---
 
-## Instalación y Ejecución
+## 10. Pruebas Unitarias
 
-### Requisitos
-- Python 3.6 o superior
-- Sistema operativo compatible con códigos de color ANSI (Windows 10+, Linux, macOS)
+### 10.1 Framework Utilizado
+- **pytest**: Framework de testing moderno para Python
+- **Fixtures**: Configuración reutilizable en `conftest.py`
+- **Cobertura**: Validación de rutas de ejecución
 
-### Instrucciones
+### 10.2 Casos de Prueba Implementados
+
+#### Validaciones (`test_validacion.py`)
+- `test_validar_dni()`: DNI válido e inválido
+- `test_validar_telefono()`: Teléfonos de 10 dígitos
+- `test_validar_decimal()`: Validacion de formato decimal apropiado
+- `test_comparar_fechas()`: Validacion de anterioridad, posterioridad, o igualdad de fechas, con excepciones
+
+#### Entrada de datos (`test_entrada_datos.py`)
+- `test_validar_alfabetico()`: Validaciond e input en formato solo alfabetico
+
+#### Clientes (`test_clientes.py`)
+- `test_buscar_dni()`: Busqueda de DNI en clientes
+- `test_buscar_dni_con_excepcion()`: Consulta de fallo con excepcion en busqueda de DNI
+
+#### Reservas (`test_reservas.py`)
+- `test_solapamiento_mismo_dia()`: Validacion de funcionamiento de funcion de solapamientos para reservas
+
+### 10.3 Cobertura de Pruebas
+- **Total de tests**: 8 pruebas unitarias
+- **Casos borde**: Validaciones de límites y errores
+
+---
+
+## 11. Control de Versiones
+
+### 11.1 Git Workflow
+- **Repositorio**: `tpo-grupo7` en GitHub
+- **Rama principal**: `main`
+- **Commits estructurados**: Mensajes descriptivos por funcionalidad
+- **Historial completo**: Desarrollo incremental documentado en el gitlog
+
+### 11.2 .gitignore
+```
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.log
+.DS_Store
+.vscode/
+.idea/
+```
+
+---
+
+## 12. Checklist de Requisitos del Trabajo Práctico
+
+### Primera Entrega - Fundamentos
+
+**✓ Operaciones CRUD**
+- Alta, baja, modificación y consulta para clientes, departamentos y reservas
+- Validaciones completas en todas las operaciones
+- Integridad referencial y estados consistentes
+
+**✓ Matrices (listas de listas)**
+- Reservas implementadas como lista de listas
+- Acceso por índices numéricos (INDICE_ID_RESERVA, etc.)
+- Manipulación matricial en operaciones CRUD
+
+**✓ Listas avanzadas y comprensiones**
+- `[c for c in clientes if c['activo']]` - filtrado de activos
+- `[r[INDICE_ID_CLIENTE] for r in reservas]` - extracción de IDs
+- Comprensiones anidadas para búsquedas complejas
+
+**✓ Operaciones con strings**
+- Concatenación: `f"{nombre} {apellido}"`
+- Slicing: `fecha.split('/')`, `linea.strip()`
+- Métodos: `.upper()`, `.lower()`, `.replace()`
+- Formateo tabular con f-strings
+
+**✓ Funciones lambda (map, filter, reduce)**
+- `map(lambda c: c['id'], clientes)` - extracción de IDs
+- `filter(lambda r: r[INDICE_ESTADO] == 'ACTIVO', reservas)` - filtrado
+- `reduce(lambda acc, r: acc + r[INDICE_DIAS], reservas, 0)` - acumuladores
+
+**✓ Modularización**
+- 4 capas claramente separadas (domain, ui, repository, common)
+- 20 módulos especializados
+- Imports organizados al inicio de cada archivo (a excepcion de `funciones_compartidas.py` para evitar import circulares)
+- Funciones cohesivas y responsabilidades bien definidas
+
+**✓ Expresiones regulares**
+- DNI: `r'^\d{7,8}$'` - validación de 7-8 dígitos
+- Teléfono: `r'^\d{10}$'` - exactamente 10 dígitos
+- Código departamento: `r'^DPTO-\d{4}$'` - formato específico
+- Fecha: `r'^\d{2}/\d{2}/\d{4}$'` - DD/MM/YYYY
+
+**✓ Diccionarios avanzados**
+- Contadores: `{estado: cantidad}` para estadísticas
+- Mapeos: `COLORES = {"AZUL": "\033[94m", ...}`
+- Acumuladores: `reduce()` para frecuencias
+- Configuración: diccionarios para opciones de menú
+
+**✓ Tuplas y sets**
+- Tuplas: `USUARIOS = (("user", "pass"), ...)` - credenciales inmutables
+- Sets: `{r[INDICE_ID_CLIENTE] for r in reservas}` - IDs únicos
+- Retornos múltiples: `return (exito, mensaje)`
+- Operaciones: unión, intersección para validaciones
+
+**✓ Búsquedas relacionales**
+- `listar_departamentos_disponibles(fecha_ini, fecha_fin)` - sin solapamientos
+- `listar_clientes_con_reservas_en_periodo()` - clientes activos en rango
+- `buscar_reservas_por_cliente(id_cliente)` - todas las reservas de un cliente
+- `buscar_reservas_por_departamento(id_depto)` - historial completo
+
+**✓ Funciones estadísticas**
+- Promedios: `sum(dias) / len(reservas)` - duración promedio
+- Máximos: `max(reservas, key=lambda r: r[DIAS])` - reserva más larga
+- Conteos: totales por estado y distribuciones
+- Rankings: cliente/departamento más frecuente
+
+**✓ Control de versiones Git**
+- Repositorio creado e inicializado
+- Commits con mensajes descriptivos
+- Historial de desarrollo documentado
+- .gitignore configurado correctamente
+
+### Segunda Entrega - Mejoras Avanzadas
+
+**✓ CRUD basado en archivos**
+- JSON: `persistence_json.py` - `leer_clientes()`, `guardar_clientes()`
+- TXT: `persistence_txt.py` - `leer_reservas()`, `guardar_reservas_txt()`
+- Append eficiente para reservas: `agregar_reserva_txt()`
+
+**✓ Manejo de excepciones**
+- `manejo_errores.py` - `manejar_error_inesperado()`
+- Captura específica: `FileNotFoundError`, `JSONDecodeError`, `OSError`
+- Bloques `try-except-finally` en toda la capa repository
+- Mensajes de error descriptivos al usuario
+
+**✓ Pruebas unitarias**
+- 8 tests implementados (supera mínimo de 3)
+- `pytest` como framework
+- Fixtures en `conftest.py`
+- Cobertura de algunas funciones críticas y casos borde
+
+**✓ Archivos de texto plano**
+- `reservas.txt` - formato delimitado por `;`
+- Lectura línea por línea: `readline()` en bucle
+- Modo append: `'a'` para agregar sin reescribir
+- Archivo temporal para modificaciones seguras
+
+**✓ Archivos JSON**
+- `clientes.json`, `departamentos.json`
+- `json.load()` para lectura completa
+- `json.dump()` con `indent=4` y `ensure_ascii=False`
+- Mantiene tipos de datos automáticamente
+
+**✓ Recursión (4 funciones)**
+1. `buscar_dni(lista_clientes, dni, indice=0)` - Búsqueda recursiva de DNI en lista de clientes (domain/clientes.py)
+2. `listar_clientes_activos(indice=0, resultado=None)` - Listado recursivo de clientes activos con acumulador (domain/clientes.py)
+3. `buscar_departamento_por_id(id_departamento, indice=0)` - Búsqueda recursiva de departamento por ID (domain/departamentos.py)
+4. `verificar_disponibilidad(lista_reservas, id_depto, fecha_ing, fecha_eg, id_reserva_excluir, indice=0)` - Verificación recursiva de disponibilidad de departamento en rango de fechas (domain/reservas.py)
+
+---
+
+## 13. Instalación y Ejecución
+
+### Requisitos del Sistema
+- **Python**: Versión 3.6 o superior
+- **Sistema operativo**: Windows 10+, Linux, macOS
+- **Terminal**: Soporte para códigos de color ANSI
+
+### Instrucciones de Instalación
 1. Descargar todos los archivos manteniendo la estructura de directorios
-2. Abrir terminal en el directorio principal
+2. Abrir terminal en el directorio raíz del proyecto
 3. Ejecutar: `python main.py`
-4. Usar credenciales proporcionadas para autenticarse
-5. Seguir los menús interactivos
+4. Ingresar credenciales de usuario válidas
+5. Navegar por los menús interactivos
 
 ### Primera Ejecución
-Al ejecutar por primera vez, el sistema detectará que está vacío y cargará automáticamente:
-- 5 clientes de ejemplo
-- 5 departamentos de ejemplo  
-- 7 reservas de ejemplo
+Al ejecutar por primera vez, el sistema:
+- Detecta archivos de datos vacíos
+- Carga automáticamente datos de ejemplo
+- 5 clientes de prueba
+- 5 departamentos de prueba
+- 7 reservas de prueba (pasadas, actuales y futuras)
 
-Los valores mencionados pueden cambiarse en el archivo `poblador.py`.
-## Características Técnicas
+### Comandos de Ejecución
+```bash
+# Desde el directorio raíz
+python main.py
+```
 
-### Interfaz de Usuario
-- **Colores ANSI**: Código de colores para mejor experiencia visual
-- **Menús interactivos**: Validación en tiempo real de opciones
-- **Tablas formateadas**: Presentación profesional de datos
-- **Confirmaciones**: Diálogos de confirmación para operaciones críticas
+---
+
+## 14. Características Técnicas
 
 ### Robustez
-- **Validación exhaustiva**: Múltiples capas de validación de datos
-- **Manejo de errores**: Gestión centralizada de excepciones (`try-except`) para prevenir cierres inesperados (crashes), reportando errores de forma clara al usuario.
-- **Consistencia de datos**: El sistema mantiene siempre un estado válido
-- **Recuperación**: Capacidad de manejar entradas incorrectas sin crash
+- **Validación exhaustiva**: Múltiples capas de validación de entrada
+- **Manejo de errores**: Sistema centralizado de excepciones
+- **Consistencia de datos**: Estados siempre válidos
+- **Recuperación**: Manejo de entradas incorrectas sin crash
 
 ### Escalabilidad
 - **Arquitectura modular**: Fácil extensión de funcionalidades
-- **Separación de responsabilidades**: Lógica de negocio independiente de UI
+- **Separación de responsabilidades**: Lógica independiente de UI
 - **Reutilización**: Funciones comunes centralizadas
 - **Mantenibilidad**: Código claro y bien documentado
 
-## Autor
-**Grupo VII - Programación I**  
-**Fecha**: Noviembre 2025
+### Rendimiento
+- **Lectura eficiente**: Procesamiento línea por línea para archivos grandes
+- **Búsquedas optimizadas**: Índices y algoritmos eficientes
+- **Memoria controlada**: Procesamiento por lotes cuando necesario
 
+---
+
+**Grupo VII - Programación I**  
+**Juan Arias**
+**Baltazar**
+**Evelyn Centurion**
+**Valen**
+**Noviembre 2025**

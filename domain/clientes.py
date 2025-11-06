@@ -2,6 +2,7 @@ from common.generadores import generar_id_unico_diccionario
 from common.constantes import *
 from common.manejo_errores import manejar_error_inesperado
 from repository.persistence_json import leer_clientes, guardar_clientes
+from domain.funciones_compartidas import cancelar_reservas_activas_de_cliente
 
 ENTIDAD_CLIENTES = "Clientes"
 
@@ -126,6 +127,8 @@ def cambiar_estado_cliente(id_cliente, nuevo_estado):
 def baja_logica_cliente(id_cliente):
     """
     Da de baja logica un cliente de la lista de clientes.
+    Antes de dar de baja, cancela todas sus reservas activas para mantener
+    la integridad referencial del sistema.
     
     Parametros:
         id_cliente (int): ID del cliente a dar de baja
@@ -133,17 +136,18 @@ def baja_logica_cliente(id_cliente):
     Retorna:
         bool: True si se dio de baja correctamente, False si no se encontro
     """
-    # Guardar estado anterior para poder revertir
     cliente = buscar_cliente_por_id(id_cliente)
     if not cliente:
         return False
+    
+    # Cancelar todas las reservas activas del cliente
+    cancelar_reservas_activas_de_cliente(id_cliente)
     
     estado_anterior = cliente.get(ACTIVO_CLIENTE, True)
     resultado = cambiar_estado_cliente(id_cliente, False)
     
     if resultado:
         if not guardar_clientes_a_archivo("baja logica cliente"):
-            # Revertir cambios si falla el guardado
             cambiar_estado_cliente(id_cliente, estado_anterior)
             return False
     return resultado    

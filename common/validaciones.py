@@ -254,3 +254,34 @@ def fecha_a_dias(fecha_str):
     # Sumar los dias del mes actual
     total_dias = total_dias + dia
     return total_dias
+
+
+def comparar_fechas_string(fecha1_str, fecha2_str):
+    """
+    Compara dos fechas en formato dd/mm/yyyy.
+    
+    Parametros:
+        fecha1_str (str): Primera fecha en formato "dd/mm/aaaa"
+        fecha2_str (str): Segunda fecha en formato "dd/mm/aaaa"
+    
+    Retorna: int:
+        - -1 si fecha1 < fecha2
+        - 0 si son iguales
+        - 1 si fecha1 > fecha2
+        - None si hay error en las fechas
+    """
+    try:
+        if not validar_fecha(fecha1_str) or not validar_fecha(fecha2_str):
+            raise ValueError("Fecha invalida o mal formateada")
+
+        partes1 = fecha1_str.split('/')
+        partes2 = fecha2_str.split('/')
+
+        fecha1_num = int(partes1[2]) * 10000 + int(partes1[1]) * 100 + int(partes1[0])
+        fecha2_num = int(partes2[2]) * 10000 + int(partes2[1]) * 100 + int(partes2[0])
+
+        if fecha1_num < fecha2_num:
+            return -1
+        return 1 if fecha1_num > fecha2_num else 0
+    except (ValueError, IndexError):
+        return None

@@ -34,7 +34,7 @@ def eliminar_departamento_fisico_ui():
     if ok:
         mostrar_mensaje_exito("Departamento eliminado.")
     else:
-        mostrar_mensaje_error("ID no encontrado.")
+        mostrar_mensaje_error("No se pudo eliminar. Verifique que el ID existe y que no tenga reservas activas.")
 
 
 def pedir_datos_actualizacion_departamento(dep):
@@ -156,7 +156,7 @@ def baja_logica_departamento_ui():
 
     ok = baja_logica_departamento(id_dep)
     if ok:
-        mostrar_mensaje_exito("Departamento marcado como INACTIVO.")
+        mostrar_mensaje_exito("Departamento marcado como INACTIVO. Sus reservas activas fueron canceladas.")
     else:
         mostrar_mensaje_error("ID no encontrado.")
 
