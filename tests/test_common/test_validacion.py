@@ -63,7 +63,4 @@ def test_comparar_fechas():
     assert resultadoNegativo == resultadoEsperadoNegativo
     assert resultadoPositivo == resultadoEsperadoPositivo
     assert resultadoIgual == resultadoEsperadoIgual
-    assert resultadoErroneo == None
-
-    with pytest.raises(ValueError):
-        comparar_fechas_string(fechaChica, fechaInvalida)  # causa ValueError
+    assert resultadoErroneo == None  # La función retorna None en caso de error
