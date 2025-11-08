@@ -17,6 +17,7 @@ from common.constantes import (
 from common.validaciones import comparar_fechas_string
 from common.manejo_errores import manejar_error_inesperado
 
+MODULO = "Funciones compartidas"
 
 def cancelar_reservas_activas_de_cliente(id_cliente):
     """
@@ -98,7 +99,7 @@ def verificar_disponibilidad_departamento_en_fechas(id_departamento, fecha_ingre
     Retorna:
         bool: True si está disponible, False si hay solapamiento o error
     """
-    from domain import reservas  # Import local para evitar ciclo
+    from domain import reservas
     
     try:
         todas_reservas = reservas.obtener_todas_las_reservas()
@@ -119,5 +120,5 @@ def verificar_disponibilidad_departamento_en_fechas(id_departamento, fecha_ingre
 
         return True
     except (TypeError, IndexError) as e:
-        manejar_error_inesperado("Servicios", "verificar disponibilidad departamento", str(e))
+        manejar_error_inesperado(MODULO, "verificar disponibilidad departamento", str(e))
         return False

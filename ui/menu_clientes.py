@@ -5,8 +5,10 @@ import common.entrada_datos as entrada_datos
 
 OPCIONES_MENU_CLIENTES = [
     "Agregar cliente",
-    "Listar clientes",
+    "Listar clientes activos",
+    "Listar todos los clientes",
     "Dar de baja cliente",
+    "Eliminar cliente (FÍSICO)",
     "Modificar cliente",
     "Volver al menu principal"]
 
@@ -25,14 +27,24 @@ def agregar_cliente_ui():
         interfaz.mostrar_mensaje_error("Error: Ya existe un cliente con ese DNI.")
 
 
-def listar_clientes_ui():
-    """Listar clientes activos"""
+def listar_clientes_activos_ui():
+    """Listar solo clientes activos"""
     interfaz.mostrar_subtitulo("LISTA DE CLIENTES ACTIVOS")
     clientes_activos = clientes.listar_clientes_activos()
     if not clientes_activos:
         interfaz.mostrar_mensaje_error("No hay clientes activos.")
         return
-    interfaz.mostrar_lista_clientes_activos(clientes_activos)
+    interfaz.mostrar_lista_clientes(clientes_activos)
+
+
+def listar_clientes_ui():
+    """Listar todos los clientes (activos e inactivos)"""
+    interfaz.mostrar_subtitulo("LISTA DE TODOS LOS CLIENTES")
+    todos_clientes = clientes.obtener_copia_clientes()
+    if not todos_clientes:
+        interfaz.mostrar_mensaje_error("No hay clientes registrados.")
+        return
+    interfaz.mostrar_lista_clientes(todos_clientes)
 
 
 def baja_logica_cliente_ui():
@@ -44,7 +56,7 @@ def baja_logica_cliente_ui():
         interfaz.mostrar_mensaje_error("No hay clientes activos para dar de baja.")
         return
 
-    interfaz.mostrar_lista_clientes_activos(activos)
+    interfaz.mostrar_lista_clientes(activos)
     id_cliente = entrada_datos.seleccionar_elemento_de_lista(activos, ID_CLIENTE,
                                                              "Seleccione el ID del cliente a eliminar")
 
@@ -52,6 +64,29 @@ def baja_logica_cliente_ui():
         interfaz.mostrar_mensaje_exito("Cliente dado de baja correctamente. Sus reservas activas fueron canceladas.")
     else:
         interfaz.mostrar_mensaje_error("Cliente no encontrado o ya inactivo.")
+
+
+def eliminar_cliente_fisico_ui():
+    """Eliminar un cliente de forma permanente"""
+    interfaz.mostrar_subtitulo("ELIMINAR CLIENTE (FÍSICO)")
+    
+    todos_clientes = clientes.obtener_copia_clientes()
+    if not todos_clientes:
+        interfaz.mostrar_mensaje_error("No hay clientes para eliminar.")
+        return
+    
+    interfaz.mostrar_lista_clientes(todos_clientes)
+    id_cliente = entrada_datos.seleccionar_elemento_de_lista(todos_clientes, ID_CLIENTE,
+                                                             "Seleccione el ID del cliente a eliminar")
+    
+    if not entrada_datos.confirmar_accion("¿Está seguro de eliminar definitivamente este cliente?"):
+        interfaz.mostrar_mensaje_info("Acción cancelada.")
+        return
+    
+    if clientes.eliminar_cliente(id_cliente):
+        interfaz.mostrar_mensaje_exito("Cliente eliminado definitivamente.")
+    else:
+        interfaz.mostrar_mensaje_error("No se pudo eliminar. Verifique que el ID existe y que no tenga reservas activas.")
 
 
 def pedir_datos_actualizacion_cliente(cliente_actual):
@@ -114,13 +149,13 @@ def actualizar_cliente_ui():
     """Maneja el flujo de modificar un cliente"""
     interfaz.mostrar_subtitulo("MODIFICAR CLIENTE")
 
-    activos = clientes.listar_clientes_activos()
-    if not activos:
-        interfaz.mostrar_mensaje_error("No hay clientes activos para modificar.")
+    todos_clientes = clientes.obtener_copia_clientes()
+    if not todos_clientes:
+        interfaz.mostrar_mensaje_error("No hay clientes registrados para modificar.")
         return
 
-    interfaz.mostrar_lista_clientes_activos(activos)
-    id_modificado = entrada_datos.seleccionar_elemento_de_lista(activos, ID_CLIENTE,
+    interfaz.mostrar_lista_clientes(todos_clientes)
+    id_modificado = entrada_datos.seleccionar_elemento_de_lista(todos_clientes, ID_CLIENTE,
                                                                 "Seleccione el ID del cliente a modificar")
 
     cliente_actual = clientes.buscar_cliente_por_id(id_modificado)
@@ -152,12 +187,16 @@ def menu_clientes():
         if opcion == "1":
             agregar_cliente_ui()
         elif opcion == "2":
-            listar_clientes_ui()
+            listar_clientes_activos_ui()
         elif opcion == "3":
-            baja_logica_cliente_ui()
+            listar_clientes_ui()
         elif opcion == "4":
-            actualizar_cliente_ui()
+            baja_logica_cliente_ui()
         elif opcion == "5":
+            eliminar_cliente_fisico_ui()
+        elif opcion == "6":
+            actualizar_cliente_ui()
+        elif opcion == "7":
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
             menuActivo = False
 

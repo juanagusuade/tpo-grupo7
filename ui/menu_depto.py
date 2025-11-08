@@ -177,31 +177,13 @@ def alta_logica_departamento_ui():
         mostrar_mensaje_error("ID no encontrado.")
 
 
-def buscar_departamento_por_id_ui():
-    mostrar_subtitulo("Buscar por ID")
+def listar_departamentos_ui():
+    """Lista todos los departamentos con su estado (activo/inactivo)"""
+    mostrar_subtitulo("LISTA DE DEPARTAMENTOS")
     if not departamentos:
         mostrar_mensaje_info("No hay departamentos cargados.")
         return
-
-    id_dep = pedir_numero_entero("ID a buscar", minimo=1)
-    dep = buscar_departamento_por_id(id_dep)
-    if dep:
-        mostrar_lista_departamentos_detallada([dep], "DEPARTAMENTO ENCONTRADO")
-    else:
-        mostrar_mensaje_error("ID no encontrado.")
-
-
-# Funcion que lista departamentos activos
-def listar_departamentos_activos_ui():
-    mostrar_subtitulo("Listar ACTIVOS")
-    activos = listar_departamentos_activos()
-    mostrar_lista_departamentos_detallada(activos, "DEPARTAMENTOS ACTIVOS")
-
-
-# Funcion que lista todos los departamentos
-def listar_todos_departamentos_ui():
-    mostrar_subtitulo("Listar TODOS")
-    mostrar_lista_departamentos_detallada(departamentos, "TODOS LOS DEPARTAMENTOS")
+    mostrar_lista_departamentos_detallada(departamentos, "LISTA DE DEPARTAMENTOS")
 
 
 def menu_departamentos():
@@ -213,9 +195,7 @@ def menu_departamentos():
         "Eliminar FÍSICO",
         "Baja lógica",
         "Alta lógica",
-        "Buscar por ID",
-        "Listar ACTIVOS",
-        "Listar TODOS",
+        "Listar departamentos",
         "Volver al Menú Principal",
     ]
 
@@ -239,12 +219,8 @@ def menu_departamentos():
         elif elec == 6:
             alta_logica_departamento_ui()
         elif elec == 7:
-            buscar_departamento_por_id_ui()
+            listar_departamentos_ui()
         elif elec == 8:
-            listar_departamentos_activos_ui()
-        elif elec == 9:
-            listar_todos_departamentos_ui()
-        elif elec == 10:
             mostrar_mensaje_info("Volviendo al Menú Principal...")
             continuar_menu = False
 

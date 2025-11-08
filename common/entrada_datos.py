@@ -94,7 +94,7 @@ def pedir_fecha_con_validacion(prompt):
     """Pide una fecha con validacion mejorada (para reservas)"""
     return pedir_input_con_validacion(
         f"{prompt} (dd/mm/yyyy)",
-        validar_fecha_ingreso,
+        validar_fecha,
         "Fecha invalida. Use formato dd/mm/yyyy"
     )
 

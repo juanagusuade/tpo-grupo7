@@ -4,12 +4,13 @@ import domain.clientes as clientes
 import domain.departamentos as departamentos
 import domain.reservas as reservas
 from common.constantes import *
-from common.validaciones import validar_fecha_ingreso
+from common.validaciones import validar_fecha
 
 opciones = [
     "Agregar Reserva",
     "Modificar Reserva",
     "Cancelar Reserva",
+    "Eliminar Reserva (FÍSICO)",
     "Buscar Reservas",
     "Listar Todas las Reservas Activas",
     "Listar Todas las Reservas",
@@ -141,14 +142,14 @@ def actualizar_reserva_ui():
 
     nueva_fecha_ingreso = input_datos.pedir_input_con_validacion(
         f"Nueva fecha de ingreso ({reserva[INDICE_FECHA_INGRESO]})",
-        validar_fecha_ingreso,
+        validar_fecha,
         "Fecha de ingreso invalida",
         es_opcional=True
     )
 
     nueva_fecha_egreso = input_datos.pedir_input_con_validacion(
         f"Nueva fecha de egreso ({reserva[INDICE_FECHA_EGRESO]})",
-        validar_fecha_ingreso,
+        validar_fecha,
         "Fecha de egreso invalida",
         es_opcional=True
     )
@@ -183,6 +184,42 @@ def cancelar_reserva_ui():
             interfaz.mostrar_mensaje_error("Error al cancelar la reserva")
     else:
         interfaz.mostrar_mensaje_info("Operacion cancelada")
+
+
+def eliminar_reserva_fisica_ui():
+    """Permite eliminar una reserva de forma permanente"""
+    interfaz.mostrar_titulo_seccion("ELIMINAR RESERVA (FÍSICO)")
+    
+    todas_reservas = reservas.obtener_todas_las_reservas()
+    if not todas_reservas:
+        interfaz.mostrar_mensaje_error("No hay reservas para eliminar.")
+        return
+    
+    # Mostrar todas las reservas usando el formato de la función existente
+    listar_todas_las_reservas_ui()
+    
+    id_reserva = input_datos.pedir_numero_entero("ID de la reserva a eliminar", minimo=1)
+    
+    reserva = reservas.buscar_reserva_por_id(id_reserva)
+    if not reserva:
+        interfaz.mostrar_mensaje_error("Reserva no encontrada.")
+        return
+    
+    cliente = clientes.buscar_cliente_por_id(reserva[INDICE_ID_CLIENTE])
+    departamento = departamentos.buscar_departamento_por_id(reserva[INDICE_ID_DEPARTAMENTO])
+    
+    detalles = (f"Cliente: {cliente[NOMBRE_CLIENTE]} {cliente[APELLIDO_CLIENTE]}\n"
+                f"Departamento: {departamento[UBICACION_DEPARTAMENTO]}\n"
+                f"Periodo: {reserva[INDICE_FECHA_INGRESO]} al {reserva[INDICE_FECHA_EGRESO]}\n"
+                f"Estado: {reserva[INDICE_ESTADO]}")
+    
+    if input_datos.confirmar_operacion("eliminación física de reserva", detalles):
+        if reservas.eliminar_reserva(id_reserva):
+            interfaz.mostrar_mensaje_exito("Reserva eliminada definitivamente.")
+        else:
+            interfaz.mostrar_mensaje_error("Error al eliminar la reserva.")
+    else:
+        interfaz.mostrar_mensaje_info("Operación cancelada.")
 
 
 def mostrar_menu_busqueda():
@@ -405,14 +442,16 @@ def menu_reservas():
         elif opcion == '3':
             cancelar_reserva_ui()
         elif opcion == '4':
-            buscar_reservas_submenu()
+            eliminar_reserva_fisica_ui()
         elif opcion == '5':
-            listar_reservas_activas_ui()
+            buscar_reservas_submenu()
         elif opcion == '6':
-            listar_todas_las_reservas_ui()
+            listar_reservas_activas_ui()
         elif opcion == '7':
-            consultar_disponibilidad_ui()
+            listar_todas_las_reservas_ui()
         elif opcion == '8':
+            consultar_disponibilidad_ui()
+        elif opcion == '9':
             interfaz.mostrar_mensaje_info("Volviendo al menu principal...")
             continuar_menu = False
 

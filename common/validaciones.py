@@ -1,5 +1,263 @@
 import re
 
+# ======================= FUNCIONES DE MANEJO DE FECHAS =======================
+# Todas las funciones relacionadas con validacion, comparacion y calculo de fechas
+
+# Constante para el formato de fecha
+FORMATO_FECHA = "dd/mm/aaaa"
+PATRON_FECHA = r"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$"
+
+
+def parsear_fecha(fecha_str):
+    """
+    Parsea una fecha en formato dd/mm/aaaa y retorna sus componentes.
+    
+    Parametros:
+        fecha_str (str): Fecha en formato "dd/mm/aaaa"
+    
+    Retorna:
+        tupla: (dia, mes, anio) como int, o None si el formato es invalido
+    """
+    if not isinstance(fecha_str, str) or '/' not in fecha_str:
+        return None
+    
+    try:
+        partes = fecha_str.split('/')
+        if len(partes) != 3:
+            return None
+        dia = int(partes[0])
+        mes = int(partes[1])
+        anio = int(partes[2])
+        return (dia, mes, anio)
+    except (ValueError, IndexError):
+        return None
+
+
+def formatear_fecha(dia, mes, anio):
+    """
+    Formatea componentes de fecha a string dd/mm/aaaa.
+    
+    Parametros:
+        dia (int): Dia del mes
+        mes (int): Mes (1-12)
+        anio (int): Año
+    
+    Retorna:
+        str: Fecha formateada como "dd/mm/aaaa"
+    """
+    return f"{dia:02d}/{mes:02d}/{anio:04d}"
+
+
+def es_bisiesto(anio):
+    """
+    Verifica si un anio es bisiesto.
+    
+    Parametros:
+        anio (int): Año a verificar
+    
+    Retorna:
+        bool: True si el año es bisiesto
+    """
+    return (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
+
+
+def dias_en_mes(mes, anio):
+    """
+    Devuelve la cantidad de dias de un mes/anio.
+    
+    Parametros:
+        mes (int): Numero de mes (1-12)
+        anio (int): Año
+    
+    Retorna:
+        int: Cantidad de dias del mes
+    """
+    if mes == 2:
+        return 29 if es_bisiesto(anio) else 28
+    elif mes in [4, 6, 9, 11]:
+        return 30
+    else:
+        return 31
+
+
+def validar_fecha(fecha_str):
+    """
+    Valida que un string tenga formato dd/mm/aaaa y represente una fecha valida.
+    Verifica dias validos segun el mes, considerando años bisiestos.
+    
+    Parametros:
+        fecha_str (str): Fecha en formato "dd/mm/aaaa"
+    
+    Retorna:
+        bool: True si la fecha es valida
+    """
+    if not isinstance(fecha_str, str):
+        return False
+
+    # Validar formato con regex
+    if not re.match(PATRON_FECHA, fecha_str):
+        return False
+
+    # Parsear componentes
+    fecha_parseada = parsear_fecha(fecha_str)
+    if not fecha_parseada:
+        return False
+    
+    dia, mes, anio = fecha_parseada
+
+    # Validar que el dia no exceda los dias del mes
+    return dia <= dias_en_mes(mes, anio)
+
+
+def fecha_a_dias(fecha_str):
+    """
+    Convierte una fecha dd/mm/aaaa a un numero total de dias desde el anio 0.
+    
+    Parametros:
+        fecha_str (str): Fecha en formato "dd/mm/aaaa"
+    
+    Retorna:
+        int: Numero total de dias desde el año 0
+    """
+    fecha_parseada = parsear_fecha(fecha_str)
+    if not fecha_parseada:
+        return 0
+    
+    dia, mes, anio = fecha_parseada
+
+    # Calcula años normales + años bisiestos adicionales
+    anios_completos = anio - 1
+    dias_anios = anios_completos * 365
+    
+    # Sumar dias extra por años bisiestos (cada 4 años, menos los centenarios que no son múltiplos de 400)
+    bisiestos = anios_completos // 4 - anios_completos // 100 + anios_completos // 400
+    dias_anios += bisiestos
+
+    # Sumar los dias de los meses completos del año actual
+    dias_meses = sum(dias_en_mes(m, anio) for m in range(1, mes))
+
+    # Sumar los dias del mes actual
+    return dias_anios + dias_meses + dia
+
+
+def comparar_fechas_string(fecha1_str, fecha2_str):
+    """
+    Compara dos fechas en formato dd/mm/yyyy.
+    
+    Parametros:
+        fecha1_str (str): Primera fecha en formato "dd/mm/aaaa"
+        fecha2_str (str): Segunda fecha en formato "dd/mm/aaaa"
+    
+    Retorna: int:
+        - -1 si fecha1 < fecha2
+        - 0 si son iguales
+        - 1 si fecha1 > fecha2
+        - None si hay error en las fechas
+    """
+    try:
+        if not validar_fecha(fecha1_str) or not validar_fecha(fecha2_str):
+            raise ValueError("Fecha invalida o mal formateada")
+
+        fecha1 = parsear_fecha(fecha1_str)
+        fecha2 = parsear_fecha(fecha2_str)
+        
+        if not fecha1 or not fecha2:
+            return None
+
+        dia1, mes1, anio1 = fecha1
+        dia2, mes2, anio2 = fecha2
+        
+        # Comparar primero por año, luego mes, finalmente día
+        if anio1 < anio2:
+            return -1
+        if anio1 > anio2:
+            return 1
+        
+        if mes1 < mes2:
+            return -1
+        if mes1 > mes2:
+            return 1
+        
+        if dia1 < dia2:
+            return -1
+        if dia1 > dia2:
+            return 1
+        
+        return 0  # Son iguales
+    except (ValueError, IndexError):
+        return None
+
+
+def diferencia_dias(fecha_inicio_str, fecha_fin_str):
+    """
+    Calcula la diferencia en dias entre dos fechas.
+    
+    Parametros:
+        fecha_inicio_str (str): Fecha inicial en formato "dd/mm/aaaa"
+        fecha_fin_str (str): Fecha final en formato "dd/mm/aaaa"
+    
+    Retorna:
+        int: Cantidad de dias entre las fechas (puede ser negativo si fecha_fin < fecha_inicio)
+        None si hay error en las fechas
+    """
+    try:
+        if not validar_fecha(fecha_inicio_str) or not validar_fecha(fecha_fin_str):
+            return None
+        
+        dias_inicio = fecha_a_dias(fecha_inicio_str)
+        dias_fin = fecha_a_dias(fecha_fin_str)
+        
+        return dias_fin - dias_inicio
+    except (ValueError, TypeError):
+        return None
+
+
+def sumar_dias(fecha_str, cantidad_dias):
+    """
+    Suma una cantidad de dias a una fecha.
+    
+    Parametros:
+        fecha_str (str): Fecha base en formato "dd/mm/aaaa"
+        cantidad_dias (int): Cantidad de dias a sumar (puede ser negativo para restar)
+    
+    Retorna:
+        str: Nueva fecha en formato "dd/mm/aaaa", o None si hay error
+    """
+    try:
+        if not validar_fecha(fecha_str):
+            return None
+        
+        fecha = parsear_fecha(fecha_str)
+        if not fecha:
+            return None
+        
+        dia, mes, anio = fecha
+        
+        # Sumar/restar dias
+        dia += cantidad_dias
+        
+        # Ajustar mientras el dia sea invalido
+        while dia > dias_en_mes(mes, anio):
+            dia -= dias_en_mes(mes, anio)
+            mes += 1
+            if mes > 12:
+                mes = 1
+                anio += 1
+        
+        while dia < 1:
+            mes -= 1
+            if mes < 1:
+                mes = 12
+                anio -= 1
+            dia += dias_en_mes(mes, anio)
+        
+        return formatear_fecha(dia, mes, anio)
+    except (ValueError, TypeError):
+        return None
+
+
+# ======================= FUNCIONES DE VALIDACION GENERAL =======================
+
 def campos_son_validos(*campos):
     """
     Verifica que los campos no sean None ni vacios.
@@ -139,149 +397,3 @@ def validar_telefono(tel):
         if caracter not in caracteres_validos:
             return False
     return True
-
-
-# --- Funciones de Validacion y Calculo de Fechas ---
-
-def validar_fecha(fecha_str):
-    """
-    Valida que un string tenga formato dd/mm/aaaa y represente una fecha valida.
-    Verifica dias validos segun el mes, considerando años bisiestos.
-    
-    Parametros:
-        fecha_str (str): Fecha en formato "dd/mm/aaaa"
-    
-    Retorna:
-        bool: True si la fecha es valida
-    """
-    if type(fecha_str) != str:
-        return False
-
-    patron_de_fecha = r"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$"
-    if not re.match(patron_de_fecha, fecha_str):
-        return False
-
-    partes = fecha_str.split('/')
-    dia = int(partes[0])
-    mes = int(partes[1])
-    anio = int(partes[2])
-
-    dias_por_mes = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    es_bisiesto = (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
-    if es_bisiesto:
-        dias_por_mes[1] = 29
-
-    return dia <= dias_por_mes[mes - 1]
-
-
-def validar_fecha_ingreso(fecha):
-    """
-    Valida formato de fecha usando regex (para reservas).
-    
-    Parametros:
-        fecha (str): Fecha en formato "dd/mm/aaaa"
-    
-    Retorna:
-        bool: True si la fecha tiene formato valido
-    """
-    patron_fecha = r'^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/(19|20)\d{2}$'
-    return re.match(patron_fecha, fecha) is not None and validar_fecha(fecha)
-
-
-def es_bisiesto(anio):
-    """
-    Verifica si un anio es bisiesto.
-    
-    Parametros:
-        anio (int): Año a verificar
-    
-    Retorna:
-        bool: True si el año es bisiesto
-    """
-    return (anio % 4 == 0 and anio % 100 != 0) or (anio % 400 == 0)
-
-
-def dias_en_mes(mes, anio):
-    """
-    Devuelve la cantidad de dias de un mes/anio.
-    
-    Parametros:
-        mes (int): Numero de mes (1-12)
-        anio (int): Año
-    
-    Retorna:
-        int: Cantidad de dias del mes
-    """
-    if mes == 2:
-        return 29 if es_bisiesto(anio) else 28
-    elif mes in [4, 6, 9, 11]:
-        return 30
-    else:
-        return 31
-
-
-def fecha_a_dias(fecha_str):
-    """
-    Convierte una fecha dd/mm/yyyy a un numero total de dias desde el anio 0.
-    Utiliza un algoritmo que suma los dias de todos los años anteriores,
-    luego los meses completos del año actual, y finalmente los dias del mes actual.
-    
-    Parametros:
-        fecha_str (str): Fecha en formato "dd/mm/aaaa"
-    
-    Retorna:
-        int: Numero total de dias desde el año 0
-    """
-    partes = fecha_str.split('/')
-    dia = int(partes[0])
-    mes = int(partes[1])
-    anio = int(partes[2])
-
-    total_dias = 0
-    
-    # Sumar todos los dias de los años completos anteriores
-    y = 1
-    while y < anio:
-        total_dias = total_dias + (366 if es_bisiesto(y) else 365)
-        y = y + 1
-
-    # Sumar los dias de los meses completos del año actual
-    m = 1
-    while m < mes:
-        total_dias = total_dias + dias_en_mes(m, anio)
-        m = m + 1
-
-    # Sumar los dias del mes actual
-    total_dias = total_dias + dia
-    return total_dias
-
-
-def comparar_fechas_string(fecha1_str, fecha2_str):
-    """
-    Compara dos fechas en formato dd/mm/yyyy.
-    
-    Parametros:
-        fecha1_str (str): Primera fecha en formato "dd/mm/aaaa"
-        fecha2_str (str): Segunda fecha en formato "dd/mm/aaaa"
-    
-    Retorna: int:
-        - -1 si fecha1 < fecha2
-        - 0 si son iguales
-        - 1 si fecha1 > fecha2
-        - None si hay error en las fechas
-    """
-    try:
-        if not validar_fecha(fecha1_str) or not validar_fecha(fecha2_str):
-            raise ValueError("Fecha invalida o mal formateada")
-
-        partes1 = fecha1_str.split('/')
-        partes2 = fecha2_str.split('/')
-
-        fecha1_num = int(partes1[2]) * 10000 + int(partes1[1]) * 100 + int(partes1[0])
-        fecha2_num = int(partes2[2]) * 10000 + int(partes2[1]) * 100 + int(partes2[0])
-
-        if fecha1_num < fecha2_num:
-            return -1
-        return 1 if fecha1_num > fecha2_num else 0
-    except (ValueError, IndexError):
-        return None

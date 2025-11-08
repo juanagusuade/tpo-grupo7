@@ -606,16 +606,14 @@ python main.py
 - **Reutilización**: Funciones comunes centralizadas
 - **Mantenibilidad**: Código claro y bien documentado
 
-### Rendimiento
-- **Lectura eficiente**: Procesamiento línea por línea para archivos grandes
-- **Búsquedas optimizadas**: Índices y algoritmos eficientes
-- **Memoria controlada**: Procesamiento por lotes cuando necesario
-
 ---
 
 **Grupo VII - Programación I**  
-**Juan Arias**
-**Baltazar**
-**Evelyn Centurion**
-**Valen**
+
+**Integrantes:**
+- *Juan Arias* 
+- *Baltazar Garcia* 
+- *Evelyn Centurion* 
+- *Valentin Longas* 
+
 **Noviembre 2025**
