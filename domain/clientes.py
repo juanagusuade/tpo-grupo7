@@ -325,19 +325,19 @@ def obtener_copia_clientes():
 def listar_clientes_activos(indice=0, resultado=None):
     """
     RECURSIVA
-    Lista recursivamente todos los clientes activos.
+    Retorna una lista de clientes activos de forma recursiva.
     
     Parametros:
         indice (int): Indice actual en la recursion
         resultado (list): Lista acumuladora de clientes activos
     
     Retorna:
-        list: Lista de diccionarios con clientes activos
+        list: Lista de clientes activos
     """
+    if resultado is None:
+        resultado = []
+    
     try:
-        if resultado is None:
-            resultado = []
-        
         if indice >= len(clientes):
             return resultado
         
@@ -345,8 +345,38 @@ def listar_clientes_activos(indice=0, resultado=None):
             resultado.append(clientes[indice])
         
         return listar_clientes_activos(indice + 1, resultado)
-    except KeyError:
-        manejar_error_inesperado(ENTIDAD_CLIENTES, "listar activos", "Datos de cliente corruptos.")
+    except (IndexError, TypeError):
+        manejar_error_inesperado(ENTIDAD_CLIENTES, "listar clientes activos (recursion)")
+        return resultado
+
+
+def obtener_ids_clientes():
+    """
+    Obtiene todos los IDs de los clientes usando map().
+    
+    Retorna:
+        list: Lista con todos los IDs de clientes
+    """
+    try:
+        return list(map(lambda cliente: cliente[ID_CLIENTE], clientes))
+    except (KeyError, TypeError):
+        manejar_error_inesperado(ENTIDAD_CLIENTES, "obtener IDs de clientes")
+        return []
+
+
+def obtener_ids_clientes_activos():
+    """
+    Obtiene los IDs de los clientes activos usando map() y filter().
+    Demuestra el uso de programacion funcional combinada.
+    
+    Retorna:
+        list: Lista con IDs de clientes activos
+    """
+    try:
+        clientes_activos = filter(lambda c: c.get(ACTIVO_CLIENTE, False), clientes)
+        return list(map(lambda c: c[ID_CLIENTE], clientes_activos))
+    except (KeyError, TypeError):
+        manejar_error_inesperado(ENTIDAD_CLIENTES, "obtener IDs de clientes activos")
         return []
 
 

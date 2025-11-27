@@ -11,21 +11,23 @@ https://github.com/juanagusuade/tpo-grupo7
 
 ## 1. Definición del Proyecto
 
-El Sistema de Gestión de Alquileres Temporarios es una aplicación de consola desarrollada en Python que permite administrar eficientemente el alquiler temporal de departamentos. El sistema facilita el control de unidades disponibles, la gestión integral de clientes y la organización de reservas con validaciones exhaustivas.
+El Sistema de Gestión de Alquileres Temporarios es una aplicación desarrollada en Python con interfaz gráfica  (Flet) que permite administrar eficientemente el alquiler temporal de departamentos. El sistema facilita el control de unidades disponibles, la gestión integral de clientes y la organización de reservas con validaciones exhaustivas.
 
 ### Objetivos Principales
 - Automatizar el proceso de registro, asignación y seguimiento de estadías
 - Garantizar la integridad de datos mediante validaciones múltiples
 - Proporcionar persistencia robusta de información
 - Implementar arquitectura modular y mantenible
+- Ofrecer interfaz gráfica intuitiva y moderna
 - Demostrar técnicas avanzadas de programación funcional
 
 ### Alcance del Sistema
 - **Entidades**: Clientes, Departamentos, Reservas
 - **Operaciones**: CRUD completo para todas las entidades
 - **Persistencia**: Archivos JSON y TXT delimitado
-- **Interfaz**: Consola con colores ANSI
+- **Interfaz**: GUI moderna con Flet (Material Design)
 - **Validaciones**: Sintácticas, semánticas y de negocio
+- **Autenticación**: Sistema de login con límite de intentos
 
 ---
 
@@ -34,7 +36,7 @@ El Sistema de Gestión de Alquileres Temporarios es una aplicación de consola d
 ### Estructura de Directorios
 ```
 sistema-alquileres/
-├── main.py                    # Punto de entrada y autenticación
+├── main.py                    # Punto de entrada y lanzamiento de GUI
 ├── README.md                  # Documentación del proyecto
 ├── data/                      # Archivos de persistencia
 │   ├── clientes.json          # Clientes en formato JSON
@@ -44,16 +46,18 @@ sistema-alquileres/
 │   ├── clientes.py            # Operaciones CRUD de clientes
 │   ├── departamentos.py       # Operaciones CRUD de departamentos
 │   ├── reservas.py            # Operaciones CRUD de reservas
-│   └── servicios.py           # Coordinación entre entidades (evita imports circulares)
-├── ui/                        # Interfaz de usuario (capa presentación)
-│   ├── menu_clientes.py       # Menús de gestión de clientes
-│   ├── menu_depto.py          # Menús de gestión de departamentos
-│   ├── menu_reservas.py       # Menús de gestión de reservas
-│   └── menu_estadisticas.py   # Menús de estadísticas y reportes
+│   └── funciones_compartidas.py  # Coordinación entre entidades (evita imports circulares)
+├── ui/                        # Interfaz gráfica (capa presentación)
+│   ├── gui_app.py             # Aplicación principal y routing
+│   └── pages/                 # Páginas de la aplicación
+│       ├── login_page.py      # Vista de autenticación
+│       ├── home_page.py       # Dashboard principal
+│       ├── clientes_page.py   # Gestión de clientes
+│       ├── deptos_page.py     # Gestión de departamentos
+│       ├── reservas_page.py   # Gestión de reservas
+│       └── estadisticas_page.py # Estadísticas y reportes
 ├── common/                    # Utilidades compartidas
 │   ├── constantes.py          # Constantes y configuraciones
-│   ├── interfaz.py            # Funciones de presentación UI
-│   ├── entrada_datos.py       # Validación y entrada de datos
 │   ├── validaciones.py        # Validaciones específicas
 │   ├── generadores.py         # Generadores de IDs únicos
 │   ├── poblador.py            # Datos de ejemplo iniciales
@@ -354,38 +358,74 @@ with open(ruta, 'r', encoding='utf-8') as archivo:
 ## 8. Interfaz de Usuario
 
 ### 8.1 Características Generales
-- **Consola ANSI**: Colores para mejorar experiencia visual
-- **Menús numerados**: Navegación intuitiva con validación de entrada
-- **Tablas formateadas**: Presentación prolija de datos
-- **Confirmaciones**: Diálogos para operaciones críticas
-- **Mensajes contextuales**: Feedback claro para cada operación
+- **Framework**: Flet (Python GUI framework basado en Flutter)
+- **Diseño**: Material Design 3 con componentes modernos
+- **Navegación**: Sistema de routing entre vistas
+- **Interactividad**: Diálogos modales, snackbars, y formularios reactivos
+- **Responsividad**: Scroll automático y diseño adaptativo
+- **Feedback visual**: Mensajes contextuales y confirmaciones
 
-### 8.2 Sistema de Colores
-```python
-COLOR_RESET = "\033[0m"
-COLOR_AZUL = "\033[94m"      # Títulos y encabezados
-COLOR_VERDE = "\033[92m"     # Éxitos y confirmaciones
-COLOR_AMARILLO = "\033[93m"  # Advertencias
-COLOR_ROJO = "\033[91m"      # Errores
-COLOR_MAGENTA = "\033[95m"   # Información destacada
-COLOR_CYAN = "\033[96m"      # Entrada de usuario
-```
+### 8.2 Componentes Principales
 
-### 8.3 Estructura de Menús
-- **Menú principal**: 5 opciones principales
-- **Submenús**: Operaciones CRUD específicas por entidad
-- **Navegación**: Retorno automático al menú anterior
-- **Validación**: Entrada numérica con rangos definidos
+#### Login (`login_page.py`)
+- Autenticación con credenciales predefinidas
+- Límite de 3 intentos fallidos
+- Contador visible de intentos restantes
+- Cierre automático tras exceder intentos
+- Campos con validación en tiempo real
+
+#### Dashboard (`home_page.py`)
+- Navegación centralizada a todos los módulos
+- Botones de acceso rápido
+- Logout seguro
+
+#### Gestión de Clientes (`clientes_page.py`)
+- Tabla interactiva con datos de clientes
+- Botones de acción contextual (Editar, Baja, Alta, Eliminar)
+- Diálogos modales para agregar/editar
+- Estados visuales (Activo/Inactivo) con colores
+- Confirmaciones para acciones destructivas
+- Validación de integridad referencial
+
+#### Gestión de Departamentos (`deptos_page.py`)
+- Visualización de departamentos con estado doble (Lógico y Ocupación)
+- CRUD completo con validaciones
+- Gestión de estado de ocupación (Disponible/Ocupado/Mantenimiento)
+- Confirmaciones para bajas y eliminaciones
+
+#### Gestión de Reservas (`reservas_page.py`)
+- Lista de reservas con información detallada
+- **Auto-formato de fechas**: Separadores automáticos al escribir fechas (dd/mm/aaaa)
+- Dropdowns inteligentes (solo clientes/deptos activos)
+- Acciones por estado (Cancelar, Reactivar, Eliminar)
+- Validación de disponibilidad en tiempo real
+
+#### Estadísticas (`estadisticas_page.py`)
+- Tarjetas visuales con KPIs principales
+- Tabla de ocupación por departamento
+- Cálculo dinámico de métricas
+- Diseño tipo dashboard
+
+### 8.3 Patrones de Interacción
+- **Navegación**: Botón "Atrás" en todas las vistas secundarias
+- **Diálogos**: Confirmación para operaciones críticas
+- **Feedback**: Snackbars para resultado de operaciones
+- **Scroll**: Desplazamiento automático en listas largas
+- **Validación**: Tiempo real en campos de entrada
 
 ---
 
 ## 9. Autenticación y Seguridad
 
 ### 9.1 Sistema de Login
-- **Usuarios predefinidos**: Tupla de credenciales válidas
-- **Máximo 3 intentos**: Bloqueo después de fallos consecutivos
-- **Validación case-sensitive**: Usuario y contraseña exactos
-- **Mensaje de bienvenida**: Confirmación de sesión iniciada
+- **Vista de autenticación**: Interfaz gráfica dedicada (`login_page.py`)
+- **Usuarios predefinidos**: Tupla de credenciales válidas en `common/constantes.py`
+- **Máximo 3 intentos**: Sistema de conteo con feedback visual
+- **Contador visible**: Muestra intentos restantes en tiempo real
+- **Cierre automático**: Aplicación se cierra tras 3 intentos fallidos
+- **Validación inmediata**: Feedback instantáneo de credenciales incorrectas
+- **Limpieza de campos**: Se limpian automáticamente tras intento fallido
+- **Sesión persistente**: Almacenamiento en `page.session` durante navegación
 
 ### 9.2 Credenciales del Sistema
 ```python
@@ -568,23 +608,32 @@ __pycache__/
 
 ### Requisitos del Sistema
 - **Python**: Versión 3.6 o superior
+- **Flet**: Framework GUI (se instala vía pip)
 - **Sistema operativo**: Windows 10+, Linux, macOS
-- **Terminal**: Soporte para códigos de color ANSI
+- **Resolución**: Mínimo 1024x768 recomendado
 
-### Instrucciones de Instalación
+### Instalación de Dependencias
+```bash
+pip install flet
+```
+
+### Instrucciones de Ejecución
 1. Descargar todos los archivos manteniendo la estructura de directorios
-2. Abrir terminal en el directorio raíz del proyecto
-3. Ejecutar: `python main.py`
-4. Ingresar credenciales de usuario válidas
-5. Navegar por los menús interactivos
+2. Instalar Flet: `pip install flet`
+3. Abrir terminal en el directorio raíz del proyecto
+4. Ejecutar: `python main.py`
+5. Ingresar credenciales de usuario válidas en la ventana de login
+6. Navegar por la interfaz gráfica usando los botones
 
 ### Primera Ejecución
 Al ejecutar por primera vez, el sistema:
+- Abre una ventana gráfica con la pantalla de login
 - Detecta archivos de datos vacíos
-- Carga automáticamente datos de ejemplo
-- 5 clientes de prueba
-- 5 departamentos de prueba
-- 7 reservas de prueba (pasadas, actuales y futuras)
+- Carga automáticamente datos de ejemplo:
+  - 5 clientes de prueba
+  - 5 departamentos de prueba
+  - 7 reservas de prueba (pasadas, actuales y futuras)
+- Muestra el dashboard principal tras autenticación exitosa
 
 ### Comandos de Ejecución
 ```bash

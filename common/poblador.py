@@ -2,7 +2,6 @@ import random
 import domain.clientes as clientes
 import domain.departamentos as departamentos
 import domain.reservas as reservas
-import common.interfaz as interfaz
 from common.constantes import (
     ID_CLIENTE, ID_DEPARTAMENTO, 
     ESTADO_DISPONIBLE, ESTADO_OCUPADO, ESTADO_MANTENIMIENTO
@@ -275,7 +274,7 @@ def poblar_datos_iniciales(num_clientes=16, num_deptos=12, num_reservas=24):
         num_reservas (int): Cantidad de reservas a intentar generar
     """
     if not clientes.listar_clientes_activos():
-        interfaz.mostrar_mensaje_info("Sistema vacio. Cargando datos de ejemplo...")
+        print("[i] INFO: Sistema vacio. Cargando datos de ejemplo...")
 
         # Poblar clientes y departamentos (con estados variados)
         poblar_clientes(num_clientes)
@@ -313,10 +312,10 @@ def poblar_datos_iniciales(num_clientes=16, num_deptos=12, num_reservas=24):
         deptos_modificados = cambiar_estados_departamentos(2)
 
         # Mostrar resumen
-        interfaz.mostrar_mensaje_exito(
-            f"Datos cargados:\n" +
+        print(
+            f"\n[✓] EXITO: Datos cargados:\n" +
             f"  - {num_clientes} clientes ({clientes_inactivos} dados de baja)\n" +
             f"  - {num_deptos} departamentos ({deptos_modificados} modificados)\n" +
             f"  - {reservas_creadas} reservas ({reservas_actuales} actuales, {reservas_futuras_total} futuras)\n" +
-            f"  - {reservas_canceladas} reservas canceladas"
+            f"  - {reservas_canceladas} reservas canceladas\n"
         )
