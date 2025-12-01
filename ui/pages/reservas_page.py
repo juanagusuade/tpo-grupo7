@@ -233,6 +233,8 @@ def vista_reservas(page: ft.Page):
         
         page.open(dialogo_agregar)
 
+    cargar_reservas()    
+
     return ft.View(
         "/reservas",
         [
